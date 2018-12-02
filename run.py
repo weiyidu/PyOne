@@ -127,9 +127,7 @@ def _thunbnail(id,user):
     r=requests.get(url,headers=headers)
     data=json.loads(r.content)
     if data.get('large').get('url'):
-        # return data.get('large').get('url').replace('thumbnail','videotranscode').replace('&width=800&height=800','')+'&format=dash&track=audio&transcodeAhead=0&part=initsegment&quality=audhigh'
         return data.get('large').get('url')
-        # return data.get('large').get('url').replace('thumbnail','videotranscode').replace('&width=800&height=800','')+'&format=dash&track=audio&transcodeAhead=0&part=initsegment&quality=audhigh'
     else:
         return False
 
@@ -139,44 +137,39 @@ def _getdownloadurl(id,user):
     token=GetToken(user=user)
     filename=GetName(id)
     ext=filename.split('.')[-1].lower()
-    headers={'Authorization':'bearer {}'.format(token),'Content-type':'application/json'}
-    url=app_url+'v1.0/me/drive/items/'+id
-    r=requests.get(url,headers=headers)
-    data=json.loads(r.content)
-    if data.get('@microsoft.graph.downloadUrl'):
-        downloadUrl=data.get('@microsoft.graph.downloadUrl')
-    else:
-        downloadUrl=False
     if ext in ['webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-        play_url=_thunbnail(id,user)
-        play_url=play_url.replace('thumbnail','videomanifest').replace('&width=800&height=800','')+'&part=index&format=dash&useScf=True&pretranscode=0&transcodeahead=0'
-        play_url=re.sub('inputFormat=.*?&','inputFormat=mp4&',play_url)
-        # downloadUrl=downloadUrl.replace('thumbnail','videomanifest').replace('&width=800&height=800','')+'&part=index&format=dash&useScf=True&pretranscode=0&transcodeahead=0'
+        downloadUrl=_thunbnail(id,user)
+        downloadUrl=downloadUrl.replace('thumbnail','videomanifest')+'&part=index&format=dash&useScf=True&pretranscode=0&transcodeahead=0'
+        return downloadUrl
     else:
-        play_url=downloadUrl
-    return downloadUrl,play_url
+        headers={'Authorization':'bearer {}'.format(token),'Content-type':'application/json'}
+        url=app_url+'v1.0/me/drive/items/'+id
+        r=requests.get(url,headers=headers)
+        data=json.loads(r.content)
+        if data.get('@microsoft.graph.downloadUrl'):
+            return data.get('@microsoft.graph.downloadUrl')
+        else:
+            return False
 
 def GetDownloadUrl(id,user):
-    key_='downloadUrl:{}'.format(id)
-    if rd.exists(key_):
-        downloadUrl,play_url,ftime=rd.get(key_).split('####')
+    if rd.exists('downloadUrl2:{}'.format(id)):
+        downloadUrl,ftime=rd.get('downloadUrl2:{}'.format(id)).split('####')
         if time.time()-int(ftime)>=600:
             # print('{} downloadUrl expired!'.format(id))
-            downloadUrl,play_url=_getdownloadurl(id,user)
+            downloadUrl=_getdownloadurl(id,user)
             ftime=int(time.time())
-            k='####'.join([downloadUrl,play_url,str(ftime)])
-            rd.set(key_,k)
+            k='####'.join([downloadUrl,str(ftime)])
+            rd.set('downloadUrl2:{}'.format(id),k)
         else:
             # print('get {}\'s downloadUrl from cache'.format(id))
             downloadUrl=downloadUrl
-            play_url=play_url
     else:
         # print('first time get downloadUrl from {}'.format(id))
-        downloadUrl,play_url=_getdownloadurl(id,user)
+        downloadUrl=_getdownloadurl(id,user)
         ftime=int(time.time())
-        k='####'.join([downloadUrl,play_url,str(ftime)])
-        rd.set(key_,k)
-    return downloadUrl,play_url
+        k='####'.join([downloadUrl,str(ftime)])
+        rd.set('downloadUrl2:{}'.format(id),k)
+    return downloadUrl
 
 
 
@@ -256,7 +249,7 @@ def _remote_content(fileid,user):
     if rd.exists(kc):
         return rd.get(kc)
     else:
-        downloadUrl,play_url=GetDownloadUrl(fileid,user)
+        downloadUrl=GetDownloadUrl(fileid,user)
         if downloadUrl:
             r=requests.get(downloadUrl)
             r.encoding='utf-8'
@@ -271,7 +264,6 @@ def has_item(path,name):
     if items.count()==0:
         return False,False,False
     key='has_item$#$#$#$#{}$#$#$#$#{}'.format(path,name)
-    print('get key:{}'.format(key))
     if rd.exists(key):
         values=rd.get(key)
         item,fid,cur=values.split('########')
@@ -421,13 +413,12 @@ def before_request():
 @app.errorhandler(500)
 def page_not_found(e):
     # note that we set the 500 status explicitly
-    return render_template('500.html',cur_user=''), 500
+    return render_template('500.html'), 500
 
 @app.route('/<path:path>',methods=['POST','GET'])
 @app.route('/',methods=['POST','GET'])
 @limiter.limit("200/minute;50/second")
 def index(path='A:/'):
-    path=urllib.unquote(path).replace('&action=play','')
     if path=='favicon.ico':
         return redirect('https://onedrive.live.com/favicon.ico')
     if items.count()==0:
@@ -436,10 +427,6 @@ def index(path='A:/'):
         else:
             #subprocess.Popen('python {} UpdateFile'.format(os.path.join(config_dir,'function.py')),shell=True)
             return make_response('<h1>正在更新数据！如果您是网站管理员，请在后台运行命令：python function.py UpdateFile</h1>')
-    try:
-        path.split(':')
-    except:
-        path='A:/'+path
     #参数
     user,n_path=path.split(':')
     if n_path=='':
@@ -448,14 +435,9 @@ def index(path='A:/'):
     image_mode=request.args.get('image_mode')
     sortby=request.args.get('sortby')
     order=request.args.get('order')
-    action=request.args.get('action','download')
-    # try:
-    #     action=re.findall('action=(.*)',request.url)[0]
-    # except:
-    #     action='download'
     resp,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,dismiss=True)
     if total=='files':
-        return show(resp['id'],user,action)
+        return show(resp['id'],user)
     #是否有密码
     password,_,cur=has_item(path,'.password')
     md5_p=md5(path)
@@ -511,52 +493,43 @@ def index(path='A:/'):
     resp.set_cookie('order',str(order))
     return resp
 
-@app.route('/file/<user>/<fileid>/<action>')
-def show(fileid,user,action='download'):
+@app.route('/file/<user>/<fileid>')
+def show(fileid,user):
     name=GetName(fileid)
     ext=name.split('.')[-1].lower()
     path=GetPath(fileid)
-    url=request.url.replace(':80','').replace(':443','').encode('utf-8').split('?')[0]
-    inner_url='/'+urllib.quote('/'.join(url.split('/')[3:]))
-    if request.method=='POST' or action=='share':
-        print(u'share page:{}'.format(path))
+    if request.method=='POST':
+        url=request.url.replace(':80','').replace(':443','')
         if ext in ['csv','doc','docx','odp','ods','odt','pot','potm','potx','pps','ppsx','ppsxm','ppt','pptm','pptx','rtf','xls','xlsx']:
-            downloadUrl,play_url=GetDownloadUrl(fileid,user)
+            downloadUrl=GetDownloadUrl(fileid,user)
             url = 'https://view.officeapps.live.com/op/view.aspx?src='+urllib.quote(downloadUrl)
             return redirect(url)
         elif ext in ['bmp','jpg','jpeg','png','gif']:
-            return render_template('show/image.html',url=url,inner_url=inner_url,path=path,cur_user=user)
+            return render_template('show/image.html',url=url,path=path,cur_user=user)
         elif ext in ['mp4','webm']:
-            return render_template('show/video.html',url=url,inner_url=inner_url,path=path,cur_user=user)
+            return render_template('show/video.html',url=url,path=path,cur_user=user)
         elif ext in ['mp4','webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-            return render_template('show/video2.html',url=url,inner_url=inner_url,path=path,cur_user=user)
+            return render_template('show/video2.html',url=url,path=path,cur_user=user)
         elif ext in ['avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-            return render_template('show/video2.html',url=url,inner_url=inner_url,path=path,cur_user=user)
+            return render_template('show/video2.html',url=url,path=path,cur_user=user)
         elif ext in ['ogg','mp3','wav']:
-            return render_template('show/audio.html',url=url,inner_url=inner_url,path=path,cur_user=user)
+            return render_template('show/audio.html',url=url,path=path,cur_user=user)
         elif CodeType(ext) is not None:
             content=_remote_content(fileid,user)
-            return render_template('show/code.html',content=content,url=url,inner_url=inner_url,language=CodeType(ext),path=path,cur_user=user)
-        elif name=='.password':
-            return abort(404)
+            return render_template('show/code.html',content=content,url=url,language=CodeType(ext),path=path,cur_user=user)
         else:
-            downloadUrl,play_url=GetDownloadUrl(fileid,user)
+            downloadUrl=GetDownloadUrl(fileid,user)
             return redirect(downloadUrl)
-    print('action:{}'.format(action))
-    if name=='.password':
-        return abort(404)
-    if 'no-referrer' in allow_site or sum([i in referrer for i in allow_site])>0:
-        downloadUrl,play_url=GetDownloadUrl(fileid,user)
-        if ext in ['webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-            if action=='play':
-                resp=redirect(play_url)
-            else:
-                resp=redirect(downloadUrl)
-        else:
-            resp=redirect(play_url)
-        return resp
     else:
-        return abort(404)
+        if 'no-referrer' in allow_site:
+            downloadUrl=GetDownloadUrl(fileid,user)
+            resp=redirect(downloadUrl)
+            return resp
+        elif sum([i in referrer for i in allow_site])>0:
+            downloadUrl=GetDownloadUrl(fileid,user)
+            return redirect(downloadUrl)
+        else:
+            return abort(404)
 
 @app.route('/robot.txt')
 def robot():
@@ -578,7 +551,6 @@ app.register_blueprint(admin_blueprint)
 app.jinja_env.globals['FetchData']=FetchData
 app.jinja_env.globals['path_list']=path_list
 app.jinja_env.globals['CanEdit']=CanEdit
-app.jinja_env.globals['quote']=urllib.quote
 app.jinja_env.globals['len']=len
 app.jinja_env.globals['enumerate']=enumerate
 app.jinja_env.globals['os']=os
@@ -599,7 +571,6 @@ app.jinja_env.globals['ARIA2_SCHEME']=ARIA2_SCHEME
 ################################################################################
 if __name__=='__main__':
     app.run(port=58693,debug=True)
-
 
 
 
