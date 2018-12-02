@@ -41,8 +41,17 @@ function update_config(){
         echo 'ARIA2_SCHEME="http"' >> config.py
     fi
 }
+#11.20
+function del_rubbish(){
+    python -c "from function import *;down_db.delete_many({});"
+}
 
 #执行
+echo "2018.11.20更新版本，修复了磁力链接下载的bug&上传、展示有特殊字符的文件出问题的bug。"
+echo "2018.11.21更新版本，优化磁力下载功能-可选下载文件。"
+echo "本次更新会删除离线下载历史数据"
+del_rubbish
+#之前的更新操作
 install_aria2
 update_config
 supervisorctl -c supervisord.conf restart pyone
@@ -51,6 +60,7 @@ echo "更新完成！"
 echo "  > 1. 检查/data/aria2是否存在。"
 echo "  > 2. 检查aria2是否运行：pgrep 'aria2c'"
 echo "    如果aria2没有运行，运行：sh /data/aria2/aria2.sh start"
+echo "如果重启网站失败，请手动重启！"
 echo "---------------------------------------------------------------"
 echo
 echo "PyOne交流群：864996565"

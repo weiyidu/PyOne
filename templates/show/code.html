@@ -7,11 +7,11 @@
     }
 </style>
 <div class="mdui-container">
-<pre id="editor" >{{content}}</pre>
+<pre id="editor" >{{content|safe}}</pre>
 </div>
 <div class="mdui-textfield">
-  <label class="mdui-textfield-label">下载地址</label>
-  <input class="mdui-textfield-input" type="text" value="{{url}}"/>
+  <label class="mdui-textfield-label">分享地址</label>
+  <input class="mdui-textfield-input" type="text" value="{{url}}?action=share"/>
 </div>
 <a href="{{url}}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
 
