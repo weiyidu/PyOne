@@ -227,7 +227,7 @@ def GetReadMe(path):
         ext='Text'
         readme,_,i=has_item(path,'README.txt')
     if readme!=False:
-        readme=markdown.markdown(readme)
+        readme=markdown.markdown(readme, extensions=['tables'])
     return readme,ext
 
 
@@ -245,7 +245,7 @@ def GetHead(path):
         ext='Text'
         head,_,i=has_item(path,'HEAD.txt')
     if head!=False:
-        head=markdown.markdown(head)
+        head=markdown.markdown(head, extensions=['tables'])
     return head,ext
 
 
@@ -632,7 +632,7 @@ def find(key_word):
             if d['type']=='folder':
                 info['name']='<a href="'+url_for('.index',path=d['path'])+'">'+d['name']+'</a>'
             else:
-                info['name']='<a href="'+url_for('.index',path=d['path'],action='share')+'" target="_blank">'+d['name']+'</a>'   
+                info['name']='<a href="'+url_for('.index',path=d['path'],action='share')+'" target="_blank">'+d['name']+'</a>'
             info['type']=d['type']
             info['lastModtime']=d['lastModtime']
             info['size']=d['size']
