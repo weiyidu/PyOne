@@ -6,6 +6,9 @@ Wiki地址：[https://wiki.pyone.me/](https://wiki.pyone.me/)
 
 QQ交流群：[https://jq.qq.com/?_wv=1027&k=5ypfek0](https://jq.qq.com/?_wv=1027&k=5ypfek0)
 
+TG交流群：[https://t.me/joinchat/JQOOug6MY11gy_MiXTmqIA](https://t.me/joinchat/JQOOug6MY11gy_MiXTmqIA)
+
+
 PyOne论坛：[https://bbs.pyone.me/](https://bbs.pyone.me/)
 
 **有任何问题，先看wiki！wiki找不到解决办法的，再到论坛里提问！**

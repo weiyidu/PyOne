@@ -15,8 +15,14 @@ import random
 import string
 import math
 import urllib
+import signal
+import time
 from shelljob import proc
 
+
+##全局_pid
+global _pid
+_pid=None
 ############功能函数
 def set(key,value,user=GetConfig('default_pan')):
     InfoLogger().print_r('set {}:{}'.format(key,value))
@@ -84,11 +90,21 @@ def stream():
     command=cmd_dict[request.args.get('command')]
     def generate():
         popen=subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+        global _pid
+        _pid=popen.pid
         while not popen.poll():
             msg=popen.stdout.readline()
             if msg=='end':
                 yield "data:end\n\n"
                 break
             yield "data:" + msg + "\n\n"
+            time.sleep(1)
         yield "data:end\n\n"
     return Response(generate(), mimetype= 'text/event-stream')
+
+@admin.teardown_request
+def teardown(exestr):
+    global _pid
+    if _pid is not None:
+        InfoLogger().print_r('kill pid {}'.format(_pid))
+        os.kill(_pid, signal.SIGINT)

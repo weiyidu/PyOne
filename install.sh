@@ -128,4 +128,5 @@ echo "supervisord -c supervisord.conf"
 echo "---------------------------------------------------------------"
 echo
 echo "PyOne交流群：864996565"
+echo "PyOne交流群TG：https://t.me/joinchat/JQOOug6MY11gy_MiXTmqIA"
 
