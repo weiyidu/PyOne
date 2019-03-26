@@ -91,6 +91,7 @@ def stream():
     def generate():
         popen=subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         global _pid
+        tc=TimeCalculator()
         _pid=popen.pid
         while not popen.poll():
             msg=popen.stdout.readline()
@@ -98,7 +99,8 @@ def stream():
                 yield "data:end\n\n"
                 break
             yield "data:" + msg + "\n\n"
-            time.sleep(1)
+            if tc.PassNow()>=3:
+                time.sleep(1)
         yield "data:end\n\n"
     return Response(generate(), mimetype= 'text/event-stream')
 
@@ -108,3 +110,4 @@ def teardown(exestr):
     if _pid is not None:
         InfoLogger().print_r('kill pid {}'.format(_pid))
         os.kill(_pid, signal.SIGINT)
+        _pid=None
