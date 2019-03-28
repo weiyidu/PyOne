@@ -1,5 +1,7 @@
 # PyOne - 基于Python的onedrive文件本地化浏览系统,使用MongoDB缓存文件
 
+![icon](https://ww3.sinaimg.cn/large/0074MymAly1g1ipmf4vj6j305402djr6.jpg)
+
 Demo地址：[https://pyone.me](https://pyone.me)
 
 Wiki地址：[https://wiki.pyone.me/](https://wiki.pyone.me/)
