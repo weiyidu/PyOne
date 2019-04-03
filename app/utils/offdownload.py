@@ -175,7 +175,7 @@ def upload_status(gid,idx,remote_dir,user):
             new_value={}
             data=_upload_session.next()
             msg=data['status']
-            InfoLogger().print_r('{} upload status:{}'.format(item['localpath'],msg))
+            # InfoLogger().print_r('{} upload status:{}'.format(item['localpath'],msg))
             """
             alright expired!
             partition upload success

@@ -6,6 +6,7 @@ import header
 def _upload(filepath,remote_path,user=GetConfig('default_pan')): #remote_path like 'share/share.mp4'
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token)}
+    headers['Content-Type']='application/octet-stream'
     headers.update(default_headers)
     url=app_url+'v1.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
     timeCalc=TimeCalculator()
