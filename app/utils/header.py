@@ -564,7 +564,7 @@ class GetItemThread(Thread):
     def GetItemByPath(self,path):
         app_url=GetAppUrl()
         token=GetToken(user=self.user)
-        path=urllib.quote(convert2unicode(path))
+        path=convert2unicode(path)
         if path=='' or path=='/':
             url=app_url+u'v1.0/me/drive/root/'
         else:
