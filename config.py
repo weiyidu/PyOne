@@ -14,7 +14,7 @@ class config:
     if REDIS_PASSWORD!='':
         CACHE_REDIS_PASSWORD=REDIS_PASSWORD
     SEND_FILE_MAX_AGE_DEFAULT=timedelta(seconds=1)
-    version='4.190326'
+    version='4.190507'
 
     @staticmethod
     def init_app(app):

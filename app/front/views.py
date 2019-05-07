@@ -64,7 +64,6 @@ def index(path=None):
     image_mode=GetCookie(key='image_mode',default=0)
     sortby=GetCookie(key='sortby',default=GetConfig('default_sort'))
     order=GetCookie(key='order',default=GetConfig('order_m'))
-    print('sortby:{}, order:{}'.format(sortby,order))
     action=request.args.get('action','download')
     data,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,dismiss=True)
     #是否有密码

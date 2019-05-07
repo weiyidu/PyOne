@@ -3,7 +3,7 @@ from header import *
 import shutil
 from upload import *
 
-def download_and_upload(url,remote_dir,user,gid=None):
+def download_and_upload(url,remote_dir,user,gid=None,outerid=None):
     p,status=get_aria2()
     down_path=os.path.join(config_dir,'upload')
     #重新下载
@@ -65,6 +65,9 @@ def download_and_upload(url,remote_dir,user,gid=None):
         item['up_status']=u'待机'
         item['status']=1
         mon_db.down_db.insert_one(item)
+        if outerid is not None:
+            outer_info={'status':'待机'}
+            mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
     while 1:
         if mon_db.down_db.find_one({'gid':gid}) is None:
             break
@@ -112,6 +115,9 @@ def download_and_upload(url,remote_dir,user,gid=None):
                     new_value['up_status']=u'准备上传'
                     mon_db.down_db.find_one_and_update({'gid':gid,'idx':idx},{'$set':new_value})
                     upload_status(gid,idx,remote_dir,user)
+                    if outerid is not None:
+                        outer_info={'status':'准备上传'}
+                        mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 elif t['up_status'] in ['上传成功！','上传失败，已经超过重试次数','远程文件已存在','创建实例失败！'] or t['up_status'].startswith('本地文件不存在'):
                     complete+=1
                 else:
@@ -134,27 +140,45 @@ def download_and_upload(url,remote_dir,user,gid=None):
                 new_value['status']=0
                 new_value['down_status']='100.0%'
                 mon_db.down_db.find_one_and_update({'gid':gid,'idx':idx},{'$set':new_value})
-                upload_status(gid,idx,remote_dir,user)
+                if outerid is not None:
+                    outer_info={'status':'准备上传'}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
+                upload_status(gid,idx,remote_dir,user,outerid=outerid)
                 complete+=1
             elif a['status']=='active' or a['status']=='waiting':
                 time.sleep(1)
                 mon_db.down_db.find_one_and_update({'gid':gid,'idx':idx},{'$set':new_value})
+                if outerid is not None:
+                    outer_info={'status':'下载进度：{}'.format(new_value['down_status'])}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
             elif a['status']=='paused':
                 new_value['down_status']=u'暂停下载'
                 mon_db.down_db.find_one_and_update({'gid':gid,'idx':idx},{'$set':new_value})
                 complete+=1
+                if outerid is not None:
+                    outer_info={'status':'暂停下载'}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
             else:
                 InfoLogger().print_r('下载出错')
                 new_value['down_status']=u'下载出错'
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'gid':gid,'idx':idx},{'$set':new_value})
                 complete+=1
+                if outerid is not None:
+                    outer_info={'status':'下载出错'}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
         # time.sleep(2)
         if complete>=total:
+            parent=t['name'].split('/')[0]
+            aria2_file=os.path.join(config_dir,'upload/{}.aria2'.format(parent))
+            try:
+                os.remove(aria2_file)
+            except:
+                InfoLogger().print_r('remove aria2 file {} fail'.format(aria2_file))
             InfoLogger().print_r('{} complete'.format(gid))
             break
 
-def upload_status(gid,idx,remote_dir,user):
+def upload_status(gid,idx,remote_dir,user,outerid=None):
     item=mon_db.down_db.find_one({'gid':gid,'idx':idx})
     localpath=item['localpath']
     if not remote_dir.endswith('/'):
@@ -165,6 +189,9 @@ def upload_status(gid,idx,remote_dir,user):
         new_value['up_status']=u'本地文件不存在。检查：{}'.format(localpath)
         new_value['status']=-1
         mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
+        if outerid is not None:
+            outer_info={'status':'上传出错：{}'.format(new_value['up_status'])}
+            mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
         return
     if item['uploadUrl'] is not None and item['uploadUrl'].startswith('http'):
         _upload_session=ContinueUpload(filepath=item['localpath'],uploadUrl=item['uploadUrl'],user=user)
@@ -204,26 +231,41 @@ def upload_status(gid,idx,remote_dir,user):
                 new_value['up_status']='上传失败，已经超过重试次数'
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
+                if outerid is not None:
+                    outer_info={'status':new_value['up_status']}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 return
             elif 'file exists' in msg:
                 new_value['up_status']='远程文件已存在'
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
+                if outerid is not None:
+                    outer_info={'status':new_value['up_status']}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 return
             elif 'create upload session fail' in msg:
                 new_value['up_status']='创建实例失败！'
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
+                if outerid is not None:
+                    outer_info={'status':new_value['up_status']}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 return
             else:
                 new_value['up_status']='上传成功！'
                 new_value['speed']=data.get('speed')
                 new_value['status']=0
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
+                if outerid is not None:
+                    outer_info={'status':new_value['up_status']}
+                    mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 time.sleep(2)
                 os.remove(localpath)
                 return
             mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
+            if outerid is not None:
+                outer_info={'status':new_value['up_status']}
+                mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
         except Exception as e:
             exstr = traceback.format_exc()
             ErrorLogger().print_r(exstr)

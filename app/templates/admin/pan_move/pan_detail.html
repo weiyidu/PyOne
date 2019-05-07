@@ -1,0 +1,127 @@
+{%extends 'admin/layout.html'%}
+
+{%block content%}
+<div class="mdui-container-fluid">
+    <div class="mdui-typo">
+        <h1> 网盘搬家 - 任务详情</h1>
+    </div>
+    <div class="mdui-toolbar mdui-color-theme">
+      <span class="mdui-typo-title">功能</span>
+      <button class="mdui-btn mdui-btn-icon" onclick="SetSuccessAll('{{taskid}}');" mdui-tooltip="{content: '所有任务强制成功'}"><i class="mdui-icon material-icons">&#xe8ba;</i></button>
+
+    </div>
+    <!-- <div class="mdui-table-fluid"> -->
+        <table class="mdui-table">
+            <thead>
+                <tr>
+                    <th>目标文件</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for task in tasks%}
+                <tr>
+                    <td>{{CutText(task['to_user']+':'+task['to_path']+'/'+task['origin_name'])}}</td>
+                    <td>{{task['status']}}</td>
+                    <td>
+                        <button class="mdui-btn mdui-btn-icon" onclick="Restart('{{task['taskid']}}','{{task['id']}}');" mdui-tooltip="{content: '重新运行'}"><i class="mdui-icon material-icons">autorenew</i></button>
+                        {%if task['status']!='上传成功！'%}
+                        <button class="mdui-btn mdui-btn-icon" onclick="SetSuccess('{{task['taskid']}}','{{task['id']}}');" mdui-tooltip="{content: '强制成功'}"><i class="mdui-icon material-icons">&#xe8ba;</i></button>
+                        {%endif%}
+                    </td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    <!-- </div> -->
+</div>
+
+<script type="text/javascript">
+    function Restart(taskid,subid) {
+        text='重新运行任务？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove')}}",
+                data:{action:'subtask',taskid:taskid,subid:subid},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    }
+
+    function SetSuccess(taskid,subid) {
+        text='重新运行任务？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove')}}",
+                data:{action:'SetSuccess',taskid:taskid,subid:subid},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    }
+
+    function SetSuccessAll(taskid) {
+        text='确认将所有任务置为成功？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove')}}",
+                data:{action:'SetSuccessAll',taskid:taskid},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    }
+
+    var interval_id=null;
+    function AutoRefresh(){
+        if (interval_id){
+            window.clearInterval(interval_id);
+        }
+        interval_id = window.setInterval(function(){
+            Refresh();
+        },2000);
+    }
+    AutoRefresh();
+</script>
+{%endblock content%}

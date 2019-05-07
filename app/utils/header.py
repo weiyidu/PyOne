@@ -313,23 +313,23 @@ def _file_content(path,offset,length):
 def AddResource(data,user=GetConfig('default_pan')):
     #检查父文件夹是否在数据库，如果不在则获取添加
     grand_path=data.get('parentReference').get('path').replace('/drive/root:','') #空值或者/path
-    share_path=od_users.get(user).get('share_path')
-    if share_path!='/' and share_path.startswith('/'):
-        share_path=share_path[1:]
+    try:
+        grand_path=urllib.unquote(grand_path.encode('utf-8')).decode('utf-8')
+    except:
+        grand_path=grand_path
     if grand_path=='':
         parent_id=''
     else:
         g=GetItemThread(Queue(),user)
         parent_id=data.get('parentReference').get('id')
-        # grand_path=grand_path[1:]
-        grand_path=grand_path.replace(share_path,'',1)
         if grand_path.startswith('/'):
             grand_path=grand_path[1:]
         if grand_path!='':
             parent_path='/'
             pid=''
             for idx,p in enumerate(grand_path.split('/')):
-                parent=mon_db.items.find_one({'name':p,'grandid':idx,'parent':pid})
+                parent=mon_db.items.find_one({'name':p,'grandid':idx,'parent':pid,'user':user})
+                InfoLogger().print_r('[*AddResource] check parent path exists? user: {},name:{} ,parent id:{}; exists:{}'.format(user,p,pid,parent is not None))
                 if parent is not None:
                     pid=parent['id']
                     parent_path='/'.join([parent_path,parent['name']])
@@ -338,6 +338,8 @@ def AddResource(data,user=GetConfig('default_pan')):
                     fdata=g.GetItemByPath(parent_path)
                     path=user+':/'+parent_path.replace('///','/')
                     path=path.replace('///','/').replace('//','/')
+                    path=urllib.unquote(path).decode('utf-8')
+                    InfoLogger().print_r('[*AddResource] parent path:{} is not exists; Add data in mongo:{}'.format(parent_path,path))
                     item={}
                     item['type']='folder'
                     item['user']=user
@@ -353,7 +355,6 @@ def AddResource(data,user=GetConfig('default_pan')):
                     mon_db.items.insert_one(item)
                     pid=fdata.get('id')
     #插入数据
-    print data.get('size')
     item={}
     item['type']=GetExt(data.get('name'))
     item['name']=data.get('name')
@@ -366,11 +367,9 @@ def AddResource(data,user=GetConfig('default_pan')):
     if grand_path=='':
         path=user+':/'+convert2unicode(data['name'])
     else:
-        if share_path!='/':
-            path=user+':/'+grand_path.replace(share_path,'',1)+'/'+convert2unicode(data['name'])
-        else:
-            path=user+':/'+grand_path+'/'+convert2unicode(data['name'])
+        path=user+':/'+grand_path+'/'+convert2unicode(data['name'])
     path=path.replace('//','/')
+    path=urllib.unquote(path).decode('utf-8')
     grandid=len(path.split('/'))-2
     item['grandid']=grandid
     item['path']=path
@@ -480,7 +479,8 @@ class GetItemThread(Thread):
                                     continue
                                 else:
                                     parent_path=value.get('parentReference').get('path').replace('/drive/root:','')
-                                    path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
+                                    path=convert2unicode(parent_path+'/'+value['name'])
+                                    # path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
                                     url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
                                     self.queue.put(dict(url=url,grandid=grandid+1,parent=item['id'],trytime=1))
                         else:
@@ -511,7 +511,8 @@ class GetItemThread(Thread):
                                 continue
                             else:
                                 parent_path=value.get('parentReference').get('path').replace('/drive/root:','')
-                                path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
+                                path=convert2unicode(parent_path+'/'+value['name'])
+                                # path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
                                 url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
                                 self.queue.put(dict(url=url,grandid=grandid+1,parent=item['id'],trytime=1))
                     else:

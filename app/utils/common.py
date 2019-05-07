@@ -133,7 +133,7 @@ def _thunbnail(id,user):
     else:
         return False
 
-@cache.memoize(timeout=60*5)
+# @cache.memoize(timeout=60*5)
 def _getdownloadurl(id,user):
     app_url=GetAppUrl()
     token=GetToken(user=user)
@@ -198,7 +198,7 @@ def GetReadMe(path):
         ext='Text'
         readme,_,i=has_item(path,'README.txt')
     if readme!=False:
-        readme=markdown.markdown(readme, extensions=['tables'])
+        readme=markdown.markdown(readme, extensions=['tables','codehilite'])
     return readme,ext
 
 
@@ -216,7 +216,7 @@ def GetHead(path):
         ext='Text'
         head,_,i=has_item(path,'HEAD.txt')
     if head!=False:
-        head=markdown.markdown(head, extensions=['tables'])
+        head=markdown.markdown(head, extensions=['tables','codehilite'])
     return head,ext
 
 

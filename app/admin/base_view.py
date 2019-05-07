@@ -108,6 +108,6 @@ def stream():
 def teardown(exestr):
     global _pid
     if _pid is not None:
-        InfoLogger().print_r('kill pid {}'.format(_pid))
+        # InfoLogger().print_r('kill pid {}'.format(_pid))
         os.kill(_pid, signal.SIGINT)
         _pid=None
