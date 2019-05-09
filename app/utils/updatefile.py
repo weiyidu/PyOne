@@ -66,28 +66,57 @@ def Dir(path=u'{}:/'.format(GetConfig('default_pan'))):
     # RemoveRepeatFile()
 
 
-def UpdateFile(renew='all'):
+def UpdateFile(renew='all',fresh_user=None):
     tasks=[]
-    if renew=='all':
-        mon_db.items.delete_many({})
-        clearRedis()
-        for user,item in od_users.items():
-            if item.get('client_id')!='':
-                share_path='{}:{}'.format(user,item['share_path'])
-                # Dir_all(share_path)
-                t=Thread(target=Dir,args=(share_path,))
-                t.start()
-                tasks.append(t)
-        for t in tasks:
-            t.join()
+    InfoLogger().print_r('[* UpdateFile] user:{}, method:{}'.format(fresh_user,renew))
+    if fresh_user is None or fresh_user=='':
+        if renew=='all':
+            mon_db.items.delete_many({})
+            clearRedis()
+            for user,item in od_users.items():
+                if item.get('client_id')!='':
+                    share_path='{}:/'.format(user)
+                    # Dir_all(share_path)
+                    t=Thread(target=Dir,args=(share_path,))
+                    t.start()
+                    tasks.append(t)
+            for t in tasks:
+                t.join()
+        else:
+            for user,item in od_users.items():
+                if item.get('client_id')!='':
+                    share_path='{}:/'.format(user)
+                    # Dir(share_path)
+                    t=Thread(target=Dir,args=(share_path,))
+                    t.start()
+                    tasks.append(t)
+            for t in tasks:
+                t.join()
     else:
-        for user,item in od_users.items():
-            if item.get('client_id')!='':
-                share_path='{}:{}'.format(user,item['share_path'])
-                # Dir(share_path)
-                t=Thread(target=Dir,args=(share_path,))
-                t.start()
-                tasks.append(t)
+        if renew=='all':
+            mon_db.items.delete_many({'user':fresh_user})
+            clearRedis(fresh_user)
+            for user,item in od_users.items():
+                if user==fresh_user:
+                    if item.get('client_id')!='':
+                        share_path='{}:/'.format(user)
+                        # Dir_all(share_path)
+                        t=Thread(target=Dir,args=(share_path,))
+                        t.start()
+                        tasks.append(t)
+            for t in tasks:
+                t.join()
+        else:
+            for user,item in od_users.items():
+                if user==fresh_user:
+                    if item.get('client_id')!='':
+                        share_path='{}:/'.format(user)
+                        # Dir(share_path)
+                        t=Thread(target=Dir,args=(share_path,))
+                        t.start()
+                        tasks.append(t)
+            for t in tasks:
+                t.join()
     while 1:
         for t in tasks:
             if t.isAlive()==False:

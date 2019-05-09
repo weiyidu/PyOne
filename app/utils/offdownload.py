@@ -170,11 +170,16 @@ def download_and_upload(url,remote_dir,user,gid=None,outerid=None):
         # time.sleep(2)
         if complete>=total:
             parent=t['name'].split('/')[0]
+            localpath=t['localpath']
             aria2_file=os.path.join(config_dir,'upload/{}.aria2'.format(parent))
             try:
                 os.remove(aria2_file)
             except:
                 InfoLogger().print_r('remove aria2 file {} fail'.format(aria2_file))
+            try:
+                os.remove(localpath)
+            except:
+                InfoLogger().print_r('remove file {} fail'.format(localpath))
             InfoLogger().print_r('{} complete'.format(gid))
             break
 

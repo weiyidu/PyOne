@@ -7,8 +7,10 @@ import shutil
 
 
 def scan_file(path):
+    if (not path.endswith(':/')) and path.endswith('/'):
+        path=path[:-1]
     files=mon_db.items.find({
-        'path':re.compile(path+'*')
+        'path':re.compile(path+'/*')
         ,'type':{'$ne':'folder'}
     })
     return files

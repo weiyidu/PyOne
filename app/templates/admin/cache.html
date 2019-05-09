@@ -6,13 +6,23 @@
         <h1>更新列表</h1>
     </div>
     <div class="mdui-row">
+        <div class="mdui-col-xs-3">
+            <select class="mdui-select" id="user" mdui-select>
+                <option value="">全部网盘</option>
+                {%for user in get_od_user()%}
+                {%if user[1]!='添加网盘'%}
+                <option value="{{user[0]}}">{{user[1]}}</option>
+                {%endif%}
+                {%endfor%}
+            </select>
+        </div>
         <div class="mdui-col-xs-2">
             <button class="mdui-btn mdui-btn-raised mdui-ripple" id="new">增量更新</button>
         </div>
         <div class="mdui-col-xs-2">
             <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="all">全量更新</button>
         </div>
-        <div class="mdui-col-xs-8"></div>
+        <div class="mdui-col-xs-5"></div>
     </div>
     <hr>
     <div class="mdui-row">
@@ -31,7 +41,7 @@
     $('#new').click(function(){
         $.post("{{url_for('admin.cache_control')}}",
             {
-                type:"new"
+                type:"new",user:$("#user").val()
             },
             function(data){
                 mdui.snackbar({
@@ -44,7 +54,7 @@
     $('#all').click(function(){
         $.post("{{url_for('admin.cache_control')}}",
             {
-                type:"all"
+                type:"all",user:$("#user").val()
             },
             function(data){
                 mdui.snackbar({

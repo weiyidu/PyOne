@@ -428,6 +428,20 @@ class GetItemThread(Thread):
             if self.queue.empty():
                 break
 
+    def CheckPathSize(self,url):
+        app_url=GetAppUrl()
+        token=GetToken(user=self.user)
+        headers={'Authorization': 'Bearer {}'.format(token)}
+        headers.update(default_headers)
+        r=browser.get(url,headers=headers,timeout=10)
+        data=json.loads(r.content)
+        if data.get('folder'):
+            if data['name']!='root':
+                folder=mon_db.items.find_one({'id':data['id'],'user':self.user})
+                if folder['size_order']==int(data['size']): #文件夹大小未变化，不更新
+                    InfoLogger().print_r(u'path:{},origin size:{},current size:{}--------no change'.format(data['name'],folder['size_order'],data['size']))
+                    return
+
     def GetItem(self,url,grandid=0,parent='',trytime=1):
         app_url=GetAppUrl()
         token=GetToken(user=self.user)
@@ -435,6 +449,7 @@ class GetItemThread(Thread):
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
         try:
+            self.CheckPathSize(url.replace('children?expand=thumbnails',''))
             r=browser.get(url,headers=headers,timeout=10)
             data=json.loads(r.content)
             if data.get('error'):
@@ -447,9 +462,9 @@ class GetItemThread(Thread):
                 for value in values:
                     item={}
                     if value.get('folder'):
-                        folder=mon_db.items.find_one({'id':value['id']})
+                        folder=mon_db.items.find_one({'id':value['id'],'user':self.user})
                         if folder is not None:
-                            if folder['size_order']==value['size']: #文件夹大小未变化，不更新
+                            if folder['size_order']==int(value['size']): #文件夹大小未变化，不更新
                                 InfoLogger().print_r(u'path:{},origin size:{},current size:{}--------no change'.format(value['name'],folder['size_order'],value['size']))
                             else:
                                 mon_db.items.delete_one({'id':value['id']})
@@ -556,8 +571,9 @@ class GetItemThread(Thread):
                 self.queue.put(dict(url=data.get('@odata.nextLink'),grandid=grandid,parent=parent,trytime=1))
             InfoLogger().print_r(u'[success] getting files from url {}'.format(url))
         except Exception as e:
+            exestr=traceback.format_exc()
             trytime+=1
-            ErrorLogger().print_r(u'error to opreate GetItem("{}","{}","{}"),try times :{}, reason: {}'.format(url,grandid,parent,trytime,e))
+            ErrorLogger().print_r(u'error to opreate GetItem("{}","{}","{}"),try times :{}, reason: {}'.format(url,grandid,parent,trytime,exestr))
             if trytime<=3:
                 self.queue.put(dict(url=url,grandid=grandid,parent=parent,trytime=trytime))
 
@@ -585,8 +601,11 @@ class GetItemThread(Thread):
         data=json.loads(r.content)
         return data
 
-def clearRedis():
-    key_lists=['path:*','name:*','*has_item*','*root*','*:content']
+def clearRedis(user=None):
+    if user is not None:
+        key_lists=['path:*','name:*','*has_item*','*root*','*:content']
+    else:
+        key_lists=['has_item*{}*'.format(user),'{}*root*'.format(user)]
     for k in key_lists:
         try:
             redis_client.delete(*redis_client.keys(k))
