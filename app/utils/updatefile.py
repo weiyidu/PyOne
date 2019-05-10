@@ -94,29 +94,17 @@ def UpdateFile(renew='all',fresh_user=None):
                 t.join()
     else:
         if renew=='all':
-            mon_db.items.delete_many({'user':fresh_user})
+            a=mon_db.items.delete_many({'user':fresh_user})
             clearRedis(fresh_user)
-            for user,item in od_users.items():
-                if user==fresh_user:
-                    if item.get('client_id')!='':
-                        share_path='{}:/'.format(user)
-                        # Dir_all(share_path)
-                        t=Thread(target=Dir,args=(share_path,))
-                        t.start()
-                        tasks.append(t)
-            for t in tasks:
-                t.join()
+            share_path='{}:/'.format(fresh_user)
+            t=Thread(target=Dir,args=(share_path,))
+            t.start()
+            t.join()
         else:
-            for user,item in od_users.items():
-                if user==fresh_user:
-                    if item.get('client_id')!='':
-                        share_path='{}:/'.format(user)
-                        # Dir(share_path)
-                        t=Thread(target=Dir,args=(share_path,))
-                        t.start()
-                        tasks.append(t)
-            for t in tasks:
-                t.join()
+            share_path='{}:/'.format(fresh_user)
+            t=Thread(target=Dir,args=(share_path,))
+            t.start()
+            t.join()
     while 1:
         for t in tasks:
             if t.isAlive()==False:

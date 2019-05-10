@@ -22,6 +22,10 @@ tj_code=""""""
 headCode=""""""
 footCode=""""""
 cssCode=""""""
+robots="""
+User-agent:  *
+Disallow:  /
+"""
 
 #主题设置
 theme="material"

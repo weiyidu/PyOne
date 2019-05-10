@@ -461,3 +461,48 @@ def GetCookie(key,default):
     if key=='image_mode':
         value=int(value)
     return value
+
+
+def GetSubDirectory(current_path):
+    if (not current_path.endswith(':/')) and current_path.endswith('/'):
+        current_path=current_path[:-1]
+    retdata=[]
+    if current_path.endswith(':/'):
+        user=current_path.split(':')[0]
+        subfolders=mon_db.items.find({'user':user,'grandid':0,'type':'folder'})
+        for f in subfolders:
+            info={}
+            info['id']=f['id']
+            info['name']=f['name']
+            info['path']=f['path']
+            retdata.append(info)
+        return retdata
+    folder=mon_db.items.find_one({'path':current_path})
+    if folder is None:
+        return []
+    pid=folder['id']
+    subfolders=mon_db.items.find({'parent':pid,'type':'folder'})
+    for f in subfolders:
+        info={}
+        info['id']=f['id']
+        info['name']=f['name']
+        info['path']=f['path']
+        retdata.append(info)
+    return retdata
+
+
+def GetTreeList(user):
+    sp='&nbsp;&nbsp;&nbsp;&nbsp;'
+    treelists=[]
+    treelists.append({'path':'/','grandid':0,'split':''})
+    folders=mon_db.items.find({'user':user,'type':'folder'})
+    for folder in folders:
+        info={}
+        info['path']=folder['path']
+        info['grandid']=folder['grandid']+1
+        info['split']=sp*(folder['grandid']+1)
+        treelists.append(info)
+    treelists.sort(key=lambda x:x['grandid'])
+    return treelists
+
+

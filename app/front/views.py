@@ -206,10 +206,7 @@ def find(key_word):
 
 @front.route('/robots.txt')
 def robot():
-    resp="""
-User-agent:  *
-Disallow:  /
-    """
+    resp=GetConfig('robots')
     resp=MakeResponse(resp)
     resp.headers['Content-Type'] = 'text/javascript; charset=utf-8'
     return resp

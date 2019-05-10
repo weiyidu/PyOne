@@ -82,6 +82,15 @@ update_config(){
         echo 'default_pan="A"' >> self_config.py
     fi
 
+    num=`cat self_config.py | grep "robots" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'robots="""
+User-agent:  *
+Disallow:  /
+"""' >> self_config.py
+    fi
+
 }
 
 
@@ -156,6 +165,7 @@ echo "2019.03.23更新版本：修复网页查看日志后一直驻后台的bug"
 echo "2019.03.26更新版本：修复上一个版本带来的新bug"
 echo "2019.05.07更新版本：1、修复若干bug，并带来若干bug；2、重磅更新：【网盘搬家（beta）】功能！！"
 echo "2019.05.09更新版本：1、修复【网盘搬家】部分bug；2、修复【更新列表】增量更新不起效的bug；3、【更新列表】可选网盘更新啦！"
+echo "2019.05.10更新版本：1、新增robots.txt自定义；2、离线下载功能独立出来"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"

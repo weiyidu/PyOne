@@ -9,6 +9,25 @@
       <button class="mdui-btn mdui-btn-icon" onclick="window.open('http://www.torrent.org.cn/');" mdui-tooltip="{{'{'}}content: '种子转磁力'{{'}'}}"><i class="mdui-icon material-icons">&#xe428;</i></button>
       <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
     </div>
+    <div class="mdui-row">
+        <div class="mdui-col-xs-3">
+            <label class="mdui-textfield-label">先选择网盘</label>
+            <select class="mdui-select" id="user" mdui-select onchange="UserChange()">
+                {%for user in get_od_user()%}
+                {%if user[1]!='添加网盘'%}
+                <!-- <option value="{{user[0]}}">{{user[1]}}</option> -->
+                <option value="{{user[0]}}">{{user[1]}}</option>
+                {%endif%}
+                {%endfor%}
+            </select>
+        </div>
+        <div class="mdui-col-xs-6">
+            <label class="mdui-textfield-label">再选择下载路径</label>
+            <select class="mdui-select" id="path" mdui-select>
+            </select>
+        </div>
+        <div class="mdui-col-xs-3"></div>
+    </div>
     <div class="nexmoe-item">
         <div class="mdui-row">
             <ul class="mdui-list">
@@ -41,6 +60,34 @@
 {%if msg!=None%}
 ShowNotice("{{msg}}");
 {%endif%}
+function GetTreelist(user){
+    $.ajax({
+        type: "GET",
+        url: "/admin/treelists/"+user,
+        // async: false, //使用同步的方式,true为异步方式
+        dataType: "json",
+        success: function(data) {
+            var inst = new mdui.Select("#path");
+            $("#path").empty();
+            for (var i = 0; i <= data.length - 1; i++) {
+                f=data[i];
+                html='<option value="'+f['path']+'" ';
+                if (f['path']=="{{cur_path}}"){
+                    html+='selected';
+                }
+                html+='>'+f['split']+f['path']+'</option>';
+                $("#path").append(html);
+            }
+            inst.handleUpdate();
+        },
+        complete: function(xhr) {
+        }
+    });
+}
+function UserChange(){
+    user=$("#user").val();
+    GetTreelist(user);
+}
 function AddLink() {
     layer.prompt({
         formType: 2,
@@ -53,7 +100,7 @@ function AddLink() {
         $.ajax({
             type: "POST",
             url: "/admin/off_download",
-            data: { grand_path: "{{grand_path}}", urls: value, user: "{{cur_user}}" },
+            data: { grand_path: $("#path").val(), urls: value, user: $("#user").val() },
             // async: false, //使用同步的方式,true为异步方式
             dataType: "json",
             beforeSend: function(xhr) {
@@ -77,5 +124,6 @@ function AddLink() {
         });
     });
 }
+GetTreelist("{{cur_user}}");
 </script>
 {%endblock content%}

@@ -3,6 +3,11 @@ from base_view import *
 
 
 
+@admin.route('/treelists/<user>')
+def treelists(user):
+    data=GetTreeList(user)
+    return jsonify(data)
+
 
 ######离线下载---调用aria2
 @admin.route('/off_download',methods=['POST','GET'])
@@ -14,19 +19,22 @@ def off_download():
         urls=request.form.get('urls').split('\n')
         grand_path=request.form.get('grand_path')
         user=request.form.get('user')
+        print user,grand_path
         for url in urls:
             if url.strip()!='':
                 # cmd=u'python {} download_and_upload "{}" "{}" {}'.format(os.path.join(config_dir,'function.py'),url,grand_path,user)
                 cmd=u'nohup python {} download_and_upload "{}" "{}" {} &'.format(os.path.join(config_dir,'function.py'),url,grand_path,user)
-                subprocess.Popen(cmd,shell=True)
+                # subprocess.Popen(cmd,shell=True)
         return jsonify({'status':True,'msg':'ok'})
     path=request.args.get('path')
+    if path is None:
+        path=GetConfig("default_pan")+':/'
     user,grand_path=path.split(':')
     msg=None
     p,status=get_aria2()
     if not status:
         msg=p
-    resp=MakeResponse(render_template('admin/offdownload.html',grand_path=grand_path,cur_user=user,msg=msg))
+    resp=MakeResponse(render_template('admin/offdownload.html',grand_path=grand_path,cur_user=user,cur_path=path,msg=msg))
     return resp
 
 

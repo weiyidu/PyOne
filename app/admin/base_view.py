@@ -37,7 +37,7 @@ def set(key,value,user=GetConfig('default_pan')):
         elif key=='allow_site':
             value=value.split(',')
             new_text=re.sub('{}=.*'.format(key),'{}={}'.format(key,value),old_text)
-        elif key in ['tj_code','cssCode','headCode','footCode']:
+        elif key in ['tj_code','cssCode','headCode','footCode','robots']:
             new_text=re.sub('{}="""[\w\W]*?"""'.format(key),'{}="""{}"""'.format(key,value),old_text)
         else:
             new_text=re.sub('{}=.*'.format(key),'{}="{}"'.format(key,value),old_text)
