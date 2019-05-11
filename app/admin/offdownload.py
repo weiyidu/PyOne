@@ -24,7 +24,7 @@ def off_download():
             if url.strip()!='':
                 # cmd=u'python {} download_and_upload "{}" "{}" {}'.format(os.path.join(config_dir,'function.py'),url,grand_path,user)
                 cmd=u'nohup python {} download_and_upload "{}" "{}" {} &'.format(os.path.join(config_dir,'function.py'),url,grand_path,user)
-                # subprocess.Popen(cmd,shell=True)
+                subprocess.Popen(cmd,shell=True)
         return jsonify({'status':True,'msg':'ok'})
     path=request.args.get('path')
     if path is None:

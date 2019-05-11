@@ -16,14 +16,14 @@
                 {%for user in get_od_user()%}
                 {%if user[1]!='添加网盘'%}
                 <!-- <option value="{{user[0]}}">{{user[1]}}</option> -->
-                <option value="{{user[0]}}">{{user[1]}}</option>
+                <option value="{{user[0]}}" id="user_{{user[0]}}">{{user[1]}}</option>
                 {%endif%}
                 {%endfor%}
             </select>
         </div>
         <div class="mdui-col-xs-6">
             <label class="mdui-textfield-label">再选择下载路径</label>
-            <select class="mdui-select" id="path" mdui-select>
+            <select class="mdui-select" id="path" mdui-select onchange="PathChange()">
             </select>
         </div>
         <div class="mdui-col-xs-3"></div>
@@ -64,7 +64,7 @@ function GetTreelist(user){
     $.ajax({
         type: "GET",
         url: "/admin/treelists/"+user,
-        // async: false, //使用同步的方式,true为异步方式
+        async: false, //使用同步的方式,true为异步方式
         dataType: "json",
         success: function(data) {
             var inst = new mdui.Select("#path");
@@ -75,6 +75,7 @@ function GetTreelist(user){
                 if (f['path']=="{{cur_path}}"){
                     html+='selected';
                 }
+                html+=' id="path_'+f['path']+'"';
                 html+='>'+f['split']+f['path']+'</option>';
                 $("#path").append(html);
             }
@@ -87,6 +88,12 @@ function GetTreelist(user){
 function UserChange(){
     user=$("#user").val();
     GetTreelist(user);
+}
+function PathChange(){
+    path=$("#path").val();
+    if (path) {
+        window.location.href="#"+path;
+    }
 }
 function AddLink() {
     layer.prompt({
@@ -124,6 +131,32 @@ function AddLink() {
         });
     });
 }
-GetTreelist("{{cur_user}}");
+function unescapeHtml(safe) {
+    return safe
+         .replace(/&amp;/g, "&")
+         .replace(/&lt;/g, "<")
+         .replace(/&gt;/g, ">")
+         .replace(/&quot;/g, "\"")
+         .replace(/%20;/g, " ")
+         .replace(/&#039;/g, "'");
+ }
+$( document ).ready(function() {
+    var path = $(location).attr('hash').replace('#', '');
+    if (path){
+        path=unescape(path);
+        console.log(path);
+        var user=path.split(':')[0];
+        GetTreelist(user);
+        var user_inst = new mdui.Select("#user");
+        var path_inst = new mdui.Select("#path");
+        $("#user").val(user);
+        $("#path").val(path);
+        user_inst.handleUpdate();
+        path_inst.handleUpdate();
+    }
+    else{
+        GetTreelist("{{cur_user}}");
+    }
+});
 </script>
 {%endblock content%}
