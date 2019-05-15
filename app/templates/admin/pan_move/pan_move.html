@@ -1,0 +1,202 @@
+{%extends 'admin/layout.html'%}
+
+{%block content%}
+<div class="mdui-container-fluid">
+    <div class="mdui-typo">
+        <h1> 网盘搬家 <small>基于离线下载进行网盘之间搬家</small></h1>
+    </div>
+    <div class="mdui-toolbar mdui-color-theme">
+      <span class="mdui-typo-title">功能</span>
+      <button class="mdui-btn mdui-btn-icon" mdui-dialog="{target: '#CreateMoveTaskDialog'}" mdui-tooltip="{content: '新建任务'}"><i class="mdui-icon material-icons">&#xe05e;</i></button>
+      <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
+    </div>
+    <div class="mdui-table-fluid">
+        <table class="mdui-table">
+            <thead>
+                <tr>
+                    <th>任务ID</th>
+                    <th>from</th>
+                    <th>to</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for task in tasks%}
+                <tr>
+                    <td><a href="{{url_for('admin.panmove_detail',taskid=task['taskid'])}}">{{task['taskid']}}</a></td>
+                    <td>{{task['pan_from']}}</td>
+                    <td>{{task['pan_to']}}</td>
+                    <td>完成：{{task['complete_num']}}/{{task['total_num']}}</td>
+                    <td>
+                        <button class="mdui-btn mdui-btn-icon" onclick="Restart('{{task['taskid']}}');" mdui-tooltip="{content: '重新运行（搬运新文件）'}"><i class="mdui-icon material-icons">autorenew</i></button>
+                        <button class="mdui-btn mdui-btn-icon" onclick="DelTask('{{task['taskid']}}');" mdui-tooltip="{content: '删除任务'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>
+                    </td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+    <div class="mdui-row">
+        <div class="mdui-col-xs-12">
+            <div class="mdui-card">
+              <div class="mdui-card-actions mdui-card-actions-stacked">
+                <h2>使用说明</h2>
+                <p>1. "网盘搬家"是基于离线下载功能实现的，因此<font color="blue">需保证离线下载功能可以正常使用</font></p>
+                <p>2. "网盘搬家"是基于已经绑定的不同网盘之间进行搬家，即：<font color="blue">同一个盘符下无法使用！</font>但是同一个账号，绑定为两个盘符就可以使用（如果你那么无聊）</p>
+                <p>3. "网盘搬家"更多的是用于<font color="blue">两个不同账号之间进行搬运文件</font></p>
+                <p>4. "网盘搬家"处于测试阶段，有问题请到群里提问。<a href="https://jq.qq.com/?_wv=1027&k=5iEq8F0" target="_blank">点击加入【PyOne交流群】</a></p>
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="mdui-dialog" id="CreateMoveTaskDialog">
+        <div class="mdui-dialog-title">新建任务</div>
+        <div class="mdui-dialog-content">
+            <div class="mdui-row">
+              <div class="mdui-col-xs-3">
+                <label class="mdui-textfield-label">起始网盘</label>
+                  <select class="mdui-select" id="from_pan">
+                      {%for user in get_od_user()%}
+                      {%if user[1]!='添加网盘'%}
+                      <option value="{{user[0]}}">{{user[1]}}</option>
+                      {%endif%}
+                      {%endfor%}
+                  </select>
+              </div>
+              <div class="mdui-col-xs-3">
+                    <label class="mdui-textfield-label">起始目录</label>
+                    <input class="mdui-textfield-input" type="text" value='/' id="from_dir"/>
+              </div>
+              <div class="mdui-col-xs-3">
+                <label class="mdui-textfield-label">终点网盘</label>
+                  <select class="mdui-select"id="to_pan">
+                      {%for user in get_od_user()%}
+                      {%if user[1]!='添加网盘'%}
+                      <option value="{{user[0]}}">{{user[1]}}</option>
+                      {%endif%}
+                      {%endfor%}
+                  </select></div>
+              <div class="mdui-col-xs-3">
+                    <label class="mdui-textfield-label">终点目录</label>
+                    <input class="mdui-textfield-input" type="text" value='/' id="to_dir"/>
+              </div>
+            </div>
+        </div>
+        <div class="mdui-dialog-actions">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-close>取消</button>
+            <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>确定</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var dialog = document.getElementById('CreateMoveTaskDialog');
+    dialog.addEventListener('confirm.mdui.dialog', function () {
+        var from_pan=$("#from_pan").val();
+        var from_dir=$("#from_dir").val();
+        var to_pan=$("#to_pan").val();
+        var to_dir=$("#to_dir").val();
+        var pan_from=from_pan+':'+from_dir;
+        var pan_to=to_pan+':'+to_dir;
+        if(from_pan==to_pan){
+            layer.alert('同账号onedrive请通过onedrive网页版复制',{icon: 2});
+            return
+        }
+        text='从['+pan_from+']搬运至['+pan_to+']？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove_create')}}",
+                data:{pan_from:pan_from,pan_to:pan_to,user_to:to_pan},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    });
+    function Restart(taskid) {
+        text='重新运行任务？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove')}}",
+                data:{action:'task',taskid:taskid},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    }
+    function DelTask(taskid) {
+        text='确认删除任务？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove')}}",
+                data:{action:'deltask',taskid:taskid},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    }
+    function ClearHist() {
+        text='确定清空任务？';
+        layer.confirm(text, {icon: 3, title:'提示'}, function(index){
+            var ii = layer.load(2, {shade: [0.1, '#fff']});
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('admin.panmove')}}",
+                data:{action:'ClearHist'},
+                dataType: "json",
+                success: function(data) {
+                    layer.msg(data.msg, {icon: 1});
+                },
+                  error: function(){
+                      layer.msg('服务器内部错误！');
+                  },
+                  complete: function(xhr) {
+                      layer.close(ii);
+                      window.location.reload();
+                  }
+            });
+
+            layer.close(index);
+        });
+    }
+</script>
+{%endblock content%}

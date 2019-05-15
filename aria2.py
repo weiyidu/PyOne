@@ -10,21 +10,12 @@ if sys.version_info[0]==2:
     import xmlrpclib
 else:
     import xmlrpc.client as xmlrpclib
-from config import *
+from self_config import *
 
-DEFAULT_HOST = ARIA2_HOST
-DEFAULT_PORT = ARIA2_PORT
-DEFAULT_SECRET = ARIA2_SECRET
-DEFAULT_SCHEME = ARIA2_SCHEME
-SERVER_URI_FORMAT = DEFAULT_SCHEME+'://{}:{}/jsonrpc'
 
 class PyAria2(object):
 
-    def __init__(self,
-                 host=DEFAULT_HOST,
-                 port=DEFAULT_PORT,
-                 secret=DEFAULT_SECRET,
-                 session=None):
+    def __init__(self,host,port,secret,scheme,session=None):
         '''
         PyAria2 constructor.
         host: string, aria2 rpc host, default is 'localhost'
@@ -62,7 +53,7 @@ class PyAria2(object):
             print('aria2 RPC server is started.')
         else:
             print('aria2 RPC server is already running.')
-        self.server_uri = SERVER_URI_FORMAT.format(host, port)
+        self.server_uri = scheme+'://{}:{}/jsonrpc'.format(host, port)
         self.secret = secret
         self.server = xmlrpclib.ServerProxy(self.server_uri, allow_none=True)
 
