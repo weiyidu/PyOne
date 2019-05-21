@@ -133,6 +133,7 @@
 
         </div>
     </header>
+    {%if session.get('login')%}
     <div class="mdui-drawer" id="main-drawer">
         <div class="mdui-list">
             <br><br>
@@ -178,6 +179,7 @@
             </a>
         </div>
     </div>
+    {%endif%}
 
     <div class="mdui-container">
         <div class="mdui-typo">
