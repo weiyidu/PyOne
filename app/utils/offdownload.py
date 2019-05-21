@@ -477,12 +477,13 @@ def DBMethod(action,**kwargs):
         result=[]
         for gid in kwargs['gids']:
             info={'gid':gid}
+            dinfo={'gid':gid}
             tasks=mon_db.down_db.find(info)
             for task in tasks:
                 parent=task['name'].split('/')[0]
                 parent_filepath=os.path.join(config_dir,'upload/{}'.format(parent))
                 aria2_file=os.path.join(config_dir,'upload/{}.aria2'.format(parent))
-                InfoLogger().print_r('删除任务：{}; 文件夹：{}；文件名：{}；aria2文件：{}'.format(task['name'],parent_filepath,task['localpath'],aria2_file))
+                # InfoLogger().print_r('删除任务：{}; 文件夹：{}；文件名：{}；aria2文件：{}'.format(task['name'],parent_filepath,task['localpath'],aria2_file))
                 if task['down_status']=='100.0%' and 'partition upload success' in task['up_status']:
                     info['msg']='正在上传的任务，无法更改状态'
                 else:
@@ -500,7 +501,7 @@ def DBMethod(action,**kwargs):
                 os.remove(aria2_file)
             except Exception as e:
                 ErrorLogger().print_r('未能成功删除本地文件.{}'.format(e))
-            mon_db.down_db.delete_many(info)
+            mon_db.down_db.delete_many(dinfo)
             result.append(info)
     elif action=='restart':
         result=[]

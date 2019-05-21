@@ -31,6 +31,7 @@ def install():
                     json.dump(Atoken,f,ensure_ascii=False)
                 refresh_token=Atoken.get('refresh_token')
                 token=ReFreshToken(refresh_token,user)
+                token['expires_on']=str(time.time()+3599)
                 with open(os.path.join(config_dir,'data/{}_token.json'.format(user)),'w') as f:
                     json.dump(token,f,ensure_ascii=False)
                 with open(os.path.join(config_dir,'.install'),'w') as f:

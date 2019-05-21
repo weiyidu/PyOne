@@ -165,7 +165,7 @@ def GetToken(Token_file='token.json',user=GetConfig('default_pan')):
                         json.dump(token,f,ensure_ascii=False)
                 else:
                     InfoLogger().print_r(token)
-        except:
+        except Exception as e:
             with open(os.path.join(data_dir,'{}_Atoken.json'.format(user)),'r') as f:
                 Atoken=json.load(f)
             refresh_token=Atoken.get('refresh_token')
@@ -174,6 +174,8 @@ def GetToken(Token_file='token.json',user=GetConfig('default_pan')):
             if token.get('access_token'):
                 with open(token_path,'w') as f:
                     json.dump(token,f,ensure_ascii=False)
+            else:
+                return False
         return token.get('access_token')
     else:
         return False
