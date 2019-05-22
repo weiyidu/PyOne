@@ -70,6 +70,9 @@ encrypt_file="no"
 #默认盘位
 default_pan="A"
 
+#后台路径
+admin_prefix="admin"
+
 od_users={
     "A":{
         "client_id":"",

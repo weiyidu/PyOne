@@ -12,6 +12,26 @@ def setting():
         title=request.form.get('title','PyOne')
         theme=request.form.get('theme','material')
         title_pre=request.form.get('title_pre','index of ')
+
+        set('title',title)
+        set('title_pre',title_pre)
+        set('theme',theme)
+
+        # reload()
+        redis_client.set('title',title)
+        redis_client.set('title_pre',title_pre)
+        redis_client.set('theme',theme)
+        flash('更新成功')
+        resp=MakeResponse(redirect(url_for('admin.setting')))
+        return resp
+    resp=MakeResponse(render_template('admin/setting/setting.html'))
+    return resp
+
+
+@admin.route('/sys_setting',methods=['GET','POST'])
+def sys_setting():
+    if request.method=='POST':
+
         downloadUrl_timeout=request.form.get('downloadUrl_timeout',5*60)
         allow_site=request.form.get('allow_site','no-referrer')
         #Aria2
@@ -34,11 +54,10 @@ def setting():
 
         order_m=request.form.get('order_m','desc')
         default_sort=request.form.get('default_sort','lastModtime')
+        admin_prefix=request.form.get('admin_prefix','admin')
         show_secret=request.form.get('show_secret','no')
         encrypt_file=request.form.get('encrypt_file','no')
-        set('title',title)
-        set('title_pre',title_pre)
-        set('theme',theme)
+
         set('downloadUrl_timeout',downloadUrl_timeout)
         set('allow_site',allow_site)
         #Aria2
@@ -59,13 +78,12 @@ def setting():
         set('REDIS_PASSWORD',REDIS_PASSWORD)
 
         set('default_sort',default_sort)
+        set('admin_prefix',admin_prefix)
         set('order_m',order_m)
         set('show_secret',show_secret)
         set('encrypt_file',encrypt_file)
         # reload()
-        redis_client.set('title',title)
-        redis_client.set('title_pre',title_pre)
-        redis_client.set('theme',theme)
+
         redis_client.set('downloadUrl_timeout',downloadUrl_timeout)
         redis_client.set('allow_site',','.join(allow_site.split(',')))
         #Aria2
@@ -88,13 +106,14 @@ def setting():
         redis_client.set('REDIS_PASSWORD',REDIS_PASSWORD)
 
         redis_client.set('default_sort',default_sort)
+        redis_client.set('admin_prefix',admin_prefix)
         redis_client.set('order_m',order_m)
         redis_client.set('show_secret',show_secret)
         redis_client.set('encrypt_file',encrypt_file)
         flash('更新成功')
-        resp=MakeResponse(redirect(url_for('admin.setting')))
+        resp=MakeResponse(redirect(url_for('admin.sys_setting')))
         return resp
-    resp=MakeResponse(render_template('admin/setting/setting.html'))
+    resp=MakeResponse(render_template('admin/setting/sys_setting.html'))
     return resp
 
 
