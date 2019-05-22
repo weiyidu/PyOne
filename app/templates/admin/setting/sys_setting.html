@@ -9,7 +9,8 @@
     <form action="{{url_for('admin.sys_setting')}}" method="POST">
 
         <div class="mdui-textfield">
-          <h4>*后台路径（默认是admin，如果改为uadmin，则进后台路径为：/uadmin）</h4>
+          <h4>*后台路径（默认是admin，如果改为uadmin，则进后台路径为：/uadmin）
+            <p><b><font color="blue">允许输入</font>：字母、数字；<font color="blue">不建议</font>：符号；<font color="blue">绝对不允许</font>：/\'"</b></p></h4>
           <input class="mdui-textfield-input" type="text" name="admin_prefix" value="{{GetConfig('admin_prefix')}}"/>
         </div>
 
