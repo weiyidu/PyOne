@@ -82,6 +82,12 @@ update_config(){
         echo 'default_pan="A"' >> self_config.py
     fi
 
+    num=`cat self_config.py | grep "balance" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'balance="False"' >> self_config.py
+    fi
+
     num=`cat self_config.py | grep "robots" | wc -l`
     if [ $num == 0 ]; then
         echo '' >> self_config.py
@@ -176,6 +182,7 @@ echo "2019.05.10更新版本：1、新增robots.txt自定义；2、离线下载�
 echo "2019.05.11更新版本：1、修复离线下载bug；2、优化离线下载界面体验"
 echo "2019.05.21更新版本：修复若干bug"
 echo "2019.05.22更新版本：支持自定义后台路径（更安全）"
+echo "2019.05.23更新版本：新增负载均衡功能！"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"
