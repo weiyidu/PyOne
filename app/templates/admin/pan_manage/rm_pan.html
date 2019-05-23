@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                {%for user in get_od_user()%}
+                {%for user in get_od_user(True)%}
                 <tr>
                     <td><i class="mdui-list-item-icon mdui-icon material-icons" onclick="rmPan('{{user[0]}}')">delete</i></td>
                     <td>{{user[0]}}</td>

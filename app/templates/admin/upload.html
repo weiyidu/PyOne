@@ -14,7 +14,7 @@
             <div class="mdui-col-xs-3">
                 <label class="mdui-textfield-label">选择网盘</label>
                 <select class="mdui-select" name="user" mdui-select>
-                    {%for user in get_od_user()%}
+                    {%for user in get_od_user(True)%}
                     {%if user[1]!='添加网盘'%}
                     <option value="{{user[0]}}">{{user[1]}}</option>
                     {%endif%}

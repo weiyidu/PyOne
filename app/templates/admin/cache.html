@@ -9,7 +9,7 @@
         <div class="mdui-col-xs-3">
             <select class="mdui-select" id="user" mdui-select>
                 <option value="">全部网盘</option>
-                {%for user in get_od_user()%}
+                {%for user in get_od_user(True)%}
                 {%if user[1]!='添加网盘'%}
                 <option value="{{user[0]}}">{{user[1]}}</option>
                 {%endif%}

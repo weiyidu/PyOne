@@ -145,12 +145,13 @@ def UploadSession(uploadUrl,filesize, filepath,user):
                 InfoLogger().print_r(result['sys_msg']+' ; wait for 1800s')
                 yield {'status':'The request has been throttled! wait for 1800s','uploadUrl':uploadUrl}
                 time.sleep(1800)
-            offset=offset
-            trytime=result['trytime']
-            yield {'status':'partition upload fail! retry!','uploadUrl':uploadUrl}
+            else:
+                offset=offset
+                trytime=result['trytime']
+                yield {'status':'partition upload fail! retry!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
         #重试超过3次，放弃
         elif code==3:
-            yield {'status':'partition upload fail! touch max retry times!','uploadUrl':uploadUrl}
+            yield {'status':'partition upload fail! touch max retry times!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
             break
 
 def Upload_for_server(filepath,remote_path=None,user=GetConfig('default_pan')):
@@ -250,12 +251,13 @@ def ContinueUpload(filepath,uploadUrl,user):
                     InfoLogger().print_r(result['sys_msg']+' ; wait for 1800s')
                     yield {'status':'The request has been throttled! wait for 1800s','uploadUrl':uploadUrl}
                     time.sleep(1800)
-                offset=offset
-                trytime=result['trytime']
-                yield {'status':'partition upload fail! retry!','uploadUrl':uploadUrl}
+                else:
+                    offset=offset
+                    trytime=result['trytime']
+                    yield {'status':'partition upload fail! retry!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
             #重试超过3次，放弃
             elif code==3:
-                yield {'status':'partition upload fail! touch max retry times!','uploadUrl':uploadUrl}
+                yield {'status':'partition upload fail! touch max retry times!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
                 break
 
 

@@ -29,7 +29,8 @@ def GetTotal(path='{}:/'.format(GetConfig('default_pan'))):
 
 
 # @cache.memoize(timeout=60*5)
-def FetchData(path='{}:/'.format(GetConfig('default_pan')),page=1,per_page=50,sortby='lastModtime',order='desc',dismiss=False,search_mode=False):
+def FetchData(path='{}:/'.format(GetConfig('default_pan')),page=1,per_page=50,sortby='lastModtime',order='desc',action=None,dismiss=False,search_mode=False):
+    balance=eval(GetConfig('balance'))
     if search_mode:
         show_secret=GetConfig('show_secret')
         query=mon_db.items.find({'name':re.compile(path)})
@@ -94,6 +95,27 @@ def FetchData(path='{}:/'.format(GetConfig('default_pan')),page=1,per_page=50,so
             f=mon_db.items.find_one({'path':path})
             pid=f['id']
             if f['type']!='folder':
+                if balance and action!='share':
+                    user,p=path.split(':')
+                    files=mon_db.items.find({'path':re.compile(p)})
+                    key='balance:{}'.format(p)
+                    users=[]
+                    for file in files:
+                        suser=file['user']
+                        if redis_client.hexists(key,suser):
+                            cnt=redis_client.hget(key,suser)
+                            if cnt is None:
+                                cnt=0
+                            else:
+                                cnt=int(cnt)
+                        else:
+                            cnt=0
+                        users.append([suser,cnt])
+                    users.sort(key=lambda x:x[1])
+                    ssuser=users[0][0]
+                    pp='{}:{}'.format(ssuser,p)
+                    redis_client.hincrby(key,ssuser,1)
+                    f=mon_db.items.find_one({'path':pp})
                 return f,'files'
             data=mon_db.items.find({'parent':pid}).collation({"locale": "zh", 'numericOrdering':True})\
                 .sort([('order',ASCENDING),(sortby,order)])\
@@ -112,12 +134,14 @@ def FetchData(path='{}:/'.format(GetConfig('default_pan')),page=1,per_page=50,so
                 else:
                     resp.append(item)
             total=GetTotal(path)
-    except:
+    except Exception as e:
+        exestr=traceback.format_exc()
+        print(exestr)
         resp=[]
         total=0
     return resp,total
 
-@cache.memoize(timeout=60*5)
+# @cache.memoize(timeout=60*5)
 def _thunbnail(id,user):
     app_url=GetAppUrl()
     token=GetToken(user=user)
@@ -286,7 +310,6 @@ def has_item(path,name):
     if len(path.split('/'))==1:
         path=path+'/'
     key='has_item$#$#$#$#{}$#$#$#$#{}'.format(path,name)
-    InfoLogger().print_r('get key {}'.format(key))
     # if False:
     if redis_client.exists(key):
         values=redis_client.get(key)
@@ -414,7 +437,8 @@ def breadCrumb(path):
 
 
 
-def get_od_user():
+def get_od_user(admin=False):
+    balance=eval(GetConfig('balance'))
     config_path=os.path.join(config_dir,'self_config.py')
     with open(config_path,'r') as f:
         text=f.read()
@@ -428,16 +452,28 @@ def get_od_user():
     ret=[]
     for user,value in users.items():
         if value.get('client_id')!='':
-            #userid,username,endpoint,sharepath,order,
-            ret.append(
-                    (
-                        user,
-                        value.get('other_name'),
-                        '/{}:'.format(user),
-                        value.get('share_path'),
-                        value.get('order')
+            #userid,username,endpoint,sharepath,order
+            if balance and not admin:
+                if user==GetConfig('default_pan'):
+                    ret.append(
+                            (
+                                user,
+                                value.get('other_name'),
+                                '/{}:'.format(user),
+                                value.get('share_path'),
+                                value.get('order')
+                            )
+                        )
+            else:
+                ret.append(
+                        (
+                            user,
+                            value.get('other_name'),
+                            '/{}:'.format(user),
+                            value.get('share_path'),
+                            value.get('order')
+                        )
                     )
-                )
         else:
             ret.append(
                     (

@@ -16,7 +16,7 @@
         </div>
         <div class="mdui-textfield">
             <h4>顺序</h4>
-            <input class="mdui-textfield-input" type="text" name="order" pattern="\d+" value="{{len(get_od_user())+1}}" required/>
+            <input class="mdui-textfield-input" type="text" name="order" pattern="\d+" value="{{len(get_od_user(True))+1}}" required/>
             <div class="mdui-textfield-error">请输入数字</div>
         </div>
         <button type="submit" class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right">

@@ -230,10 +230,12 @@ def upload_status(gid,idx,remote_dir,user,outerid=None):
                 new_value['up_status']='api受限！智能等待30分钟'
                 new_value['status']=0
             elif 'partition upload fail! retry' in msg:
-                new_value['up_status']='上传失败，等待重试'
+                reason=msg.split('!')[-1]
+                new_value['up_status']='上传失败，等待重试！返回原因：{}'.format(reason)
                 new_value['status']=1
             elif 'partition upload fail' in msg:
-                new_value['up_status']='上传失败，已经超过重试次数'
+                reason=msg.split('!')[-1]
+                new_value['up_status']='上传失败，已经超过重试次数！返回原因：{}'.format(reason)
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
                 if outerid is not None:
@@ -249,7 +251,8 @@ def upload_status(gid,idx,remote_dir,user,outerid=None):
                     mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 return
             elif 'create upload session fail' in msg:
-                new_value['up_status']='创建实例失败！'
+                reason=msg.split('!')[-1]
+                new_value['up_status']='创建实例失败！返回原因：{}'.format(reason)
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
                 if outerid is not None:

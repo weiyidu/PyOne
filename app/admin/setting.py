@@ -31,7 +31,6 @@ def setting():
 @admin.route('/sys_setting',methods=['GET','POST'])
 def sys_setting():
     if request.method=='POST':
-
         downloadUrl_timeout=request.form.get('downloadUrl_timeout',5*60)
         allow_site=request.form.get('allow_site','no-referrer')
         #Aria2
@@ -55,6 +54,7 @@ def sys_setting():
         order_m=request.form.get('order_m','desc')
         default_sort=request.form.get('default_sort','lastModtime')
         admin_prefix=request.form.get('admin_prefix','admin')
+        balance=request.form.get('balance','False')
         show_secret=request.form.get('show_secret','no')
         encrypt_file=request.form.get('encrypt_file','no')
 
@@ -79,6 +79,7 @@ def sys_setting():
 
         set('default_sort',default_sort)
         set('admin_prefix',admin_prefix)
+        set('balance',balance)
         set('order_m',order_m)
         set('show_secret',show_secret)
         set('encrypt_file',encrypt_file)
@@ -107,6 +108,7 @@ def sys_setting():
 
         redis_client.set('default_sort',default_sort)
         redis_client.set('admin_prefix',admin_prefix)
+        redis_client.set('balance',balance)
         redis_client.set('order_m',order_m)
         redis_client.set('show_secret',show_secret)
         redis_client.set('encrypt_file',encrypt_file)

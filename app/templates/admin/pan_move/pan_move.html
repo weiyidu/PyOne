@@ -57,7 +57,7 @@
               <div class="mdui-col-xs-3">
                 <label class="mdui-textfield-label">起始网盘</label>
                   <select class="mdui-select" id="from_pan">
-                      {%for user in get_od_user()%}
+                      {%for user in get_od_user(True)%}
                       {%if user[1]!='添加网盘'%}
                       <option value="{{user[0]}}">{{user[1]}}</option>
                       {%endif%}
@@ -71,7 +71,7 @@
               <div class="mdui-col-xs-3">
                 <label class="mdui-textfield-label">终点网盘</label>
                   <select class="mdui-select"id="to_pan">
-                      {%for user in get_od_user()%}
+                      {%for user in get_od_user(True)%}
                       {%if user[1]!='添加网盘'%}
                       <option value="{{user[0]}}">{{user[1]}}</option>
                       {%endif%}

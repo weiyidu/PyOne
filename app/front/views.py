@@ -48,16 +48,23 @@ def favicon():
 @front.route('/',methods=['POST','GET'])
 @limiter.limit("200/minute;50/second")
 def index(path=None):
+    balance=eval(GetConfig('balance'))
     if path is None:
         path='{}:/'.format(GetConfig('default_pan'))
-    path=urllib.unquote(path).replace('&action=play','')
+    path=urllib.unquote(path).replace('&action=play','').replace('&action=share','')
     if not os.path.exists(os.path.join(config_dir,'.install')):
         resp=MakeResponse(redirect(url_for('admin.install',step=0,user=GetConfig('default_pan'))))
         return resp
     try:
         user,n_path=path.split(':')
     except:
-        return MakeResponse(abort(404))
+        if path==GetConfig('admin_prefix'):
+            return redirect(url_for('admin.setting'))
+        else:
+            return MakeResponse(abort(404))
+    if balance:
+        if user!=GetConfig('default_pan'):
+            return MakeResponse(abort(404))
     if n_path=='':
         path=':'.join([user,'/'])
     page=request.args.get('page',1,type=int)
@@ -65,7 +72,7 @@ def index(path=None):
     sortby=GetCookie(key='sortby',default=GetConfig('default_sort'))
     order=GetCookie(key='order',default=GetConfig('order_m'))
     action=request.args.get('action','download')
-    data,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,dismiss=True)
+    data,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,action=action,dismiss=True)
     #是否有密码
     password,_,cur=has_item(path,'.password')
     md5_p=md5(path)
@@ -80,11 +87,12 @@ def index(path=None):
     if password!=False:
         if (not request.cookies.get(md5_p) or request.cookies.get(md5_p)!=password) and has_verify_==False:
             if total=='files' and GetConfig('encrypt_file')=="no":
-                return show(data['id'],user,action)
+                return show(data['id'],data['user'],action)
             resp=MakeResponse(render_template('theme/{}/password.html'.format(GetConfig('theme')),path=path,cur_user=user))
             return resp
     if total=='files':
-        return show(data['id'],user,action)
+        print data['name'],data['user'],action
+        return show(data['id'],data['user'],action)
     readme,ext_r=GetReadMe(path)
     head,ext_d=GetHead(path)
     #参数
