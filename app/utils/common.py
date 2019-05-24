@@ -147,7 +147,7 @@ def _thunbnail(id,user):
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-type':'application/json'}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
     else:
         url=app_url+'_api/v2.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
@@ -169,7 +169,7 @@ def _getdownloadurl(id,user):
     ext=filename.split('.')[-1].lower()
     headers={'Authorization':'bearer {}'.format(token),'Content-type':'application/json'}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/'+id
     else:
         url=app_url+'_api/v2.0/me/drive/items/'+id

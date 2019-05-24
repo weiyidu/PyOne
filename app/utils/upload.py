@@ -10,7 +10,7 @@ def _upload(filepath,remote_path,user=GetConfig('default_pan')): #remote_path li
     headers={'Authorization':'bearer {}'.format(token)}
     headers['Content-Type']='application/octet-stream'
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
     else:
         url=app_url+'_api/v2.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
@@ -106,7 +106,7 @@ def CreateUploadSession(path,user=GetConfig('default_pan')):
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+u'v1.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
     else:
         url=app_url+u'_api/v2.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))

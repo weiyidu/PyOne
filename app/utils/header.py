@@ -488,7 +488,7 @@ class GetItemThread(Thread):
                                     parent_path=value.get('parentReference').get('path').replace('/drive/root:','')
                                     path=convert2unicode(parent_path+'/'+value['name'])
                                     # path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
-                                    if od_type==False:
+                                    if od_type=='nocn' or od_type is None or od_type==False:
                                         url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
                                     else:
                                         url=app_url+'_api/v2.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
@@ -523,7 +523,7 @@ class GetItemThread(Thread):
                                 parent_path=value.get('parentReference').get('path').replace('/drive/root:','')
                                 path=convert2unicode(parent_path+'/'+value['name'])
                                 # path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
-                                if od_type==False:
+                                if od_type=='nocn' or od_type is None or od_type==False:
                                     url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
                                 else:
                                     url=app_url+'_api/v2.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
@@ -581,12 +581,12 @@ class GetItemThread(Thread):
         token=GetToken(user=self.user)
         path=convert2unicode(path)
         if path=='' or path=='/':
-            if od_type==False:
+            if od_type=='nocn' or od_type is None or od_type==False:
                 url=app_url+u'v1.0/me/drive/root/'
             else:
                 url=app_url+u'_api/v2.0/me/drive/root/'
         else:
-            if od_type==False:
+            if od_type=='nocn' or od_type is None or od_type==False:
                 url=app_url+u'v1.0/me/drive/root:{}:/'.format(path)
             else:
                 url=app_url+u'_api/v2.0/me/drive/root:{}:/'.format(path)

@@ -11,7 +11,7 @@ def DeleteRemoteFile(fileid,user=GetConfig('default_pan')):
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/'+fileid
     else:
         url=app_url+'_api/v2.0/me/drive/items/'+fileid
@@ -29,7 +29,7 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
     od_type=get_value('od_type',user)
     token=GetToken(user=user)
     if grand_path=='' or grand_path is None or grand_path=='/':
-        if od_type==False:
+        if od_type=='nocn' or od_type is None or od_type==False:
             url=app_url+'v1.0/me/drive/root/children'
         else:
             url=app_url+'_api/v2.0/me/drive/root/children'
@@ -40,7 +40,7 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
         parent=mon_db.items.find_one({'path':path})
         parent_id=parent['id']
         grandid=parent['grandid']+1
-        if od_type==False:
+        if od_type=='nocn' or od_type is None or od_type==False:
             url=app_url+'v1.0/me/drive/items/{}/children'.format(parent['id'])
         else:
             url=app_url+'_api/v2.0/me/drive/items/{}/children'.format(parent['id'])
@@ -99,7 +99,7 @@ def CreateFile(filename,path,content,user=GetConfig('default_pan')):
     info={}
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/root:{}:/content'.format(remote_file)
     else:
         url=app_url+'_api/v2.0/me/drive/items/root:{}:/content'.format(remote_file)
@@ -124,7 +124,7 @@ def EditFile(fileid,content,user=GetConfig('default_pan')):
     info={}
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/{}/content'.format(fileid)
     else:
         url=app_url+'_api/v2.0/me/drive/items/{}/content'.format(fileid)
@@ -172,7 +172,7 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
         parent=parent_item['id']
         grandid=parent_item['grandid']+1
         path=parent_item['path']+'/'+GetName(fileid)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
     else:
         url=app_url+'_api/v2.0/me/drive/items/{}'.format(fileid)
@@ -206,7 +206,7 @@ def ReName(fileid,new_name,user=GetConfig('default_pan')):
     app_url=GetAppUrl(user)
     od_type=get_value('od_type',user)
     token=GetToken(user=user)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
     else:
         url=app_url+'_api/v2.0/me/drive/items/{}'.format(fileid)

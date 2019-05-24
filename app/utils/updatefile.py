@@ -7,7 +7,7 @@ def Dir(path=u'{}:/'.format(GetConfig('default_pan'))):
     app_url=GetAppUrl(user)
     InfoLogger().print_r('update {}\'s {} file'.format(user,n_path))
     if n_path=='/':
-        if od_type==False:
+        if od_type=='nocn' or od_type is None or od_type==False:
             BaseUrl=app_url+u'v1.0/me/drive/root/children?expand=thumbnails'
         else:
             BaseUrl=app_url+u'_api/v2.0/me/drive/root/children?expand=thumbnails'
@@ -34,7 +34,7 @@ def Dir(path=u'{}:/'.format(GetConfig('default_pan'))):
             grandid=idx+1
             parent=parent_id
         n_path=urllib.quote(n_path.encode('utf-8'))
-        if od_type==False:
+        if od_type=='nocn' or od_type is None or od_type==False:
             BaseUrl=app_url+u'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(n_path)
         else:
             BaseUrl=app_url+u'_api/v2.0/me/drive/root:{}:/children?expand=thumbnails'.format(n_path)
@@ -132,7 +132,7 @@ def GetRootid(user=GetConfig('default_pan')):
         app_url=GetAppUrl(user)
         od_type=get_value('od_type',user)
         token=GetToken(user=user)
-        if od_type==False:
+        if od_type=='nocn' or od_type is None or od_type==False:
             url=app_url+u'v1.0/me/drive/root/'
         else:
             url=app_url+u'_api/v2.0/me/drive/root/'
@@ -151,7 +151,7 @@ def FileExists(filename,user=GetConfig('default_pan')):
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         search_url=app_url+"v1.0/me/drive/root/search(q='{}')".format(convert2unicode(filename))
     else:
         search_url=app_url+"_api/v2.0/me/drive/root/search(q='{}')".format(convert2unicode(filename))
@@ -168,7 +168,7 @@ def FileInfo(fileid,user=GetConfig('default_pan')):
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    if od_type==False:
+    if od_type=='nocn' or od_type is None or od_type==False:
         search_url=app_url+"v1.0/me/drive/items/{}".format(fileid)
     else:
         search_url=app_url+"_api/v2.0/me/drive/items/{}".format(fileid)
