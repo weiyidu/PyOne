@@ -1,0 +1,26 @@
+{%extends 'admin/layout.html'%}
+
+{%block content%}
+<div class="mdui-container-fluid">
+  <div class="mdui-typo">
+    <h1>系统安装 <small>选择类型</small></h1>
+  </div>
+
+  <div class="mdui-typo">
+    <h4 class="doc-article-title">
+      如果是<font color="red">世纪互联账号</font>，则选择<font color="red">世纪互联</font>，否则选<font color="red">国际版</font>
+    </h4>
+  </div>
+
+  <form action="{{url_for('admin.install')}}" method="post">
+      <select class="mdui-select" name="od_type" mdui-select>
+          <option value="nocn">国际版</option>
+          <option value="cn">世纪互联</option>
+      </select>
+      <input type="hidden" name="step" value="0">
+      <input type="hidden" name="user" value="{{cur_user}}">
+    <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right" type="submit">下一步</button>
+  </form>
+
+</div>
+{%endblock content%}

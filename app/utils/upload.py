@@ -4,11 +4,16 @@ import header
 
 
 def _upload(filepath,remote_path,user=GetConfig('default_pan')): #remote_path like 'share/share.mp4'
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token)}
     headers['Content-Type']='application/octet-stream'
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
+    else:
+        url=app_url+'_api/v2.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
     timeCalc=TimeCalculator()
     r=browser.put(url,headers=headers,data=open(filepath,'rb'))
     # r=CurlUpload(url,headers,open(filepath,'rb'))
@@ -96,10 +101,15 @@ def _upload_part(uploadUrl, filepath,filesize, offset, length,trytime=1,request_
             return {'status':'fail','msg':'retry times limit','code':3,'sys_msg':''}
 
 def CreateUploadSession(path,user=GetConfig('default_pan')):
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    url=app_url+u'v1.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
+    if od_type==False:
+        url=app_url+u'v1.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
+    else:
+        url=app_url+u'_api/v2.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
     data={
           "item": {
             "@microsoft.graph.conflictBehavior": "fail",

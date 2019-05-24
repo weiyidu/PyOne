@@ -6,11 +6,15 @@ def DeleteLocalFile(fileid):
     mon_db.items.remove({'id':fileid})
 
 def DeleteRemoteFile(fileid,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/'+fileid
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/'+fileid
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/'+fileid
     r=browser.delete(url,headers=headers)
     if r.status_code==204:
         DeleteLocalFile(fileid)
@@ -21,10 +25,14 @@ def DeleteRemoteFile(fileid,user=GetConfig('default_pan')):
 
 ########################
 def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     if grand_path=='' or grand_path is None or grand_path=='/':
-        url=app_url+'v1.0/me/drive/root/children'
+        if od_type==False:
+            url=app_url+'v1.0/me/drive/root/children'
+        else:
+            url=app_url+'_api/v2.0/me/drive/root/children'
         parent_id=''
         grandid=0
     else:
@@ -32,7 +40,10 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
         parent=mon_db.items.find_one({'path':path})
         parent_id=parent['id']
         grandid=parent['grandid']+1
-        url=app_url+'v1.0/me/drive/items/{}/children'.format(parent['id'])
+        if od_type==False:
+            url=app_url+'v1.0/me/drive/items/{}/children'.format(parent['id'])
+        else:
+            url=app_url+'_api/v2.0/me/drive/items/{}/children'.format(parent['id'])
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
     payload={
@@ -75,7 +86,8 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
 
 def CreateFile(filename,path,content,user=GetConfig('default_pan')):
     token=GetToken(user=user)
-    app_url=GetAppUrl()
+    od_type=get_value('od_type',user)
+    app_url=GetAppUrl(user)
     if not path.startswith('/'):
         path='/'+path
     share_path=od_users.get(user).get('share_path')
@@ -87,7 +99,10 @@ def CreateFile(filename,path,content,user=GetConfig('default_pan')):
     info={}
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/root:{}:/content'.format(remote_file)
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/root:{}:/content'.format(remote_file)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/root:{}:/content'.format(remote_file)
     r=browser.put(url,headers=headers,data=content,timeout=10)
     data=json.loads(r.content)
     if data.get('id'):
@@ -104,11 +119,15 @@ def CreateFile(filename,path,content,user=GetConfig('default_pan')):
 
 def EditFile(fileid,content,user=GetConfig('default_pan')):
     token=GetToken(user=user)
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     info={}
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/{}/content'.format(fileid)
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}/content'.format(fileid)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}/content'.format(fileid)
     try:
         r=browser.put(url,headers=headers,data=content,timeout=10)
         data=json.loads(r.content)
@@ -136,7 +155,8 @@ def EditFile(fileid,content,user=GetConfig('default_pan')):
 
 
 def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     #GetRootid
     if new_folder_path=='' or new_folder_path is None or new_folder_path=='/':
@@ -152,7 +172,10 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
         parent=parent_item['id']
         grandid=parent_item['grandid']+1
         path=parent_item['path']+'/'+GetName(fileid)
-    url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}'.format(fileid)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
     payload={
@@ -180,9 +203,14 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
         return False
 
 def ReName(fileid,new_name,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
-    url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}'.format(fileid)
+
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
     payload={

@@ -74,7 +74,7 @@ default_pan="A"
 admin_prefix="admin"
 
 #是否做负载均衡
-balance="True"
+balance="False"
 
 od_users={
     "A":{

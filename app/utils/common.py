@@ -13,13 +13,13 @@ def md5(string):
     return a.hexdigest()
 
 def GetTotal(path='{}:/'.format(GetConfig('default_pan'))):
-    key='total:{}'.format(path)
+    key='file_count:{}'.format(path)
     if redis_client.exists(key):
         return int(redis_client.get(key))
     else:
         user,n_path=path.split(':')
         if n_path=='/':
-            total=mon_db.items.find({'grandid':0}).count()
+            total=mon_db.items.find({'grandid':0,'user':user}).count()
         else:
             f=mon_db.items.find_one({'path':path})
             pid=f['id']
@@ -136,18 +136,21 @@ def FetchData(path='{}:/'.format(GetConfig('default_pan')),page=1,per_page=50,so
             total=GetTotal(path)
     except Exception as e:
         exestr=traceback.format_exc()
-        print(exestr)
         resp=[]
         total=0
     return resp,total
 
 # @cache.memoize(timeout=60*5)
 def _thunbnail(id,user):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-type':'application/json'}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
     r=browser.get(url,headers=headers)
     data=json.loads(r.content)
     if data.get('large').get('url'):
@@ -159,17 +162,23 @@ def _thunbnail(id,user):
 
 # @cache.memoize(timeout=60*5)
 def _getdownloadurl(id,user):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     filename=GetName(id)
     ext=filename.split('.')[-1].lower()
     headers={'Authorization':'bearer {}'.format(token),'Content-type':'application/json'}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/'+id
+    if od_type==False:
+        url=app_url+'v1.0/me/drive/items/'+id
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/'+id
     r=browser.get(url,headers=headers)
     data=json.loads(r.content)
     if data.get('@microsoft.graph.downloadUrl'):
         downloadUrl=data.get('@microsoft.graph.downloadUrl')
+    elif data.get('@content.downloadUrl'):
+        downloadUrl=data.get('@content.downloadUrl')
     else:
         ErrorLogger().print_r('Getting resource:{} {} error:{}'.format(id,filename,data.get('error').get('message')))
         downloadUrl=data.get('error').get('message')
@@ -183,7 +192,7 @@ def _getdownloadurl(id,user):
     return downloadUrl,play_url
 
 def GetDownloadUrl(id,user):
-    key_='downloadUrl:{}'.format(id)
+    key_='downloadurl:{}'.format(id)
     if redis_client.exists(key_):
         downloadUrl,play_url,ftime=redis_client.get(key_).split('####')
         if time.time()-int(ftime)>=600:
@@ -297,7 +306,6 @@ def _remote_content(fileid,user):
                 content=r.content
             else:
                 content=r.text
-            InfoLogger().print_r(content)
             redis_client.set(kc,content)
             return content
         else:

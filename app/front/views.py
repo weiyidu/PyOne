@@ -53,7 +53,7 @@ def index(path=None):
         path='{}:/'.format(GetConfig('default_pan'))
     path=urllib.unquote(path).replace('&action=play','').replace('&action=share','')
     if not os.path.exists(os.path.join(config_dir,'.install')):
-        resp=MakeResponse(redirect(url_for('admin.install',step=0,user=GetConfig('default_pan'))))
+        resp=redirect(url_for('admin.install',step=0,user=GetConfig('default_pan')))
         return resp
     try:
         user,n_path=path.split(':')
@@ -91,7 +91,6 @@ def index(path=None):
             resp=MakeResponse(render_template('theme/{}/password.html'.format(GetConfig('theme')),path=path,cur_user=user))
             return resp
     if total=='files':
-        print data['name'],data['user'],action
         return show(data['id'],data['user'],action)
     readme,ext_r=GetReadMe(path)
     head,ext_d=GetHead(path)

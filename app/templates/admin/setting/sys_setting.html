@@ -9,16 +9,16 @@
     <form action="{{url_for('admin.sys_setting')}}" method="POST">
 
         <h4><font color="red">是否开启负载均衡</font></h4>
-        <p>开启之后，只显示默认盘文件；如果默认盘有的文件，其他盘也有，则会在这几个盘之间切换获取直链</p>
-        <p>仅限<font color="blue">不同域</font>的onedrive开启负载均衡才有意义！！！</p>
+        <small><p>开启之后，只显示默认盘文件；如果默认盘有的文件，其他盘也有，则会在这几个盘之间切换获取直链</p>
+        <p>仅限<font color="blue">不同域</font>的onedrive开启负载均衡才有意义！！！</p></small>
         <select class="mdui-select" name="balance" mdui-select>
             <option value="True"{%if GetConfig('balance')=='True'%} selected{%endif%}>开启</option>
             <option value="False"{%if GetConfig('balance')=='False'%} selected{%endif%}>关闭</option>
         </select>
 
         <div class="mdui-textfield">
-          <h4>*后台路径（默认是admin，如果改为uadmin，则进后台路径为：/uadmin）
-            <p><b><font color="blue">允许输入</font>：字母、数字；<font color="blue">不建议</font>：符号；<font color="blue">绝对不允许</font>：/\'"</b></p></h4>
+          <h4>*后台路径（默认是admin，如果改为uadmin，则进后台路径为：/uadmin）</h4>
+            <small><p><b><font color="blue">允许输入</font>：字母、数字；<font color="blue">不建议</font>：符号；<font color="blue">绝对不允许</font>：/\'"</b></p></small>
           <input class="mdui-textfield-input" type="text" name="admin_prefix" value="{{GetConfig('admin_prefix')}}"/>
         </div>
 

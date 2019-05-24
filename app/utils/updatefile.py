@@ -2,11 +2,15 @@
 from header import *
 
 def Dir(path=u'{}:/'.format(GetConfig('default_pan'))):
-    app_url=GetAppUrl()
     user,n_path=path.split(':')
+    od_type=get_value('od_type',user)
+    app_url=GetAppUrl(user)
     InfoLogger().print_r('update {}\'s {} file'.format(user,n_path))
     if n_path=='/':
-        BaseUrl=app_url+u'v1.0/me/drive/root/children?expand=thumbnails'
+        if od_type==False:
+            BaseUrl=app_url+u'v1.0/me/drive/root/children?expand=thumbnails'
+        else:
+            BaseUrl=app_url+u'_api/v2.0/me/drive/root/children?expand=thumbnails'
         mon_db.items.remove({'user':user})
         queue=Queue()
         g=GetItemThread(queue,user)
@@ -30,7 +34,10 @@ def Dir(path=u'{}:/'.format(GetConfig('default_pan'))):
             grandid=idx+1
             parent=parent_id
         n_path=urllib.quote(n_path.encode('utf-8'))
-        BaseUrl=app_url+u'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(n_path)
+        if od_type==False:
+            BaseUrl=app_url+u'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(n_path)
+        else:
+            BaseUrl=app_url+u'_api/v2.0/me/drive/root:{}:/children?expand=thumbnails'.format(n_path)
         queue=Queue()
         g=GetItemThread(queue,user)
         g.GetItem(BaseUrl,grandid,parent,1)
@@ -122,9 +129,14 @@ def GetRootid(user=GetConfig('default_pan')):
     if redis_client.exists(key):
         return redis_client.get(key)
     else:
-        app_url=GetAppUrl()
+        app_url=GetAppUrl(user)
+        od_type=get_value('od_type',user)
         token=GetToken(user=user)
-        url=app_url+u'v1.0/me/drive/root/'
+        if od_type==False:
+            url=app_url+u'v1.0/me/drive/root/'
+        else:
+            url=app_url+u'_api/v2.0/me/drive/root/'
+
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
         r=browser.get(url,headers=headers)
@@ -134,10 +146,15 @@ def GetRootid(user=GetConfig('default_pan')):
 
 
 def FileExists(filename,user=GetConfig('default_pan')):
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    search_url=app_url+"v1.0/me/drive/root/search(q='{}')".format(convert2unicode(filename))
+    if od_type==False:
+        search_url=app_url+"v1.0/me/drive/root/search(q='{}')".format(convert2unicode(filename))
+    else:
+        search_url=app_url+"_api/v2.0/me/drive/root/search(q='{}')".format(convert2unicode(filename))
     r=browser.get(search_url,headers=headers)
     jsondata=json.loads(r.text)
     if len(jsondata['value'])==0:
@@ -146,10 +163,15 @@ def FileExists(filename,user=GetConfig('default_pan')):
         return True
 
 def FileInfo(fileid,user=GetConfig('default_pan')):
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    search_url=app_url+"v1.0/me/drive/items/{}".format(fileid)
+    if od_type==False:
+        search_url=app_url+"v1.0/me/drive/items/{}".format(fileid)
+    else:
+        search_url=app_url+"_api/v2.0/me/drive/items/{}".format(fileid)
     r=browser.get(search_url,headers=headers)
     jsondata=json.loads(r.text)
     return jsondata

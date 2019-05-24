@@ -27,14 +27,24 @@ _pid=None
 def set(key,value,user=GetConfig('default_pan')):
     InfoLogger().print_r('set {}:{}'.format(key,value))
     config_path=os.path.join(config_dir,'self_config.py')
+    if key in ['client_secret','client_id','share_path','other_name','od_type','app_url']:
+        # old_kv=re.findall('"{}":.*{{[\w\W]*}}'.format(user),old_text)[0]
+        # new_kv=re.sub('"{}":.*.*?,'.format(key),'"{}":"{}",'.format(key,value),old_kv,1)
+        # new_text=old_text.replace(old_kv,new_kv,1)
+        od_users[user][key]=value
+        config_path=os.path.join(config_dir,'self_config.py')
+        with open(config_path,'r') as f:
+            old_text=f.read()
+        with open(config_path,'w') as f:
+            old_od=re.findall('od_users={[\w\W]*}',old_text)[0]
+            new_od='od_users='+json.dumps(od_users,indent=4,ensure_ascii=False)
+            new_text=old_text.replace(old_od,new_od,1)
+            f.write(new_text)
+        return
     with open(config_path,'r') as f:
         old_text=f.read()
     with open(config_path,'w') as f:
-        if key in ['client_secret','client_id','share_path','other_name']:
-            old_kv=re.findall('"{}":.*{{[\w\W]*}}'.format(user),old_text)[0]
-            new_kv=re.sub('"{}":.*.*?,'.format(key),'"{}":"{}",'.format(key,value),old_kv,1)
-            new_text=old_text.replace(old_kv,new_kv,1)
-        elif key=='allow_site':
+        if key=='allow_site':
             value=value.split(',')
             new_text=re.sub('{}=.*'.format(key),'{}={}'.format(key,value),old_text)
         elif key in ['tj_code','cssCode','headCode','footCode','robots']:

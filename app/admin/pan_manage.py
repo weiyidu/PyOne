@@ -47,7 +47,6 @@ def add_pan():
         with open(config_path,'w') as f:
             old_od=re.findall('od_users={[\w\W]*}',old_text)[0]
             new_od='od_users='+json.dumps(od_users,indent=4,ensure_ascii=False)
-            print(new_od)
             new_text=old_text.replace(old_od,new_od,1)
             f.write(new_text)
         flash('添加盘符[{}]成功'.format(pan))

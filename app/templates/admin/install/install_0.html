@@ -5,65 +5,126 @@
   <div class="mdui-typo">
     <h1>系统安装 <small>应用ID和机密</small></h1>
   </div>
-
-  <div class="mdui-typo">
-    <h4 class="doc-article-title">
-      填入<code>client_id</code>和<code>client_secret</code>,
-      <a href="https://apps.dev.microsoft.com/?referrer=https%3a%2f%2fdeveloper.microsoft.com%2fzh-cn%2fgraph%2fquick-start#/quickstart/graphIO?publicClientSupport=false&appName=PyOne&redirectUrl={{redirectUrl}}&allowImplicitFlow=false&ru=https:%2F%2Fdeveloper.microsoft.com%2Fzh-cn%2Fgraph%2Fquick-start%3FappID%3D_appId_%26appName%3D_appName_%26redirectUrl%3D{{redirectUrl}}%26platform%3Doption-php" target="_blank" class="mdui-btn mdui-color-theme-accent mdui-ripple"><i class="mdui-icon material-icons">&#xe89e;</i> 获取应用ID和机密(分两个页面显示，请注意保存)</a>
-    </h4>
-  </div>
-
-  <form action="{{url_for('admin.install')}}" method="post">
-      <div class="mdui-textfield mdui-textfield-floating-label">
-          <i class="mdui-icon material-icons">https</i>
-          <label class="mdui-textfield-label">应用机密(client secret)</label>
-          <input type="text" type="text" class="mdui-textfield-input" name="client_secret" required"/>
-          <div class="mdui-textfield-error">应用机密不能为空</div>
+    {%if od_type=='nocn'%}
+      <div class="mdui-typo">
+        <h4 class="doc-article-title">
+          填入<code>client_id</code>和<code>client_secret</code>,
+          <a href="https://apps.dev.microsoft.com/?referrer=https%3a%2f%2fdeveloper.microsoft.com%2fzh-cn%2fgraph%2fquick-start#/quickstart/graphIO?publicClientSupport=false&appName=PyOne&redirectUrl={{redirectUrl}}&allowImplicitFlow=false&ru=https:%2F%2Fdeveloper.microsoft.com%2Fzh-cn%2Fgraph%2Fquick-start%3FappID%3D_appId_%26appName%3D_appName_%26redirectUrl%3D{{redirectUrl}}%26platform%3Doption-php" target="_blank" class="mdui-btn mdui-color-theme-accent mdui-ripple"><i class="mdui-icon material-icons">&#xe89e;</i> 获取应用ID和机密(分两个页面显示，请注意保存)</a>
+        </h4>
       </div>
+
+      <form action="{{url_for('admin.install')}}" method="post">
+          <div class="mdui-textfield mdui-textfield-floating-label">
+              <i class="mdui-icon material-icons">https</i>
+              <label class="mdui-textfield-label">应用机密(client secret)</label>
+              <input type="text" type="text" class="mdui-textfield-input" name="client_secret" required"/>
+              <div class="mdui-textfield-error">应用机密不能为空</div>
+          </div>
+          <br>
+          <div class="mdui-textfield mdui-textfield-floating-label">
+              <i class="mdui-icon material-icons">&#xe5c3;</i>
+              <label class="mdui-textfield-label">应用 ID(client_id)</label>
+              <input type="text" class="mdui-textfield-input" name="client_id" required"/>
+              <div class="mdui-textfield-error">应用 ID不能为空</div>
+          </div>
+          <br>
+          <input type="hidden" name="step" value="1">
+          <input type="hidden" name="user" value="{{cur_user}}">
+          <input type="hidden" name="od_type" value="{{od_type}}">
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right" type="submit">下一步</button>
+      </form>
+    {%else%}
+        <form action="{{url_for('admin.install')}}" method="post">
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <i class="mdui-icon material-icons">&#xe5c3;</i>
+                <label class="mdui-textfield-label">onedrive账号标识</label>
+                <input type="text" class="mdui-textfield-input" name="od_prefix" required"/>
+                <div class="mdui-textfield-error">onedrive账号标识不能为空</div>
+            </div>
+            <br>
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <i class="mdui-icon material-icons">&#xe5c3;</i>
+                <label class="mdui-textfield-label">应用 ID(client_id)</label>
+                <input type="text" class="mdui-textfield-input" name="client_id" required"/>
+                <div class="mdui-textfield-error">应用 ID不能为空</div>
+            </div>
+            <br>
+            <div class="mdui-textfield mdui-textfield-floating-label">
+                <i class="mdui-icon material-icons">https</i>
+                <label class="mdui-textfield-label">应用机密(client secret)</label>
+                <input type="text" type="text" class="mdui-textfield-input" name="client_secret" required"/>
+                <div class="mdui-textfield-error">应用机密不能为空</div>
+            </div>
+            <br>
+            <input type="hidden" name="step" value="1">
+            <input type="hidden" name="user" value="{{cur_user}}">
+            <input type="hidden" name="od_type" value="{{od_type}}">
+          <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right" type="submit">下一步</button>
+        </form>
+    {%endif%}
+    {%if od_type=='nocn'%}
       <br>
-      <div class="mdui-textfield mdui-textfield-floating-label">
-          <i class="mdui-icon material-icons">&#xe5c3;</i>
-          <label class="mdui-textfield-label">应用 ID(client_id)</label>
-          <input type="text" class="mdui-textfield-input" name="client_id" required"/>
-          <div class="mdui-textfield-error">应用 ID不能为空</div>
+      <br>
+      <hr>
+      <div class="mdui-type">
+        <h1>如果是第一次安装，安装之前，请花2分钟看完这个gif！再进行下一步！！</h1>
+        <img src="https://i.niupic.com/images/2019/05/21/_3.gif">
+        <!-- <img src="https://ws2.sinaimg.cn/large/0074MymAly1fxab79lnsag31gs0qcqvb.gif"> -->
       </div>
-      <br>
-      <input type="hidden" name="step" value="1">
-      <input type="hidden" name="user" value="{{cur_user}}">
-    <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right" type="submit">下一步</button>
-  </form>
+        <div class="mdui-typo">
+          <h4>步骤0. 先登录一次<a href="https://apps.dev.microsoft.com/" target="_blank">https://apps.dev.microsoft.com/</a></h4>
+        </div>
+        <div class="mdui-typo">
+          <h4>步骤1. 然后点击下方按钮获取<b>应用机密（client_secret)</b>，填写到<b>应用机密(client_secret)</b>栏</h4>
+          <a href="https://apps.dev.microsoft.com/?referrer=https%3a%2f%2fdeveloper.microsoft.com%2fzh-cn%2fgraph%2fquick-start#/quickstart/graphIO?publicClientSupport=false&appName=PyOne&redirectUrl={{redirectUrl}}&allowImplicitFlow=false&ru=https:%2F%2Fdeveloper.microsoft.com%2Fzh-cn%2Fgraph%2Fquick-start%3FappID%3D_appId_%26appName%3D_appName_%26redirectUrl%3D{{redirectUrl}}%26platform%3Doption-php" target="_blank" class="mdui-btn mdui-color-theme-accent mdui-ripple"><i class="mdui-icon material-icons">&#xe89e;</i> 获取应用ID和机密(分两个页面显示，请注意保存)</a>
+        </div>
+        <div class="mdui-typo">
+          <h4>步骤2. 在刚才获取<b>应用机密（client_secret)</b>的页面，点击<code>知道了，返回到快速启动</code>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;如果没有错误，返回之后可以找到<B>应用 ID</B>这一个参数，</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;会出现错误，查看网址栏，找到<B>appID</B>这一个参数(目前修复了，可直接获取，如上），</p>
+            <p>将<B>appID</B>复制到<b>应用ID(client_id)</b>栏</p>
+          </h4>
+        </div>
+        <div class="mdui-typo">
+          <h4>步骤3. 填写完下方两个参数，继续下一步</h4>
+          <img src="https://i.niupic.com/images/2019/05/21/_128.png">
+          <img src="https://i.niupic.com/images/2019/05/21/_1370.jpg">
+          <img src="https://i.niupic.com/images/2019/05/21/_1374.jpg">
+          <!-- <img src="http://wx4.sinaimg.cn/large/0060lm7Tly1fxa6f6j93bj30yf0anmy5.jpg"> -->
+          <!-- <img src="http://wx1.sinaimg.cn/large/0060lm7Tly1fxa6f6jj1uj30zu0mimz8.jpg"> -->
+        </div>
+    {%else%}
+            <div class="mdui-typo">
+                <h4>一、如何获取<font color="red">onedrive账号标识</font>？</h4>
+                <p>1. 登录世纪互联365首页（<a href="https://portal.partner.microsoftonline.cn/Home" target="_blank">点击进入</a>），登陆后选择onedrive</p>
+                <p>2. 登录onedrive网页版之后，将域名中的【https://（xxx）-my.sharepoint.cn/】的“xxx”填入<font color="blue">onedrive账号标识</font></p>
+                <p>&nbsp;&nbsp;如下图，则将"vipmail"填入<font color="blue">onedrive账号标识</font></p>
+                <img src="https://i.niupic.com/images/2019/05/24/_134.jpg">
+            </div>
 
-  <br>
-  <br>
-  <hr>
+            <div class="mdui-divider-dark"></div>
 
-  <div class="mdui-type">
-    <h1>如果是第一次安装，安装之前，请花2分钟看完这个gif！再进行下一步！！</h1>
-    <img src="https://i.niupic.com/images/2019/05/21/_3.gif">
-    <!-- <img src="https://ws2.sinaimg.cn/large/0074MymAly1fxab79lnsag31gs0qcqvb.gif"> -->
-  </div>
-<div class="mdui-typo">
-  <h4>步骤0. 先登录一次<a href="https://apps.dev.microsoft.com/" target="_blank">https://apps.dev.microsoft.com/</a></h4>
-</div>
-<div class="mdui-typo">
-  <h4>步骤1. 然后点击下方按钮获取<b>应用机密（client_secret)</b>，填写到<b>应用机密(client_secret)</b>栏</h4>
-  <a href="https://apps.dev.microsoft.com/?referrer=https%3a%2f%2fdeveloper.microsoft.com%2fzh-cn%2fgraph%2fquick-start#/quickstart/graphIO?publicClientSupport=false&appName=PyOne&redirectUrl={{redirectUrl}}&allowImplicitFlow=false&ru=https:%2F%2Fdeveloper.microsoft.com%2Fzh-cn%2Fgraph%2Fquick-start%3FappID%3D_appId_%26appName%3D_appName_%26redirectUrl%3D{{redirectUrl}}%26platform%3Doption-php" target="_blank" class="mdui-btn mdui-color-theme-accent mdui-ripple"><i class="mdui-icon material-icons">&#xe89e;</i> 获取应用ID和机密(分两个页面显示，请注意保存)</a>
-</div>
-<div class="mdui-typo">
-  <h4>步骤2. 在刚才获取<b>应用机密（client_secret)</b>的页面，点击<code>知道了，返回到快速启动</code>
-    <p>&nbsp;&nbsp;&nbsp;&nbsp;如果没有错误，返回之后可以找到<B>应用 ID</B>这一个参数，</p>
-    <p>&nbsp;&nbsp;&nbsp;&nbsp;会出现错误，查看网址栏，找到<B>appID</B>这一个参数(目前修复了，可直接获取，如上），</p>
-    <p>将<B>appID</B>复制到<b>应用ID(client_id)</b>栏</p>
-  </h4>
-</div>
-<div class="mdui-typo">
-  <h4>步骤3. 填写完下方两个参数，继续下一步</h4>
-  <img src="https://i.niupic.com/images/2019/05/21/_128.png">
-  <img src="https://i.niupic.com/images/2019/05/21/_1370.jpg">
-  <img src="https://i.niupic.com/images/2019/05/21/_1374.jpg">
-  <!-- <img src="http://wx4.sinaimg.cn/large/0060lm7Tly1fxa6f6j93bj30yf0anmy5.jpg"> -->
-  <!-- <img src="http://wx1.sinaimg.cn/large/0060lm7Tly1fxa6f6jj1uj30zu0mimz8.jpg"> -->
-</div>
+            <div class="mdui-typo">
+                <h4>二、如何获取<font color="red">应用机密(client secret)</font>和<font color="red">应用 ID(client_id)</font>？</h4>
+                <p>1. 登录：<a href="https://portal.azure.cn/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredAppsPreview"  target="_blank">https://portal.azure.cn/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredAppsPreview</a></p>
+                <p>2. 点击<font color="blue">新应用程序注册</font></p>
+                <pre>- 名称：随便填
+- 应用程序类型：Web应用/API
+- 登录URL：https://auth.pyone.me/ （怕不安全？看https://www.abbeyok.com/archives/281。或者干脆不用）</pre>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;点击<font color="blue">创建</font>，进入下一步</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;*创建之后，看到<font color="blue">应用程序(客户端) ID</font>，复制到上方<font color="blue">应用 ID(client_id)</font></p>
+                <p>3. 开启权限：第2步创建应用程序之后，进入该应用的设置页面。</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;1）点击：<font color="blue">API权限</font></p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;2）选择：<font color="blue">添加权限</font>：</p>
+                    <pre>Microsoft Graph – 委派的权限 – Files - Files.ReadWrite 和 Files.ReadWrite.All </pre>
+                <p>4. 创建秘钥：第2步创建应用程序之后，进入该应用的设置页面。</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;1）点击：<font color="blue">证书和密码</font></p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;2）选择：<font color="blue">新客户端密码</font>，添加秘钥：</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;说明：随便填写</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;截止期限：1年内</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;*3）点击<font color="blue">保存</font>，得到秘钥值，复制到上方<font color="blue">应用机密(client secret)</font></p>
+            </div>
+    {%endif%}
 
 
 </div>

@@ -18,25 +18,35 @@
         <div class="mdui-textfield">
           <h4>网盘信息编辑 <small>仅显示已绑定账号网盘</small></h4>
           {%for user in get_od_user(True)%}
-          {%if user[1]!='添加网盘'%}
-          <div class="mdui-panel" mdui-panel>
-              <div class="mdui-panel-item">
-                <div class="mdui-panel-item-header">{{user[1]}}</div>
-                <div class="mdui-panel-item-body">
-                  <h5>显示名称</h5>
-                  <input class="mdui-textfield-input" type="text" name="other_name[{{user[0]}}]" placeholder="请输入显示名称" value="{{user[1]}}" />
-                  <h5>分享目录(不再支持设置特定分享目录)</h5>
-                  <input class="mdui-textfield-input" type="text" name="share_path[{{user[0]}}]" placeholder="请输入分享目录" value="{{user[3]}}" disabled />
-                  <h5>设为默认网盘</h5>
-                  {%if user[0]==GetConfig('default_pan')%}
-                  <span class="mdui-color-blue">默认盘</span>
-                  {%else%}
-                  <div class="mdui-btn mdui-color-blue" onclick="setDefaultPan('{{user[0]}}');">设置为默认盘</div>
-                  {%endif%}
+            {%if user[1]!='添加网盘'%}
+            <div class="mdui-panel" mdui-panel>
+                <div class="mdui-panel-item">
+                  <div class="mdui-panel-item-header">{{user[1]}}</div>
+                  <div class="mdui-panel-item-body">
+                    <h5>显示名称</h5>
+                    <input class="mdui-textfield-input" type="text" name="other_name[{{user[0]}}]" placeholder="请输入显示名称" value="{{user[1]}}" />
+                    <h5>设为默认网盘</h5>
+                    {%if user[0]==GetConfig('default_pan')%}
+                    <span class="mdui-color-blue">默认盘</span>
+                    {%else%}
+                    <div class="mdui-btn mdui-color-blue" onclick="setDefaultPan('{{user[0]}}');">设置为默认盘</div>
+                    {%endif%}
+                  </div>
                 </div>
-              </div>
-          </div>
-          {%endif%}
+            </div>
+            {%else%}
+            <div class="mdui-panel" mdui-panel>
+                <div class="mdui-panel-item">
+                  <div class="mdui-panel-item-header mdui-color-blue">*未绑定盘位【{{user[0]}}】</div>
+                  <div class="mdui-panel-item-body">
+                    <h5>显示名称</h5>
+                    <input class="mdui-textfield-input" type="text" name="other_name[{{user[0]}}]" placeholder="请输入显示名称" value="{{user[1]}}" />
+                    <h5>绑定onedrive</h5>
+                    <div class="mdui-btn mdui-color-blue" onclick="window.location.href='{{url_for('admin.install',user=user[0],step=0)}}'">点击绑定</div>
+                  </div>
+                </div>
+            </div>
+            {%endif%}
           {%endfor%}
         </div>
        <button type="submit" class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right">
@@ -69,5 +79,6 @@ function setDefaultPan(pan) {
           });
     });
 }
+
 </script>
 {%endblock content%}
