@@ -174,12 +174,12 @@ function ClearHist(){
     );
 }
 
-function tellActive() {
+function tellActive(admin_prefix) {
     var defer = $.Deferred();
     var getTimestamp=new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc?t="+getTimestamp,
+        url: "/"+admin_prefix+"/jsonrpc?t="+getTimestamp,
         data: { action:'tellActive' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式
@@ -261,17 +261,17 @@ function tellActive() {
         },
         complete:function(){
             defer.promise();
-            tellFail();
+            tellFail(admin_prefix);
         }
     });
 }
 
-function tellFail() {
+function tellFail(admin_prefix) {
     var defer = $.Deferred();
     var getTimestamp=new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc?t="+getTimestamp,
+        url: "/"+admin_prefix+"/jsonrpc?t="+getTimestamp,
         data: { action:'tellFail' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式
@@ -353,17 +353,17 @@ function tellFail() {
         },
         complete:function(){
             defer.promise();
-            tellSuccess();
+            tellSuccess(admin_prefix);
         }
     });
 }
 
-function tellSuccess() {
+function tellSuccess(admin_prefix) {
     var defer = $.Deferred();
     var getTimestamp=new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc?t="+getTimestamp,
+        url: "/"+admin_prefix+"/jsonrpc?t="+getTimestamp,
         data: { action:'tellSuccess' },
         cache: false,
         // async: false,
@@ -437,18 +437,4 @@ function tellSuccess() {
         }
     });
 }
-function Refresh(){
-    tellActive();
-}
-var interval_id=null;
-function AutoRefresh(){
-    if (interval_id){
-        window.clearInterval(interval_id);
-    }
-    interval_id = window.setInterval(function(){
-        if(need_refresh){
-            Refresh();
-        }
-    },2000);
-}
-AutoRefresh();
+

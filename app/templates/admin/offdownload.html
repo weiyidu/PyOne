@@ -55,7 +55,7 @@
     </div>
 
 </div>
-<script type="text/javascript" src="/static/js/offdownload.js?t=201902264"></script>
+<script type="text/javascript" src="/static/js/offdownload.js?t=20190524v1"></script>
 <script>
 {%if msg!=None%}
 ShowNotice("{{msg}}");
@@ -63,7 +63,7 @@ ShowNotice("{{msg}}");
 function GetTreelist(user){
     $.ajax({
         type: "GET",
-        url: "/admin/treelists/"+user,
+        url: "/{{GetConfig('admin_prefix')}}/treelists/"+user,
         async: false, //使用同步的方式,true为异步方式
         dataType: "json",
         success: function(data) {
@@ -106,7 +106,7 @@ function AddLink() {
         var defer = $.Deferred();
         $.ajax({
             type: "POST",
-            url: "/admin/off_download",
+            url: "/{{GetConfig('admin_prefix')}}/off_download",
             data: { grand_path: $("#path").val(), urls: value, user: $("#user").val() },
             // async: false, //使用同步的方式,true为异步方式
             dataType: "json",
@@ -131,15 +131,7 @@ function AddLink() {
         });
     });
 }
-function unescapeHtml(safe) {
-    return safe
-         .replace(/&amp;/g, "&")
-         .replace(/&lt;/g, "<")
-         .replace(/&gt;/g, ">")
-         .replace(/&quot;/g, "\"")
-         .replace(/%20;/g, " ")
-         .replace(/&#039;/g, "'");
- }
+
 $( document ).ready(function() {
     var path = $(location).attr('hash').replace('#', '');
     if (path){
@@ -158,5 +150,22 @@ $( document ).ready(function() {
         GetTreelist("{{cur_user}}");
     }
 });
+
+function Refresh(){
+    tellActive("{{GetConfig('admin_prefix')}}");
+}
+var interval_id=null;
+function AutoRefresh(){
+    if (interval_id){
+        window.clearInterval(interval_id);
+    }
+    interval_id = window.setInterval(function(){
+        if(need_refresh){
+            Refresh();
+        }
+    },2000);
+}
+AutoRefresh();
+
 </script>
 {%endblock content%}
