@@ -18,12 +18,12 @@ def off_download():
             return jsonify({'status':False,'msg':p})
         urls=request.form.get('urls').split('\n')
         grand_path=request.form.get('grand_path')
+        u,p=grand_path.split(':')
         user=request.form.get('user')
-        print user,grand_path
         for url in urls:
             if url.strip()!='':
                 # cmd=u'python {} download_and_upload "{}" "{}" {}'.format(os.path.join(config_dir,'function.py'),url,grand_path,user)
-                cmd=u'nohup python {} download_and_upload "{}" "{}" {} &'.format(os.path.join(config_dir,'function.py'),url,grand_path,user)
+                cmd=u'nohup python {} download_and_upload "{}" "{}" {} &'.format(os.path.join(config_dir,'function.py'),url,p,user)
                 subprocess.Popen(cmd,shell=True)
         return jsonify({'status':True,'msg':'ok'})
     path=request.args.get('path')
@@ -64,3 +64,4 @@ def clearHist():
     mon_db.down_db.delete_many({})
     ret={'msg':'清除成功！'}
     return jsonify(ret)
+
