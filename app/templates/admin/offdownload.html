@@ -7,7 +7,7 @@
     <div class="mdui-toolbar mdui-color-theme">
       <button class="mdui-btn mdui-btn-icon" onclick="AddLink()" mdui-tooltip="{{'{'}}content: '添加任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe250;</i></button>
       <button class="mdui-btn mdui-btn-icon" onclick="window.open('http://www.torrent.org.cn/');" mdui-tooltip="{{'{'}}content: '种子转磁力'{{'}'}}"><i class="mdui-icon material-icons">&#xe428;</i></button>
-      <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
+      <button class="mdui-btn mdui-btn-icon" onclick="ClearHist('{{GetConfig("admin_prefix")}}')" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
     </div>
     <div class="mdui-row">
         <div class="mdui-col-xs-3">
@@ -55,7 +55,7 @@
     </div>
 
 </div>
-<script type="text/javascript" src="/static/js/offdownload.js?t=20190524v1"></script>
+<script type="text/javascript" src="/static/js/offdownload.js?t=20190525v1"></script>
 <script>
 {%if msg!=None%}
 ShowNotice("{{msg}}");
