@@ -1,13 +1,13 @@
 {%extends 'theme/'+GetConfig('theme')+'/layout.html'%}
 
 {%block content%}
-<script src="https://cdn.staticfile.org/audiojs/1.0.1/audio.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.css">
+<script src="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
 
 <div class="mdui-container-fluid">
   <br>
   <center>
-  <audio src="{{inner_url}}" autoplay style="width: 100%;" preload="auto">
-  </audio>
+    <div class="mdui-typo mdui-shadow-3 mudi-center" id="audio-player"></div>
   </center>
   <br>
   <!-- 固定标签 -->
@@ -20,9 +20,42 @@
     <input class="mdui-textfield-input" type="text" id="out_use" value="{{url}}" onclick="copyUrl('out_use')"/>
   </div>
   <script>
-    audiojs.events.ready(function() {
-      var as = audiojs.createAll();
-    });
+        //参考了olaindex
+        $(function () {
+            var cnt=1;
+            const ap = new APlayer({
+                container: document.getElementById('audio-player'),
+                audio: [{
+                    name: '{{ name }}',
+                    url: "{{url}}",
+                    cover: 'cover.jpg'
+                }]
+            });
+            // 防止出现401 token过期
+
+                ap.on('error', function () {
+                    if(cnt<=3){
+                        console.log('播放出错，尝试第'+cnt+'次')
+                        let last = ap.audio.currentTime;
+                        ap.audio.src = "{{url}}";
+                        ap.audio.load();
+                        ap.audio.currentTime = last;
+                        ap.play();
+                        cnt=cnt+1;
+                        }
+                });
+
+            // 如果是播放状态 & 没有播放完 每25分钟重载视频防止卡死
+            setInterval(function () {
+                if (!ap.audio.paused && !ap.audio.ended) {
+                    let last = ap.audio.currentTime;
+                    ap.audio.src = "{{url}}";
+                    ap.audio.load();
+                    ap.audio.currentTime = last;
+                    ap.play();
+                }
+            }, 1000 * 60 * 25)
+        });
   </script>
 </div>
 <a href="{{url}}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
