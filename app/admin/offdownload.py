@@ -18,7 +18,8 @@ def off_download():
             return jsonify({'status':False,'msg':p})
         urls=request.form.get('urls').split('\n')
         grand_path=request.form.get('grand_path')
-        u,p=grand_path.split(':')
+        if grand_path!='/':
+            u,grand_path=grand_path.split(':')
         user=request.form.get('user')
         for url in urls:
             if url.strip()!='':
