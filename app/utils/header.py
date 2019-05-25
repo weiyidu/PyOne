@@ -92,7 +92,7 @@ def get_value(key,user=GetConfig('default_pan')):
         value=re.findall('"{}":.*"(.*?)"'.format(key),kv)[0]
         return value
     except:
-        return False
+        return 'nocn'
 
 def GetName(id):
     key='name:{}'.format(id)
