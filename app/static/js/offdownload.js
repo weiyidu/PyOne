@@ -201,17 +201,17 @@ function tellActive(admin_prefix) {
                          //active -- >pause/unpause/remove
                         td='       <div class="mdui-col-xs-2">&nbsp;&nbsp;&nbsp;';
                         if(t['down_status']=='暂停下载'){
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
                         }
                         else{
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
                         }
                         // if(t['selectable']=='true'){
                         //     td+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe5c9;</i></button>';
                         // }
                         // td+='<button class="mdui-btn mdui-btn-icon" onclick="remove(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'删除任务\'}"><i class="mdui-icon material-icons">&#xe872;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
                         td+='      </div>';
                         html+=td;
                         //active end
@@ -239,10 +239,10 @@ function tellActive(admin_prefix) {
                                 //sub操作
                                 inner_html+='<div class="mdui-col-xs-1 ">';
                                 if(file['selected']=='true'){
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+admin_prefix+','+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
                                 }
                                 else{
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+admin_prefix+','+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
                                 }
                                 inner_html+='</div>';
                                 //sub操作 end
@@ -293,17 +293,17 @@ function tellFail(admin_prefix) {
                          //active -- >pause/unpause/remove
                         td='       <div class="mdui-col-xs-2">&nbsp;&nbsp;&nbsp;';
                         if(t['down_status']=='暂停下载'){
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
                         }
                         else{
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
                         }
                         // if(t['selectable']=='true'){
                         //     td+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe5c9;</i></button>';
                         // }
                         // td+='<button class="mdui-btn mdui-btn-icon" onclick="remove(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'删除任务\'}"><i class="mdui-icon material-icons">&#xe872;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
                         td+='      </div>';
                         //active end
                     html+=td;
@@ -331,10 +331,10 @@ function tellFail(admin_prefix) {
                                 //sub操作
                                 inner_html+='<div class="mdui-col-xs-1 ">';
                                 if(file['selected']=='true'){
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+admin_prefix+','+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
                                 }
                                 else{
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+admin_prefix+','+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
                                 }
                                 inner_html+='</div>';
                                 //sub操作 end
@@ -388,8 +388,8 @@ function tellSuccess(admin_prefix) {
                         //     td+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe5c9;</i></button>';
                         // }
                         // td+='<button class="mdui-btn mdui-btn-icon" onclick="remove(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'删除任务\'}"><i class="mdui-icon material-icons">&#xe872;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+','+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
                         td+='      </div>';
                         html+=td;
                         //active end
