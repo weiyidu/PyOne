@@ -25,7 +25,10 @@ app.logger.addHandler(ErrorLogger().file_handler)
 app.logger.setLevel(logging.DEBUG)
 
 ######################初始化变量
-pool = ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+if REDIS_PASSWORD!="":
+    pool = ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB,password=REDIS_PASSWORD)
+else:
+    pool = ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 tmp_rd=Redis(connection_pool=pool)
 tmp_rd.set('title',title)
 tmp_rd.set('tj_code',tj_code)
