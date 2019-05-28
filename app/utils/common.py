@@ -97,7 +97,10 @@ def FetchData(path='{}:/'.format(GetConfig('default_pan')),page=1,per_page=50,so
             if f['type']!='folder':
                 if balance and action!='share':
                     user,p=path.split(':')
-                    files=mon_db.items.find({'path':re.compile(p)})
+                    p2=p.replace('(','\(').replace(')','\)').replace('|','\|')\
+                        .replace('*','\*').replace('.','\.').replace('?','\?')\
+                        .replace('[','\[').replace(']','\]')
+                    files=mon_db.items.find({'path':re.compile(p2)})
                     key='balance:{}'.format(p)
                     users=[]
                     for file in files:
