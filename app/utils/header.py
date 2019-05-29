@@ -614,7 +614,7 @@ def clearRedis(user=None):
         try:
             redis_client.delete(*redis_client.keys(k))
         except:
-            ErrorLogger().print_r('empty keys {}'.format(k))
+            'NoKey'
 
 def CheckServer():
     mongo_cmd='lsof -i:27017 | grep LISTEN'

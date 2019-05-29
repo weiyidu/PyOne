@@ -76,6 +76,9 @@ admin_prefix="admin"
 #是否做负载均衡
 balance="False"
 
+#多线程最大线程
+thread_num="5"
+
 od_users={
     "A":{
         "client_id":"",

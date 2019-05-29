@@ -23,14 +23,23 @@
         </div>
 
         <div class="mdui-textfield">
+          <h4>防盗链设置（不限制，则设置：no-referrer；仅限3pp.me调用，则设置：3pp.me；可调用域名通过英文逗号分隔）</h4>
+          <input class="mdui-textfield-input" type="text" name="allow_site" value="{{GetConfig('allow_site')}}"/>
+        </div>
+
+        <div class="mdui-textfield">
           <h4>缓存过期时间(秒)（非自动刷新文件列表，不懂勿改）</h4>
           <input class="mdui-textfield-input" type="text" name="downloadUrl_timeout" value="{{GetConfig('downloadUrl_timeout')}}"/>
         </div>
 
+
         <div class="mdui-textfield">
-          <h4>防盗链设置（不限制，则设置：no-referrer；仅限3pp.me调用，则设置：3pp.me；可调用域名通过英文逗号分隔）</h4>
-          <input class="mdui-textfield-input" type="text" name="allow_site" value="{{GetConfig('allow_site')}}"/>
+          <h4>线程数</h4>
+          <small><p>网盘搬家、批量上传文件夹、更新文件时的线程，最好<font color="red">不要超过10</font></p>
+          <p>配置低的机器可以配小一点</small>
+          <input class="mdui-textfield-input" type="text" name="thread_num" value="{{GetConfig('thread_num')}}"/>
         </div>
+
 
         <h4>默认排序字段</h4>
         <select class="mdui-select" name="default_sort" mdui-select>

@@ -104,6 +104,13 @@ Disallow:  /
         echo 'admin_prefix="admin"' >> self_config.py
     fi
 
+
+    num=`cat self_config.py | grep "thread_num" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'thread_num="5"' >> self_config.py
+    fi
+
 }
 
 
@@ -186,6 +193,7 @@ echo "2019.05.23更新版本：新增负载均衡功能！"
 echo "2019.05.24更新版本：支持世纪互联版本onedrive"
 echo "2019.05.25更新版本：参考olaindex，视频和音频出错自动加载&每25分钟重新加载一次"
 echo "2019.05.28更新版本：修复开启负债均衡之后，文件名有特殊符号播放不了的bug"
+echo "2019.05.29更新版本：支持自定义线程数"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"

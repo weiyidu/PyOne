@@ -287,7 +287,7 @@ class MultiUpload(Thread):
                 Upload(localpath,remote_dir,self.user)
 
 
-def UploadDir(local_dir,remote_dir,user,threads=5):
+def UploadDir(local_dir,remote_dir,user,threads=int(GetConfig('thread_num'))):
     InfoLogger().print_r(u'geting file from dir {}'.format(local_dir))
     localfiles=list_all_files(local_dir)
     InfoLogger().print_r(u'get {} files from dir {}'.format(len(localfiles),local_dir))

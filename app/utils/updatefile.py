@@ -45,7 +45,7 @@ def Dir(path=u'{}:/'.format(GetConfig('default_pan'))):
     if queue.qsize()==0:
         return
     tasks=[]
-    for i in range(min(10,queue.qsize())):
+    for i in range(min(int(GetConfig('thread_num')),queue.qsize())):
         t=GetItemThread(queue,user)
         t.setDaemon(True)
         t.start()
@@ -79,6 +79,7 @@ def UpdateFile(renew='all',fresh_user=None):
     if fresh_user is None or fresh_user=='':
         if renew=='all':
             mon_db.items.delete_many({})
+            InfoLogger().print_r('[* UpdateFile] delete local data;check file num:{}'.format(mon_db.items.count()))
             clearRedis()
             for user,item in od_users.items():
                 if item.get('client_id')!='':
