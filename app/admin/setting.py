@@ -57,7 +57,7 @@ def sys_setting():
         balance=request.form.get('balance','False')
         show_secret=request.form.get('show_secret','no')
         encrypt_file=request.form.get('encrypt_file','no')
-        thead_num=request.form.get('thead_num','5')
+        thread_num=request.form.get('thread_num','5')
 
         set('downloadUrl_timeout',downloadUrl_timeout)
         set('allow_site',allow_site)
@@ -84,7 +84,7 @@ def sys_setting():
         set('order_m',order_m)
         set('show_secret',show_secret)
         set('encrypt_file',encrypt_file)
-        set('thead_num',thead_num)
+        set('thread_num',thread_num)
         # reload()
 
         redis_client.set('downloadUrl_timeout',downloadUrl_timeout)
@@ -114,7 +114,7 @@ def sys_setting():
         redis_client.set('order_m',order_m)
         redis_client.set('show_secret',show_secret)
         redis_client.set('encrypt_file',encrypt_file)
-        redis_client.set('thead_num',thead_num)
+        redis_client.set('thread_num',thread_num)
         flash('更新成功')
         resp=MakeResponse(redirect(url_for('admin.sys_setting')))
         return resp
