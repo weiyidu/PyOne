@@ -3,7 +3,7 @@
 {%block content%}
 <div class="container">
     <br>
-    <img class="img-responsive" src="{{inner_url}}"/>
+    <img class="img-responsive" src="{{url}}"/>
     <br>
     <!-- 固定标签 -->
     <div class="form-horizontal">
@@ -11,7 +11,11 @@
             <span class="input-group-addon" id="basic-addon1">
                     <i class="fa fa-share-alt" aria-hidden="true"></i>分享地址
                 </span>
+            {%if GetConfig("verify_url")=="True"%}
+            <input id="share" class="form-control" type="text" value="{{url}}&action=share" />
+            {%else%}
             <input id="share" class="form-control" type="text" value="{{url}}?action=share" />
+            {%endif%}
             <a class="input-group-addon" onclick="copyUrl('share')">点击复制</a>
         </div>
         <div class="input-group">
@@ -23,7 +27,7 @@
         </div>
     </div>
         <br>
- <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+ <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 </div>
 
 

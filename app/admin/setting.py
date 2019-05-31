@@ -58,6 +58,7 @@ def sys_setting():
         show_secret=request.form.get('show_secret','no')
         encrypt_file=request.form.get('encrypt_file','no')
         thread_num=request.form.get('thread_num','5')
+        verify_url=request.form.get('verify_url','False')
 
         set('downloadUrl_timeout',downloadUrl_timeout)
         set('allow_site',allow_site)
@@ -85,6 +86,7 @@ def sys_setting():
         set('show_secret',show_secret)
         set('encrypt_file',encrypt_file)
         set('thread_num',thread_num)
+        set('verify_url',verify_url)
         # reload()
 
         redis_client.set('downloadUrl_timeout',downloadUrl_timeout)
@@ -115,6 +117,7 @@ def sys_setting():
         redis_client.set('show_secret',show_secret)
         redis_client.set('encrypt_file',encrypt_file)
         redis_client.set('thread_num',thread_num)
+        redis_client.set('verify_url',verify_url)
         flash('更新成功')
         resp=MakeResponse(redirect(url_for('admin.sys_setting')))
         return resp

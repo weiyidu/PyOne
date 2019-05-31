@@ -12,7 +12,11 @@
       <div class="layui-form-item" pane>
         <label class="layui-form-label"><a onclick="copyUrl('share')"><i class="fa fa-share-alt" aria-hidden="true"></i>分享地址(点击复制)</a></label>
         <div class="layui-input-block">
-          <input type="text" id="share" class="layui-input" value="{{url}}?action=share" >
+            {%if GetConfig("verify_url")=="True"%}
+            <input type="text" id="share" class="layui-input" value="{{url}}&action=share" >
+            {%else%}
+            <input type="text" id="share" class="layui-input" value="{{url}}?action=share" >
+            {%endif%}
         </div>
       </div>
     </div>
@@ -30,7 +34,7 @@
             container: document.getElementById('dplayer'),
             lang: 'zh-cn',
             video: {
-                url: "{{inner_url}}?action=play",
+                url: "{{url}}",
                 type: 'auto'
             },
             autoplay: true
@@ -41,7 +45,7 @@
             if(cnt<=3){
                 console.log('获取资源错误，开始重新加载！');
                 let last = dp.video.currentTime;
-                dp.video.src = "{{inner_url}}?action=play";
+                dp.video.src = "{{url}}";
                 dp.video.load();
                 dp.video.currentTime = last;
                 dp.play();
@@ -54,7 +58,7 @@
             if (!dp.video.paused && !dp.video.ended) {
                 console.log('开始重新加载！');
                 let last = dp.video.currentTime;
-                dp.video.src = "{{inner_url}}?action=play";
+                dp.video.src = "{{url}}";
                 dp.video.load();
                 dp.video.currentTime = last;
                 dp.play();
@@ -62,6 +66,6 @@
         }, 1000 * 60 * 25)
     });
     </script>
-    <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+    <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 </div>
 {%endblock content%}

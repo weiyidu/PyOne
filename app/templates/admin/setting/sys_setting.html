@@ -8,13 +8,29 @@
     </div>
     <form action="{{url_for('admin.sys_setting')}}" method="POST">
 
-        <h4><font color="red">是否开启负载均衡</font></h4>
-        <small><p>开启之后，只显示默认盘文件；如果默认盘有的文件，其他盘也有，则会在这几个盘之间切换获取直链</p>
-        <p>仅限<font color="blue">不同域</font>的onedrive开启负载均衡才有意义！！！</p></small>
-        <select class="mdui-select" name="balance" mdui-select>
-            <option value="True"{%if GetConfig('balance')=='True'%} selected{%endif%}>开启</option>
-            <option value="False"{%if GetConfig('balance')=='False'%} selected{%endif%}>关闭</option>
-        </select>
+            <h4><font color="red">是否开启负载均衡</font></h4>
+            <small>
+              <p>开启之后，只显示默认盘文件；如果默认盘有的文件，其他盘也有，则会在这几个盘之间切换获取直链</p>
+              <p>仅限<font color="blue">不同域</font>的onedrive开启负载均衡才有意义！！！</p>
+            </small>
+            <select class="mdui-select" name="balance" mdui-select>
+                <option value="True"{%if GetConfig('balance')=='True'%} selected{%endif%}>开启</option>
+                <option value="False"{%if GetConfig('balance')=='False'%} selected{%endif%}>关闭</option>
+            </select>
+
+        <hr>
+          <h4><font color="red">是否开启下载验证</font></h4>
+          <small>
+            <p>开启之后，他人无法直接通过文件链接下载文件，必须带token</p>
+            <p>比如，未开启，可通过：<a href="https://pyone.me/A:/run.py">https://pyone.me/A:/run.py</a>下载到文件</p>
+            <p>如果开启，通过：<a href="https://pyone.me/A:/run.py">https://pyone.me/A:/run.py</a>会返回403，此时必须带token</p>
+          </small>
+          <select class="mdui-select" name="verify_url" mdui-select>
+              <option value="True"{%if GetConfig('verify_url')=='True'%} selected{%endif%}>开启</option>
+              <option value="False"{%if GetConfig('verify_url')=='False'%} selected{%endif%}>关闭</option>
+          </select>
+
+        <hr>
 
         <div class="mdui-textfield">
           <h4>*后台路径（默认是admin，如果改为uadmin，则进后台路径为：/uadmin）</h4>
@@ -23,7 +39,7 @@
         </div>
 
         <div class="mdui-textfield">
-          <h4>防盗链设置（不限制，则设置：no-referrer；仅限3pp.me调用，则设置：3pp.me；可调用域名通过英文逗号分隔）</h4>
+          <h4>防盗链设置（不限制，则设置：no-referrer；仅限3pp.me调用，则设置：3pp.me；可调用域名通过<font color="red">英文逗号(,)</font>分隔）</h4>
           <input class="mdui-textfield-input" type="text" name="allow_site" value="{{GetConfig('allow_site')}}"/>
         </div>
 

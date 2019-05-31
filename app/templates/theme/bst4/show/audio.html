@@ -16,7 +16,11 @@
             <span class="input-group-addon" id="basic-addon1">
                     <i class="fa fa-share-alt" aria-hidden="true"></i>分享地址
                 </span>
+            {%if GetConfig("verify_url")=="True"%}
+            <input id="share" class="form-control" type="text" value="{{url}}&action=share" />
+            {%else%}
             <input id="share" class="form-control" type="text" value="{{url}}?action=share" />
+            {%endif%}
             <a class="input-group-addon" onclick="copyUrl('share')">点击复制</a>
         </div>
         <div class="input-group">
@@ -66,5 +70,5 @@
           }, 1000 * 60 * 25)
       });
 </script>
-    <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+    <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 {%endblock content%}

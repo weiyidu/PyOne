@@ -112,7 +112,12 @@
                 data:{pan_from:pan_from,pan_to:pan_to,user_to:to_pan},
                 dataType: "json",
                 success: function(data) {
-                    layer.msg(data.msg, {icon: 1});
+                    if(data.status==false){
+                      layer.msg(data.msg, {icon: 2});
+                    }
+                    else{
+                      layer.msg(data.msg, {icon: 1});
+                    }
                 },
                   error: function(){
                       layer.msg('服务器内部错误！');

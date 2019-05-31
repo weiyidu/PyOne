@@ -13,7 +13,11 @@
             <span class="input-group-addon" id="basic-addon1">
                     <i class="fa fa-share-alt" aria-hidden="true"></i>分享地址
                 </span>
+            {%if GetConfig("verify_url")=="True"%}
+            <input id="share" class="form-control" type="text" value="{{url}}&action=share" />
+            {%else%}
             <input id="share" class="form-control" type="text" value="{{url}}?action=share" />
+            {%endif%}
             <a class="input-group-addon" onclick="copyUrl('share')">点击复制</a>
         </div>
         <div class="input-group">
@@ -30,7 +34,7 @@
             container: document.getElementById('dplayer'),
             lang: 'zh-cn',
             video: {
-                url: "{{inner_url}}?action=play",
+                url: "{{url}}",
                 type: 'auto'
             },
             autoplay: true
@@ -41,7 +45,7 @@
             if(cnt<=3){
                 console.log('获取资源错误，开始重新加载！');
                 let last = dp.video.currentTime;
-                dp.video.src = "{{inner_url}}?action=play";
+                dp.video.src = "{{url}}";
                 dp.video.load();
                 dp.video.currentTime = last;
                 dp.play();
@@ -54,7 +58,7 @@
             if (!dp.video.paused && !dp.video.ended) {
                 console.log('开始重新加载！');
                 let last = dp.video.currentTime;
-                dp.video.src = "{{inner_url}}?action=play";
+                dp.video.src = "{{url}}";
                 dp.video.load();
                 dp.video.currentTime = last;
                 dp.play();
@@ -62,6 +66,6 @@
         }, 1000 * 60 * 25)
     });
     </script>
-    <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+    <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 </div>
 {%endblock content%}

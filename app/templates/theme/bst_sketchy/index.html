@@ -48,10 +48,14 @@
                         </li>
                     {%else%}
                        <li class="list-group-item list-group-item-action file">
+                            {%if GetConfig("verify_url")=="True"%}
+                            <a href="{{url_for('front.index',path=data['path'],token=GenerateToken(data['path']))}}" target="_blank">
+                            {%else%}
                             <a href="{{url_for('front.index',path=data['path'])}}" target="_blank">
+                            {%endif%}
                                 {%if image_mode==1%}
                                     {%if file_ico(data)=='image'%}
-                                    <img class="img-fluid" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download')}}"/>
+                                        <img class="img-fluid" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download',token=GenerateToken(data['path']))}}"/>
                                     {%else%}
                                     <div class="row">
                                         <div class="col-8 col-sm-6" style="text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">{{ macros.get_ico(file_ico(data)) }}{{data['name']}}</div>
@@ -113,7 +117,11 @@ $(function() {
                 shadeClose: true,
                 shade: 0.8,
                 area: ['100%', '100%'],
+                {%if GetConfig("verify_url")=="True"%}
+                content: $(this).attr('href') + "&action=share" //iframe的url
+                {%else%}
                 content: $(this).attr('href') + "?action=share" //iframe的url
+                {%endif%}
             });
             return false;
         });

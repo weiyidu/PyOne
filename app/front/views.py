@@ -51,7 +51,7 @@ def index(path=None):
     balance=eval(GetConfig('balance'))
     if path is None:
         path='{}:/'.format(GetConfig('default_pan'))
-    path=urllib.unquote(path).replace('&action=play','').replace('&action=share','')
+    path=urllib.unquote(path).split('?')[0]
     if not os.path.exists(os.path.join(config_dir,'.install')):
         resp=redirect(url_for('admin.install',step=0,user=GetConfig('default_pan')))
         return resp
@@ -72,6 +72,7 @@ def index(path=None):
     sortby=GetCookie(key='sortby',default=GetConfig('default_sort'))
     order=GetCookie(key='order',default=GetConfig('order_m'))
     action=request.args.get('action','download')
+    token=request.args.get('token')
     data,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,action=action,dismiss=True)
     #是否有密码
     password,_,cur=has_item(path,'.password')
@@ -87,11 +88,27 @@ def index(path=None):
     if password!=False:
         if (not request.cookies.get(md5_p) or request.cookies.get(md5_p)!=password) and has_verify_==False:
             if total=='files' and GetConfig('encrypt_file')=="no":
-                return show(data['id'],data['user'],action)
+                if GetConfig("verify_url")=="True":
+                    if token is None:
+                        return abort(403)
+                    elif VerifyToken(token,path):
+                        return show(data['id'],data['user'],action,token=token)
+                    else:
+                        return abort(403)
+                else:
+                    return show(data['id'],data['user'],action,token=token)
             resp=MakeResponse(render_template('theme/{}/password.html'.format(GetConfig('theme')),path=path,cur_user=user))
             return resp
     if total=='files':
-        return show(data['id'],data['user'],action)
+        if GetConfig("verify_url")=="True":
+            if token is None:
+                return abort(403)
+            elif VerifyToken(token,path):
+                return show(data['id'],data['user'],action,token=token)
+            else:
+                return abort(403)
+        else:
+            return show(data['id'],data['user'],action,token=token)
     readme,ext_r=GetReadMe(path)
     head,ext_d=GetHead(path)
     #参数
@@ -118,13 +135,21 @@ def index(path=None):
     resp.set_cookie('order',str(order))
     return resp
 
-@front.route('/file/<user>/<fileid>/<action>')
-def show(fileid,user,action='download'):
+@front.route('/file/<user>/<fileid>/<action>/<token>')
+def show(fileid,user,action='download',token=None):
+    if token is None:
+        token=request.args.get('token')
+    path=GetPath(fileid)
     name=GetName(fileid)
     ext=name.split('.')[-1].lower()
-    path=GetPath(fileid)
     url=request.url.replace(':80','').replace(':443','').encode('utf-8').split('?')[0]
     inner_url='/'+urllib.quote('/'.join(url.split('/')[3:]))
+    if GetConfig("verify_url")=="True":
+        url=url+'?token='+token
+        if token is None:
+            return abort(403)
+        elif VerifyToken(token,path)==False:
+            return abort(403)
     if request.method=='POST' or action=='share':
         InfoLogger().print_r(u'share page:{}'.format(path))
         if ext in ['csv','doc','docx','odp','ods','odt','pot','potm','potx','pps','ppsx','ppsxm','ppt','pptm','pptx','rtf','xls','xlsx']:
@@ -155,11 +180,11 @@ def show(fileid,user,action='download'):
         downloadUrl,play_url=GetDownloadUrl(fileid,user)
         if not downloadUrl.startswith('http'):
             return MakeResponse(downloadUrl)
-        if ext in ['webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-            if action=='play':
-                resp=MakeResponse(redirect(play_url))
-            else:
-                resp=MakeResponse(redirect(downloadUrl))
+        # if ext in ['webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
+        #     if action=='play':
+        #         resp=MakeResponse(redirect(play_url))
+        #     else:
+        #         resp=MakeResponse(redirect(downloadUrl))
         else:
             resp=MakeResponse(redirect(play_url))
     else:

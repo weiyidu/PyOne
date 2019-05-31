@@ -79,6 +79,10 @@ balance="False"
 #多线程最大线程
 thread_num="5"
 
+#是否开启下载链接验证
+verify_url="True"
+
+
 od_users={
     "A":{
         "client_id":"",

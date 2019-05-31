@@ -50,7 +50,7 @@
                         {%if data['type']=='folder' %}
                             <tr>
                                 <td>
-                                        <a href="{{url_for('front.index',path=data['path'])}}"><i class="fa fa-folder-o"></i> {{CutText(data['name'])}}</a>
+                                    <a href="{{url_for('front.index',path=data['path'])}}"><i class="fa fa-folder-o"></i> {{CutText(data['name'])}}</a>
                                 </td>
                                 <td class="layui-hide-xs">{{data['lastModtime']}}</td>
                                 <td class="layui-hide-xs">{{data['type']}}</td>
@@ -61,7 +61,11 @@
                                 {%if file_ico(data)!='image'%}
                                     <tr>
                                         <td>
+                                            {%if GetConfig("verify_url")=="True"%}
+                                            <a href="{{url_for('front.index',path=data['path'],action='share',token=GenerateToken(data['path']))}}" target="_blank">
+                                            {%else%}
                                             <a href="{{url_for('front.index',path=data['path'],action='share')}}" target="_blank">
+                                            {%endif%}
                                                 {{ macros.get_ico(file_ico(data)) }} {{CutText(data['name'])}}
                                             </a>
                                         </td>
@@ -73,7 +77,11 @@
                             {%else%}
                                 <tr>
                                     <td>
+                                        {%if GetConfig("verify_url")=="True"%}
+                                        <a href="{{url_for('front.index',path=data['path'],action='share',token=GenerateToken(data['path']))}}" target="_blank">
+                                        {%else%}
                                         <a href="{{url_for('front.index',path=data['path'],action='share')}}" target="_blank">
+                                        {%endif%}
                                             {{ macros.get_ico(file_ico(data)) }} {{CutText(data['name'])}}
                                         </a>
                                     </td>
@@ -94,8 +102,12 @@
         <div style="max-width: 600px;">
         {%for data in items%}
             {%if file_ico(data)=='image'%}
+                {%if GetConfig("verify_url")=="True"%}
+                <a href="{{url_for('front.index',path=data['path'],action='share',token=GenerateToken(data['path']))}}" target="_blank">
+                {%else%}
                 <a href="{{url_for('front.index',path=data['path'],action='share')}}" target="_blank">
-                <img class="img-responsive" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download')}}"/>
+                {%endif%}
+                    <img class="img-responsive" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download',token=GenerateToken(data['path']))}}"/>
                 </a>
             {%endif%}
         {%endfor%}
