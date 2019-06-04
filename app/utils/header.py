@@ -580,6 +580,7 @@ class GetItemThread(Thread):
         app_url=GetAppUrl(self.user)
         token=GetToken(user=self.user)
         path=convert2unicode(path)
+        od_type=get_value('od_type',self.user)
         if path=='' or path=='/':
             if od_type=='nocn' or od_type is None or od_type==False:
                 url=app_url+u'v1.0/me/drive/root/'
