@@ -88,6 +88,12 @@ Disallow:  /
         echo 'show_code="html,htm,php,py,css,go,java,js,json,txt,sh,md"' >> self_config.py
     fi
 
+    num=`cat self_config.py | grep "show_doc" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_doc="csv,doc,docx,odp,ods,odt,pot,potm,potx,pps,ppsx,ppsxm,ppt,pptm,pptx,rtf,xls,xlsx"' >> self_config.py
+    fi
+
 }
 
 
