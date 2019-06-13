@@ -15,72 +15,6 @@ update_sp(){
 
 #2019.01.18
 update_config(){
-    num=`cat self_config.py | grep "MONGO_HOST" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_HOST="localhost"' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_PORT" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_PORT="27017"' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_USER" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_USER=""' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_PASSWORD" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_PASSWORD=""' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_DB" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_DB="three"' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "REDIS_HOST" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_HOST="localhost"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "REDIS_PORT" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_PORT="6379"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "REDIS_PASSWORD" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_PASSWORD=""' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "REDIS_DB" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_DB="0"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "default_sort" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'default_sort="lastModtime"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "order_m" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'order_m="desc"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "default_pan" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'default_pan="A"' >> self_config.py
-    fi
 
     num=`cat self_config.py | grep "balance" | wc -l`
     if [ $num == 0 ]; then
@@ -118,6 +52,42 @@ Disallow:  /
     fi
 
 
+    num=`cat self_config.py | grep "show_redirect" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_redirect="exe"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_image" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_image="bmp,jpg,jpeg,png,gif"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_video" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_video="mp4,webm"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_dash" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_dash="avi,mpg,mpeg,rm,rmvb,mov,wmv,mkv,asf"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_audio" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_audio="ogg,mp3,wav,aac,flac,m4a"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_code" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_code="html,htm,php,py,css,go,java,js,json,txt,sh,md"' >> self_config.py
+    fi
+
 }
 
 
@@ -137,13 +107,14 @@ upgrade(){
         touch .install
     fi
     update_config
+    yum install gcc libffi-devel python-devel openssl-devel -y
     pip install -r requirements.txt
     which lsof > /dev/null 2>&1
     if [ $? == 0 ]; then
         echo "lsof exist"
     else
         echo "lsof dose not exist"
-        yum install lsof
+        yum install lsof -y
     fi
 }
 
@@ -202,6 +173,7 @@ echo "2019.05.25更新版本：参考olaindex，视频和音频出错自动加�
 echo "2019.05.28更新版本：修复开启负债均衡之后，文件名有特殊符号播放不了的bug"
 echo "2019.05.29更新版本：支持自定义线程数"
 echo "2019.05.31更新版本：新增功能：1）下载链接验证开关；优化：1）aria2信息不对时，无法添加任务"
+echo "2019.06.13更新版本：新增功能：文件展示设置"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"

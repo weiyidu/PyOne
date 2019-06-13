@@ -152,19 +152,22 @@ def show(fileid,user,action='download',token=None):
             return abort(403)
     if request.method=='POST' or action=='share':
         InfoLogger().print_r(u'share page:{}'.format(path))
-        if ext in ['csv','doc','docx','odp','ods','odt','pot','potm','potx','pps','ppsx','ppsxm','ppt','pptm','pptx','rtf','xls','xlsx']:
+        if ext in GetConfig('show_redirect').split(','):
+            downloadUrl,play_url=GetDownloadUrl(fileid,user)
+            resp=MakeResponse(redirect(downloadUrl))
+        elif ext in GetConfig('show_doc').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             url = 'https://view.officeapps.live.com/op/view.aspx?src='+urllib.quote(downloadUrl)
             resp=MakeResponse(redirect(url))
-        elif ext in ['bmp','jpg','jpeg','png','gif']:
+        elif ext in GetConfig('show_image').split(','):
             resp=MakeResponse(render_template('theme/{}/show/image.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
-        elif ext in ['mp4','webm']:
+        elif ext in GetConfig('show_video').split(','):
             resp=MakeResponse(render_template('theme/{}/show/video.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
-        elif ext in ['avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
+        elif ext in GetConfig('show_dash').split(','):
             resp=MakeResponse(render_template('theme/{}/show/video2.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
-        elif ext in ['ogg','mp3','wav']:
+        elif ext in GetConfig('show_audio').split(','):
             resp=MakeResponse(render_template('theme/{}/show/audio.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
-        elif CodeType(ext) is not None:
+        elif ext in GetConfig('show_code').split(','):
             content=common._remote_content(fileid,user)
             resp=MakeResponse(render_template('theme/{}/show/code.html'.format(GetConfig('theme')),content=content,url=url,inner_url=inner_url,language=CodeType(ext),path=path,cur_user=user,name=name))
         elif name=='.password':
@@ -180,11 +183,6 @@ def show(fileid,user,action='download',token=None):
         downloadUrl,play_url=GetDownloadUrl(fileid,user)
         if not downloadUrl.startswith('http'):
             return MakeResponse(downloadUrl)
-        # if ext in ['webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-        #     if action=='play':
-        #         resp=MakeResponse(redirect(play_url))
-        #     else:
-        #         resp=MakeResponse(redirect(downloadUrl))
         else:
             resp=MakeResponse(redirect(play_url))
     else:

@@ -108,3 +108,14 @@ od_users={
 }
 
 
+
+show_doc="csv,doc,docx,odp,ods,odt,pot,potm,potx,pps,ppsx,ppsxm,ppt,pptm,pptx,rtf,xls,xlsx"
+show_image="bmp,jpg,jpeg,png,gif"
+show_video="mp4,webm"
+show_dash="avi,mpg,mpeg,rm,rmvb,mov,wmv,mkv,asf"
+show_audio="ogg,mp3,wav,aac,flac,m4a"
+show_code="html,htm,php,py,css,go,java,js,json,txt,sh,md"
+show_redirect="exe"
+
+
+

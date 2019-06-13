@@ -69,12 +69,12 @@ def GetConfig(key):
     else:
         value=redis_client.get(key) if redis_client.exists(key) else eval(key)
     #这里是为了储存
-    if key=='od_users' and isinstance(value,dict):
+    if key in ['od_users','show_dict'] and isinstance(value,dict):
         value=json.dumps(value)
     if not redis_client.exists(key):
         redis_client.set(key,value)
     #这里是为了转为字典
-    if key=='od_users':
+    if key in ['od_users','show_dict']:
         value=json.loads(value)
     return value
 
@@ -396,7 +396,7 @@ class GetItemThread(Thread):
         super(GetItemThread,self).__init__()
         self.queue=queue
         self.user=user
-        share_path=od_users.get(user).get('share_path')
+        share_path=GetConfig('od_users').get(user).get('share_path')
         if share_path=='/':
             self.share_path=share_path
         else:

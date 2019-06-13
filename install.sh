@@ -6,7 +6,7 @@ function wget_exists(){
         echo "wget exist"
     else
         echo "wget dose not exist"
-        yum install wget
+        yum install wget -y
     fi
 }
 
@@ -17,7 +17,7 @@ function git_exists(){
         echo "git exist"
     else
         echo "git dose not exist"
-        yum install git
+        yum install git -y
     fi
 }
 #安装pip
@@ -112,7 +112,8 @@ config_file
 auto_boot
 install_aria2
 open_port
-yum install lsof
+yum install gcc libffi-devel python-devel openssl-devel -y
+yum install lsof -y
 mkdir logs
 echo "---------------------------------------------------------------"
 echo "一键脚本运行完成！请检查以下文件："
