@@ -52,7 +52,7 @@ def add_pan():
             f.write(new_text)
         flash('添加盘符[{}]成功'.format(pan))
         key='users'
-        redis_client.delete(key)
+        redis_client.delete("od_users")
         redis_client.delete(key)
         return redirect(url_for('admin.add_pan'))
     return render_template('admin/pan_manage/add_pan.html')
@@ -73,7 +73,7 @@ def rm_pan():
             f.write(new_text)
         key='users'
         redis_client.delete(key)
-        redis_client.delete(od_users)
+        redis_client.delete("od_users")
         mon_db.items.delete_many({'user':pan})
         data=dict(msg='删除盘符[{}]成功'.format(pan),status=1)
         return jsonify(data)
@@ -86,6 +86,7 @@ def setDefaultPan():
     pan=request.form.get('pan')
     set('default_pan',pan)
     redis_client.delete(key)
+    redis_client.delete("od_users")
     redis_client.set('default_pan',pan)
     return jsonify({'msg':'修改成功'})
 

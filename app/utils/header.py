@@ -69,12 +69,20 @@ def GetConfig(key):
     else:
         value=redis_client.get(key) if redis_client.exists(key) else eval(key)
     #这里是为了储存
-    if key in ['od_users','show_dict'] and isinstance(value,dict):
-        value=json.dumps(value)
+    if key=='od_users'and isinstance(value,dict):
+        config_path=os.path.join(config_dir,'self_config.py')
+        with open(config_path,'r') as f:
+            text=f.read()
+        value=re.findall('od_users=([\w\W]*})',text)[0]
+        # value=json.dumps(value)
     if not redis_client.exists(key):
         redis_client.set(key,value)
     #这里是为了转为字典
-    if key in ['od_users','show_dict']:
+    if key=='od_users':
+        config_path=os.path.join(config_dir,'self_config.py')
+        with open(config_path,'r') as f:
+            text=f.read()
+        value=re.findall('od_users=([\w\W]*})',text)[0]
         value=json.loads(value)
     return value
 
