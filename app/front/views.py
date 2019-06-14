@@ -88,7 +88,7 @@ def index(path=None):
     if password!=False:
         if (not request.cookies.get(md5_p) or request.cookies.get(md5_p)!=password) and has_verify_==False:
             if total=='files' and GetConfig('encrypt_file')=="no":
-                if GetConfig("verify_url")=="True":
+                if GetConfig("verify_url")=="True" and action not in ['share','iframe']:
                     if token is None:
                         return abort(403)
                     elif VerifyToken(token,path):
@@ -100,7 +100,7 @@ def index(path=None):
             resp=MakeResponse(render_template('theme/{}/password.html'.format(GetConfig('theme')),path=path,cur_user=user))
             return resp
     if total=='files':
-        if GetConfig("verify_url")=="True":
+        if GetConfig("verify_url")=="True" and action not in ['share','iframe']:
             if token is None:
                 return abort(403)
             elif VerifyToken(token,path):
@@ -144,15 +144,14 @@ def show(fileid,user,action='download',token=None):
     ext=name.split('.')[-1].lower()
     url=request.url.replace(':80','').replace(':443','').encode('utf-8').split('?')[0]
     url='/'.join(url.split('/')[:3])+'/'+urllib.quote('/'.join(url.split('/')[3:]))
-    inner_url='/'+urllib.quote('/'.join(url.split('/')[3:]))
     if GetConfig("verify_url")=="True":
-        url=url+'?token='+token
-        if action!='share':
+        url=url+'?token='+GenerateToken(path)
+        if action not in ['share','iframe']:
             if token is None:
                 return abort(403)
             elif VerifyToken(token,path)==False:
                 return abort(403)
-    if request.method=='POST' or action=='share':
+    if request.method=='POST' or action in ['share','iframe']:
         InfoLogger().print_r(u'share page:{}'.format(path))
         if ext in GetConfig('show_redirect').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
@@ -162,16 +161,32 @@ def show(fileid,user,action='download',token=None):
             url = 'https://view.officeapps.live.com/op/view.aspx?src='+urllib.quote(downloadUrl)
             resp=MakeResponse(redirect(url))
         elif ext in GetConfig('show_image').split(','):
-            resp=MakeResponse(render_template('theme/{}/show/image.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/image.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/image.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+
         elif ext in GetConfig('show_video').split(','):
-            resp=MakeResponse(render_template('theme/{}/show/video.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/video.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/video.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
         elif ext in GetConfig('show_dash').split(','):
-            resp=MakeResponse(render_template('theme/{}/show/video2.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/video2.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/video2.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
         elif ext in GetConfig('show_audio').split(','):
-            resp=MakeResponse(render_template('theme/{}/show/audio.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user,name=name))
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/audio.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/audio.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
         elif ext in GetConfig('show_code').split(','):
             content=common._remote_content(fileid,user)
-            resp=MakeResponse(render_template('theme/{}/show/code.html'.format(GetConfig('theme')),content=content,url=url,inner_url=inner_url,language=CodeType(ext),path=path,cur_user=user,name=name))
+            if action=="share":
+                resp=MakeResponse(render_template('theme/{}/show/code.html'.format(GetConfig('theme')),content=content,url=url,language=CodeType(ext),path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/code.html'.format(GetConfig('theme')),content=content,url=url,language=CodeType(ext),path=path,cur_user=user,name=name))
         elif name=='.password':
             resp=MakeResponse(abort(404))
         else:

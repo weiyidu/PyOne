@@ -85,7 +85,6 @@ def rm_pan():
 def setDefaultPan():
     pan=request.form.get('pan')
     set('default_pan',pan)
-    redis_client.delete(key)
     redis_client.delete("od_users")
     redis_client.set('default_pan',pan)
     return jsonify({'msg':'修改成功'})
