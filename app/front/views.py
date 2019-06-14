@@ -143,13 +143,15 @@ def show(fileid,user,action='download',token=None):
     name=GetName(fileid)
     ext=name.split('.')[-1].lower()
     url=request.url.replace(':80','').replace(':443','').encode('utf-8').split('?')[0]
+    url='/'.join(url.split('/')[:3])+'/'+urllib.quote('/'.join(url.split('/')[3:]))
     inner_url='/'+urllib.quote('/'.join(url.split('/')[3:]))
     if GetConfig("verify_url")=="True":
         url=url+'?token='+token
-        if token is None:
-            return abort(403)
-        elif VerifyToken(token,path)==False:
-            return abort(403)
+        if action!='share':
+            if token is None:
+                return abort(403)
+            elif VerifyToken(token,path)==False:
+                return abort(403)
     if request.method=='POST' or action=='share':
         InfoLogger().print_r(u'share page:{}'.format(path))
         if ext in GetConfig('show_redirect').split(','):
@@ -176,7 +178,6 @@ def show(fileid,user,action='download',token=None):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             resp=MakeResponse(redirect(downloadUrl))
         return resp
-    InfoLogger().print_r('action:{}'.format(action))
     if name=='.password':
         resp=MakeResponse(abort(404))
     if 'no-referrer' in GetConfig('allow_site').split(',') or sum([i in referrer for i in GetConfig('allow_site').split(',')])>0:
