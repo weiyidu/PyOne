@@ -202,10 +202,10 @@ def GetAppUrl(user):
 def GetLoginUrl(client_id,redirect_uri,od_type='nocn'):
     if od_type=='nocn' or od_type is None or od_type==False:
         return 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code\
-&client_id={client_id}&redirect_uri={redirect_uri}&scope=offline_access%20files.readwrite.all'.format(client_id=client_id,redirect_uri=redirect_uri)
+&client_id={client_id}&redirect_uri={redirect_uri}&scope=offline_access%20Files.ReadWrite.All%20Files.ReadWrite'.format(client_id=client_id,redirect_uri=redirect_uri)
     else:
         return 'https://login.partner.microsoftonline.cn/common/oauth2/authorize?response_type=code\
-&client_id={client_id}&redirect_uri={redirect_uri}&scope=offline_access%20fuser.read%20ffiles.readwrite.all'.format(client_id=client_id,redirect_uri=redirect_uri)
+&client_id={client_id}&redirect_uri={redirect_uri}&scope=offline_access%20Files.ReadWrite.All%20Files.ReadWrite'.format(client_id=client_id,redirect_uri=redirect_uri)
 
 
 def GetOAuthUrl(od_type):
