@@ -98,6 +98,8 @@ Disallow:  /
 
 
 
+
+
 #2019.02.15
 upgrade_to4(){
     echo '-------------------------------'
@@ -124,6 +126,10 @@ upgrade(){
     fi
 }
 
+change_redirect(){
+    sed -i 's/auth.pyone.me/pyoneauth.github.io/' self_config.py
+}
+
 
 restart(){
     supervisorctl -c supervisord.conf restart pyone
@@ -132,7 +138,7 @@ restart(){
 #执行
 upgrade_to4
 upgrade
-del_rubbish
+change_redirect
 
 echo "2018.11.20更新版本，修复了磁力链接下载的bug&上传、展示有特殊字符的文件出问题的bug。"
 echo "2018.11.21更新版本，优化磁力下载功能-可选下载文件。"
