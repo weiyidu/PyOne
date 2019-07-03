@@ -3,7 +3,7 @@
 
 Demo地址：[https://pyone.me](https://pyone.me) --暂不可用
 
-Wiki地址：[https://abbeyok.gitbook.io/pyone/](https://abbeyok.gitbook.io/pyone/)
+Wiki地址：[https://abbeyokgo.github.io/](https://abbeyokgo.github.io/)
 
 QQ交流群：[https://jq.qq.com/?_wv=1027&k=5ypfek0](https://jq.qq.com/?_wv=1027&k=5ypfek0)
 
