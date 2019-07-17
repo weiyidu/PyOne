@@ -104,13 +104,10 @@ function open_port(){
 
 
 #执行
-wget_exists
-git_exists
-pip_exists
 install_
 config_file
-auto_boot
-install_aria2
+#auto_boot
+#install_aria2
 open_port
 yum install gcc libffi-devel python-devel openssl-devel -y
 yum install lsof -y
