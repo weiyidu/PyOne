@@ -460,6 +460,9 @@ class GetItemThread(Thread):
                 sp=sp[:-1]
             self.share_path=sp
 
+    def __del__(self):
+        mon_db.items.insert_many(self.insert_items)
+
     def insert_new(self,item):
         self.insert_items.append(item)
         if len(self.insert_items)>=20:
