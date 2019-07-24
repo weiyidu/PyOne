@@ -446,6 +446,7 @@ def AddResource(data,user=GetConfig('default_pan')):
 class GetItemThread(Thread):
     def __init__(self,queue,user):
         super(GetItemThread,self).__init__()
+        self.insert_items=[]
         self.queue=queue
         self.user=user
         share_path=GetConfig('od_users').get(user).get('share_path')
@@ -458,6 +459,12 @@ class GetItemThread(Thread):
             if sp.endswith('/') and sp!='/':
                 sp=sp[:-1]
             self.share_path=sp
+
+    def insert_new(self,item):
+        self.insert_items.append(item)
+        if len(self.insert_items)>=20:
+            mon_db.items.insert_many(self.insert_items)
+            self.insert_items=[]
 
     def run(self):
         while not self.queue.empty():
@@ -533,6 +540,7 @@ class GetItemThread(Thread):
                                     path=convert2unicode(value['name'])
                                 path=urllib.unquote('{}:/{}'.format(self.user,path))
                                 item['path']=path
+                                # self.insert_new(item)
                                 subfodler=mon_db.items.insert_one(item)
                                 if value.get('folder').get('childCount')==0:
                                     continue
@@ -568,6 +576,7 @@ class GetItemThread(Thread):
                                 path=convert2unicode(value['name'])
                             path=urllib.unquote('{}:/{}'.format(self.user,path))
                             item['path']=path
+                            # self.insert_new(item)
                             subfodler=mon_db.items.insert_one(item)
                             if value.get('folder').get('childCount')==0:
                                 continue
@@ -614,7 +623,8 @@ class GetItemThread(Thread):
                                 item['order']=1
                             else:
                                 item['order']=2
-                            mon_db.items.insert_one(item)
+                            # mon_db.items.insert_one(item)
+                            self.insert_new(item)
             else:
                 InfoLogger().print_r('{}\'s size is zero'.format(url))
             if data.get('@odata.nextLink'):

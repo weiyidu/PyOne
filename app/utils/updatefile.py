@@ -78,8 +78,8 @@ def UpdateFile(renew='all',fresh_user=None):
     InfoLogger().print_r('[* UpdateFile] user:{}, method:{}'.format(fresh_user,renew))
     if fresh_user is None or fresh_user=='':
         if renew=='all':
-            mon_db.items.delete_many({})
             InfoLogger().print_r('[* UpdateFile] delete local data;check file num:{}'.format(mon_db.items.count()))
+            mon_db.items.delete_many({})
             clearRedis()
             for user,item in od_users.items():
                 if item.get('client_id')!='':
