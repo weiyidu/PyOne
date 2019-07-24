@@ -70,7 +70,7 @@ function ClearHist(){
         layer.close(index);
         $.ajax({
             type: "POST",
-            url: "/admin/upload/jsonrpc",
+            url: "{{url_for('admin.UploadRPCserver')}}",
             data:{action:'ClearHist'},
             dataType: "json",
             beforeSend: function(xhr) {
@@ -98,7 +98,7 @@ function Restart(){
         layer.close(index);
         $.ajax({
             type: "POST",
-            url: "/admin/upload/jsonrpc",
+            url: "{{url_for('admin.UploadRPCserver')}}",
             data:{action:'Restart'},
             dataType: "json",
             beforeSend: function(xhr) {
@@ -123,7 +123,7 @@ function GetPagination() {
     var getTimestamp = new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/upload/jsonrpc?t=" + getTimestamp,
+        url: "{{url_for('admin.UploadRPCserver')}}?t=" + getTimestamp,
         data: { page: '{{page}}', action: 'pagination' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式
@@ -171,7 +171,7 @@ function GetTasks() {
     var getTimestamp = new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/upload/jsonrpc?t=" + getTimestamp,
+        url: "{{url_for('admin.UploadRPCserver')}}?t=" + getTimestamp,
         data: { page: '{{page}}' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式

@@ -18,7 +18,7 @@
 
     <div class="mdui-typo">
     <a href="{{login_url}}" class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right" target="_blank">1. 绑定账号</a>
-     <form action="{{url_for('admin.install')}}" method="post">
+     <form action="{{url_for('admin.install',step=5,user=cur_user)|safe}}" method="post">
          <div class="mdui-textfield mdui-textfield-floating-label">
              <i class="mdui-icon material-icons">https</i>
              <label class="mdui-textfield-label">code</label>

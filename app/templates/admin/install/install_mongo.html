@@ -1,0 +1,74 @@
+{%extends 'admin/layout.html'%}
+
+{%block content%}
+<div class="mdui-container-fluid">
+  <div class="mdui-typo">
+    <h1>系统安装 <small>MongoDB信息配置</small></h1>
+  </div>
+
+  <div class="mdui-row">
+        <div class="mdui-col-xs-2">
+            <label class="mdui-textfield-label">主机（默认localhost）</label>
+            <input name="MONGO_HOST" id="MONGO_HOST" class="mdui-textfield-input" type="text" value="{{GetConfig('MONGO_HOST')}}"  required="" />
+        </div>
+        <div class="mdui-col-xs-2">
+            <label class="mdui-textfield-label">端口号（默认27017）</label>
+            <input name="MONGO_PORT" id="MONGO_PORT" class="mdui-textfield-input" type="text" value="{{GetConfig('MONGO_PORT')}}"  required="" />
+        </div>
+        <div class="mdui-col-xs-2">
+            <label class="mdui-textfield-label">数据库（默认为three）</label>
+            <input name="MONGO_DB" id="MONGO_DB" class="mdui-textfield-input" type="text" value="{{GetConfig('MONGO_DB')}}" required="" />
+        </div>
+        <div class="mdui-col-xs-2">
+            <label class="mdui-textfield-label">用户名（宝塔安装的默认为空）</label>
+            <input name="MONGO_USER" id="MONGO_USER" class="mdui-textfield-input" type="text" value="{{GetConfig('MONGO_USER')}}" />
+        </div>
+        <div class="mdui-col-xs-2">
+            <label class="mdui-textfield-label">密码（宝塔安装的默认为空）</label>
+            <input name="MONGO_PASSWORD" id="MONGO_PASSWORD" class="mdui-textfield-input" type="text" value="{{GetConfig('MONGO_PASSWORD')}}" />
+        </div>
+
+        <div class="mdui-col-xs-2" style="padding-top: 34px;">
+            <button onclick="test_mongo()" class="mdui-btn mdui-btn-block mdui-color-red-600 mdui-ripple">
+              提交
+            </button>
+        </div>
+  </div>
+<hr>
+
+</div>
+<script type="text/javascript">
+    function ShowNotice(msg){
+        mdui.snackbar({
+              message: msg,
+              position: 'top'
+            });
+    }
+
+    function test_mongo() {
+        MONGO_HOST=$("#MONGO_HOST").val();
+        MONGO_PORT=$("#MONGO_PORT").val();
+        MONGO_DB=$("#MONGO_DB").val();
+        MONGO_USER=$("#MONGO_USER").val();
+        MONGO_PASSWORD=$("#MONGO_PASSWORD").val();
+        var index2 = layer.load(2, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
+        $.ajax({
+            type: "POST",
+            url: "{{url_for('admin.test_config')}}",
+            data:{soft:'mongo',host:MONGO_HOST,port:MONGO_PORT,user:MONGO_USER,password:MONGO_PASSWORD,db:MONGO_DB},
+            dataType: "json",
+            success: function(data) {
+                ShowNotice(data.msg);
+                layer.close(index2);
+                if(data.code==1){
+                    window.location.href=window.location.href.replace('step=0','step=1');
+                }
+            }
+        });
+
+    }
+
+</script>
+{%endblock content%}

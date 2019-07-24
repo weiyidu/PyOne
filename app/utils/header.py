@@ -64,19 +64,30 @@ browser=requests.Session()
 
 #获取参数
 def GetConfig(key):
-    if key=='allow_site':
-        value=redis_client.get('allow_site') if redis_client.exists('allow_site') else ','.join(allow_site)
-    else:
-        value=redis_client.get(key) if redis_client.exists(key) else eval(key)
-    #这里是为了储存
-    if key=='od_users'and isinstance(value,dict):
-        config_path=os.path.join(config_dir,'self_config.py')
-        with open(config_path,'r') as f:
-            text=f.read()
-        value=re.findall('od_users=([\w\W]*})',text)[0]
-        # value=json.dumps(value)
-    if not redis_client.exists(key):
-        redis_client.set(key,value)
+    try:
+        if key=='allow_site':
+            value=redis_client.get('allow_site') if redis_client.exists('allow_site') else ','.join(allow_site)
+        else:
+            value=redis_client.get(key) if redis_client.exists(key) else eval(key)
+        #这里是为了储存
+        if key=='od_users'and isinstance(value,dict):
+            config_path=os.path.join(config_dir,'self_config.py')
+            with open(config_path,'r') as f:
+                text=f.read()
+            value=re.findall('od_users=([\w\W]*})',text)[0]
+            # value=json.dumps(value)
+        if not redis_client.exists(key):
+            redis_client.set(key,value)
+    except:
+        if key=='allow_site':
+            value=','.join(allow_site)
+        else:
+            value=eval(key)
+        if key=='od_users'and isinstance(value,dict):
+            config_path=os.path.join(config_dir,'self_config.py')
+            with open(config_path,'r') as f:
+                text=f.read()
+            value=re.findall('od_users=([\w\W]*})',text)[0]
     #这里是为了转为字典
     if key=='od_users':
         config_path=os.path.join(config_dir,'self_config.py')
@@ -85,6 +96,39 @@ def GetConfig(key):
         value=re.findall('od_users=([\w\W]*})',text)[0]
         value=json.loads(value)
     return value
+
+
+############功能函数
+def set(key,value,user=GetConfig('default_pan')):
+    InfoLogger().print_r('set {}:{}'.format(key,value))
+    config_path=os.path.join(config_dir,'self_config.py')
+    if key in ['client_secret','client_id','share_path','other_name','od_type','app_url']:
+        # old_kv=re.findall('"{}":.*{{[\w\W]*}}'.format(user),old_text)[0]
+        # new_kv=re.sub('"{}":.*.*?,'.format(key),'"{}":"{}",'.format(key,value),old_kv,1)
+        # new_text=old_text.replace(old_kv,new_kv,1)
+        od_users[user][key]=value
+        config_path=os.path.join(config_dir,'self_config.py')
+        with open(config_path,'r') as f:
+            old_text=f.read()
+        with open(config_path,'w') as f:
+            old_od=re.findall('od_users={[\w\W]*}',old_text)[0]
+            new_od='od_users='+json.dumps(od_users,indent=4,ensure_ascii=False)
+            new_text=old_text.replace(old_od,new_od,1)
+            f.write(new_text)
+        return
+    with open(config_path,'r') as f:
+        old_text=f.read()
+    with open(config_path,'w') as f:
+        if key=='allow_site':
+            value=value.split(',')
+            new_text=re.sub('{}=.*'.format(key),'{}={}'.format(key,value),old_text)
+        elif key in ['tj_code','cssCode','headCode','footCode','robots']:
+            new_text=re.sub('{}="""[\w\W]*?"""'.format(key),'{}="""{}"""'.format(key,value),old_text)
+        else:
+            new_text=re.sub('{}=.*'.format(key),'{}="{}"'.format(key,value),old_text)
+        f.write(new_text)
+
+
 
 #转字符串
 def convert2unicode(string):

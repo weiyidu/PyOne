@@ -13,7 +13,7 @@
         </h4>
       </div>
 
-      <form action="{{url_for('admin.install')}}" method="post">
+      <form action="{{url_for('admin.install',step=4,user=cur_user)|safe}}" method="post">
           <div class="mdui-textfield mdui-textfield-floating-label">
               <i class="mdui-icon material-icons">https</i>
               <label class="mdui-textfield-label">应用机密(client secret)</label>
@@ -34,7 +34,7 @@
         <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-float-right" type="submit">下一步</button>
       </form>
     {%else%}
-        <form action="{{url_for('admin.install')}}" method="post">
+        <form action="{{url_for('admin.install',step=4,user=cur_user)|safe}}" method="post">
             <div class="mdui-textfield mdui-textfield-floating-label">
                 <i class="mdui-icon material-icons">&#xe5c3;</i>
                 <label class="mdui-textfield-label">onedrive账号标识</label>
@@ -110,7 +110,7 @@
                 <p>2. 点击<font color="blue">新注册</font></p>
                 <pre>- 名称：随便填
 - 受支持的帐户类型：默认
-- 重定向 URI (可选)：Web - https://auth.pyone.me/ （怕不安全？看https://www.abbeyok.com/archives/281。或者干脆不用）</pre>
+- 重定向 URI (可选)：Web - {{GetConfig('redirect_uri')}} （怕不安全？看https://www.abbeyok.com/archives/281。或者干脆不用）</pre>
                     <p>&nbsp;&nbsp;&nbsp;&nbsp;点击<font color="blue">创建</font>，进入下一步</p>
                     <p>&nbsp;&nbsp;&nbsp;&nbsp;*创建之后，看到<font color="blue">应用程序(客户端) ID</font>，复制到上方<font color="blue">应用 ID(client_id)</font></p>
                 <p>3. 开启权限：第2步创建应用程序之后，进入该应用的概述页面。</p>

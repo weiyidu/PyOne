@@ -1,5 +1,61 @@
 #!/etc/bash
 
+
+#check system
+check_system(){
+        if [[ -f /etc/redhat-release ]]; then
+        release="centos"
+    elif cat /etc/issue | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    elif cat /proc/version | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    fi
+}
+
+#check version
+check_version(){
+    if [[ -s /etc/redhat-release ]]; then
+     version=`cat /etc/redhat-release|sed -r 's/.* ([0-9]+)\..*/\1/'`
+    else
+     version=`grep -oE  "[0-9.]+" /etc/issue | cut -d . -f 1`
+    fi
+    bit=`uname -m`
+    if [[ ${bit} = "x86_64" ]]; then
+        bit="64"
+    else
+        bit="32"
+    fi
+    if [[ "${release}" = "centos" && ${version} -ge 7 ]];then
+        echo -e "${Blue}当前系统为CentOS ${version}${Font} "
+    elif [[ "${release}" = "debian" && ${version} -ge 8 ]];then
+        echo -e "${Blue}当前系统为Debian ${version}${Font} "
+    elif [[ "${release}" = "ubuntu" && ${version} -ge 16 ]];then
+        echo -e "${Blue}当前系统为Ubuntu ${version}${Font} "
+    else
+        echo -e "${Red}脚本不支持当前系统，安装中断!${Font} "
+        exit 1
+    fi
+    for EXE in grep cut xargs systemctl ip awk
+    do
+        if ! type -p ${EXE}; then
+            echo -e "${Red}系统精简厉害，脚本自动退出${Font}"
+            exit 1
+        fi
+    done
+}
+
+check_system
+check_version
+
+
 #11.20
 del_rubbish(){
     python -c "from function import *;mon_db.down_db.delete_many({});"
@@ -97,9 +153,6 @@ Disallow:  /
 }
 
 
-
-
-
 #2019.02.15
 upgrade_to4(){
     echo '-------------------------------'
@@ -115,15 +168,13 @@ upgrade(){
         touch .install
     fi
     update_config
-    yum install gcc libffi-devel python-devel openssl-devel -y
-    pip install -r requirements.txt
-    which lsof > /dev/null 2>&1
-    if [ $? == 0 ]; then
-        echo "lsof exist"
+    if [[ "${release}" = "centos" ]]; then
+        yum install gcc libffi-devel python-devel openssl-devel lsof -y
     else
-        echo "lsof dose not exist"
-        yum install lsof -y
+        apt update -y
+        apt install -y make git cron build-essential python-dev lsof unzip python-setuptools python-wheel libffi-devel libssl-dev
     fi
+    pip install -r requirements.txt
 }
 
 change_redirect(){
@@ -132,7 +183,12 @@ change_redirect(){
 
 
 restart(){
-    supervisorctl -c supervisord.conf restart pyone
+    num=`ls /etc/systemd/system | grep pyone.service | wc -l`
+    if [ $num == 0 ]; then
+        supervisorctl -c supervisord.conf restart pyone
+    else
+        systemctl restart pyone
+    fi
 }
 
 #执行
@@ -187,6 +243,7 @@ echo "2019.05.29更新版本：支持自定义线程数"
 echo "2019.05.31更新版本：新增功能：1）下载链接验证开关；优化：1）aria2信息不对时，无法添加任务"
 echo "2019.06.13更新版本：新增功能：文件展示设置"
 echo "2019.06.14更新版本：稍微完善一下日志记录；分享页面取消token验证；修复开启下载验证之后，后台文件打开失败的bug；新增内嵌窗口"
+echo "2019.07.24更新版本：1. 优化安装脚本，适应Centos7、Debian9+、Ubuntu16+等系统；2、优化安装流程"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"
