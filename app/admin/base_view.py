@@ -63,7 +63,7 @@ def web_console():
 @admin.route('/stream',methods=["POST","GET"])
 def stream():
     cmd_dict={
-        'upgrade':"cd {} && git pull origin master && sh update.sh".format(config_dir),
+        'upgrade':"cd {} && git pull origin master && bash update.sh".format(config_dir),
         'running_log':'tail -30f {}/logs/PyOne.{}.log'.format(config_dir,'running'),
         'error_log':'tail -30f {}/logs/PyOne.{}.log'.format(config_dir,'error')
     }
