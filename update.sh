@@ -174,7 +174,7 @@ upgrade(){
         apt update -y
         apt install -y make git cron build-essential python-dev lsof unzip python-setuptools python-wheel libffi-devel libssl-dev
     fi
-    pip install -r requirements.txt
+    pip install -r requirements.txt -U
 }
 
 change_redirect(){
