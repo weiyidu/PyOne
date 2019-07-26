@@ -156,7 +156,7 @@ install_aria2(){
     touch /root/.aria2/aria2.session
     chmod +x /root/.aria2/trackers-list-aria2.sh
     chmod 777 /root/.aria2/aria2.session
-    sed -i "s/rpc-secret=/rpc-secret=${pass}/g" /root/.aria2/aria2.conf
+    sed -i "s/rpc-secret=/rpc-secret=${aria2_pass}/g" /root/.aria2/aria2.conf
     echo -e "${Blue}开始设置trackers-list自动更新！${Font}"
     if [[ "${release}" = "centos" ]]; then
         echo "0 0 */7 * * /root/.aria2/trackers-list-aria2.sh" >> /var/spool/cron/root

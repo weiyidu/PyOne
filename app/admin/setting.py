@@ -8,14 +8,15 @@ def setting():
     if request.method=='POST':
         if request.files.keys()!=[]:
             favicon=request.files['favicon']
-            favicon.save('./app/static/img/favicon.ico')
+            if favicon.content_length!=0:
+                favicon.save('./app/static/img/favicon.ico')
         title=request.form.get('title','PyOne')
         theme=request.form.get('theme','material')
         title_pre=request.form.get('title_pre','index of ')
 
-        set('title',title)
-        set('title_pre',title_pre)
-        set('theme',theme)
+        set_config('title',title)
+        set_config('title_pre',title_pre)
+        set_config('theme',theme)
 
         # reload()
         redis_client.set('title',title)
@@ -60,33 +61,33 @@ def sys_setting():
         thread_num=request.form.get('thread_num','5')
         verify_url=request.form.get('verify_url','False')
 
-        set('downloadUrl_timeout',downloadUrl_timeout)
-        set('allow_site',allow_site)
+        set_config('downloadUrl_timeout',downloadUrl_timeout)
+        set_config('allow_site',allow_site)
         #Aria2
-        set('ARIA2_HOST',ARIA2_HOST)
-        set('ARIA2_PORT',ARIA2_PORT)
-        set('ARIA2_SECRET',ARIA2_SECRET)
-        set('ARIA2_SCHEME',ARIA2_SCHEME)
+        set_config('ARIA2_HOST',ARIA2_HOST)
+        set_config('ARIA2_PORT',ARIA2_PORT)
+        set_config('ARIA2_SECRET',ARIA2_SECRET)
+        set_config('ARIA2_SCHEME',ARIA2_SCHEME)
         #MongoDB
-        set('MONGO_HOST',MONGO_HOST)
-        set('MONGO_PORT',MONGO_PORT)
-        set('MONGO_DB',MONGO_DB)
-        set('MONGO_USER',MONGO_USER)
-        set('MONGO_PASSWORD',MONGO_PASSWORD)
+        set_config('MONGO_HOST',MONGO_HOST)
+        set_config('MONGO_PORT',MONGO_PORT)
+        set_config('MONGO_DB',MONGO_DB)
+        set_config('MONGO_USER',MONGO_USER)
+        set_config('MONGO_PASSWORD',MONGO_PASSWORD)
         #Redis
-        set('REDIS_HOST',REDIS_HOST)
-        set('REDIS_PORT',REDIS_PORT)
-        set('REDIS_DB',REDIS_DB)
-        set('REDIS_PASSWORD',REDIS_PASSWORD)
+        set_config('REDIS_HOST',REDIS_HOST)
+        set_config('REDIS_PORT',REDIS_PORT)
+        set_config('REDIS_DB',REDIS_DB)
+        set_config('REDIS_PASSWORD',REDIS_PASSWORD)
 
-        set('default_sort',default_sort)
-        set('admin_prefix',admin_prefix)
-        set('balance',balance)
-        set('order_m',order_m)
-        set('show_secret',show_secret)
-        set('encrypt_file',encrypt_file)
-        set('thread_num',thread_num)
-        set('verify_url',verify_url)
+        set_config('default_sort',default_sort)
+        set_config('admin_prefix',admin_prefix)
+        set_config('balance',balance)
+        set_config('order_m',order_m)
+        set_config('show_secret',show_secret)
+        set_config('encrypt_file',encrypt_file)
+        set_config('thread_num',thread_num)
+        set_config('verify_url',verify_url)
         # reload()
 
         redis_client.set('downloadUrl_timeout',downloadUrl_timeout)
@@ -134,11 +135,11 @@ def setCode():
         cssCode=request.form.get('cssCode','')
         robots=request.form.get('robots','')
         #redis
-        set('tj_code',tj_code)
-        set('headCode',headCode)
-        set('footCode',footCode)
-        set('cssCode',cssCode)
-        set('robots',robots)
+        set_config('tj_code',tj_code)
+        set_config('headCode',headCode)
+        set_config('footCode',footCode)
+        set_config('cssCode',cssCode)
+        set_config('robots',robots)
         # reload()
         redis_client.set('tj_code',tj_code)
         redis_client.set('headCode',headCode)
@@ -156,31 +157,31 @@ def setCode():
 def show_setting():
     if request.method=='POST':
         show_redirect=request.form.get('show_redirect')
-        set('show_redirect',show_redirect)
+        set_config('show_redirect',show_redirect)
         redis_client.set('show_redirect',show_redirect)
 
         show_doc=request.form.get('show_doc')
-        set('show_doc',show_doc)
+        set_config('show_doc',show_doc)
         redis_client.set('show_doc',show_doc)
 
         show_image=request.form.get('show_image')
-        set('show_image',show_image)
+        set_config('show_image',show_image)
         redis_client.set('show_image',show_image)
 
         show_video=request.form.get('show_video')
-        set('show_video',show_video)
+        set_config('show_video',show_video)
         redis_client.set('show_video',show_video)
 
         show_dash=request.form.get('show_dash')
-        set('show_dash',show_dash)
+        set_config('show_dash',show_dash)
         redis_client.set('show_dash',show_dash)
 
         show_audio=request.form.get('show_audio')
-        set('show_audio',show_audio)
+        set_config('show_audio',show_audio)
         redis_client.set('show_audio',show_audio)
 
         show_code=request.form.get('show_code')
-        set('show_code',show_code)
+        set_config('show_code',show_code)
         redis_client.set('show_code',show_code)
 
 

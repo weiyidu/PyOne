@@ -46,16 +46,16 @@ def install():
     if request.method=='POST':
         if step==3:
             od_type=request.form.get('od_type','nocn')
-            set('od_type',od_type,user)
+            set_config('od_type',od_type,user)
         elif step==4:
             od_type=request.form.get('od_type','nocn')
             od_prefix=request.form.get('od_prefix')
             client_id=request.form.get('client_id')
             client_secret=request.form.get('client_secret')
-            set('client_id',client_id,user)
-            set('client_secret',client_secret,user)
+            set_config('client_id',client_id,user)
+            set_config('client_secret',client_secret,user)
             if od_type=='cn':
-                set('app_url','https://{}-my.sharepoint.cn/'.format(od_prefix),user)
+                set_config('app_url','https://{}-my.sharepoint.cn/'.format(od_prefix),user)
             login_url=GetLoginUrl(client_id=client_id,redirect_uri=GetConfig('redirect_uri'),od_type=od_type)
         else:
             client_secret=request.form.get('client_secret')
@@ -115,11 +115,11 @@ def test_config():
         if check_mongo(host,port,user,password,db):
             resp['msg']='MongoDB信息检查正确！'
             resp['code']=1
-            set('MONGO_HOST',host)
-            set('MONGO_PORT',port)
-            set('MONGO_USER',user)
-            set('MONGO_PASSWORD',password)
-            set('MONGO_DB',db)
+            set_config('MONGO_HOST',host)
+            set_config('MONGO_PORT',port)
+            set_config('MONGO_USER',user)
+            set_config('MONGO_PASSWORD',password)
+            set_config('MONGO_DB',db)
 
         else:
             resp['msg']='MongoDB信息错误！'
@@ -128,10 +128,10 @@ def test_config():
         if check_redis(host,port,password,db):
             resp['msg']='Redis信息检查正确！'
             resp['code']=1
-            set('REDIS_HOST',host)
-            set('REDIS_PORT',port)
-            set('REDIS_PASSWORD',password)
-            set('REDIS_DB',db)
+            set_config('REDIS_HOST',host)
+            set_config('REDIS_PORT',port)
+            set_config('REDIS_PASSWORD',password)
+            set_config('REDIS_DB',db)
         else:
             resp['msg']='Redis信息错误！'
             resp['code']=0

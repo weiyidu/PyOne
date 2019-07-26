@@ -13,7 +13,7 @@ def panage():
                 user=re.findall('\[(.*?)\]',k)[0]
                 key=re.findall('(.*)\[',k)[0]
                 InfoLogger().print_r('setting {}\'s {}\'s value {}'.format(user,key,v))
-                set(key,v,user)
+                set_config(key,v,user)
         config_path=os.path.join(config_dir,'self_config.py')
         with open(config_path,'r') as f:
             text=f.read()
@@ -84,7 +84,7 @@ def rm_pan():
 @admin.route('/setDefaultPan',methods=["POST"])
 def setDefaultPan():
     pan=request.form.get('pan')
-    set('default_pan',pan)
+    set_config('default_pan',pan)
     redis_client.delete("od_users")
     redis_client.set('default_pan',pan)
     return jsonify({'msg':'修改成功'})

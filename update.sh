@@ -150,6 +150,13 @@ Disallow:  /
         echo 'show_doc="csv,doc,docx,odp,ods,odt,pot,potm,potx,pps,ppsx,ppsxm,ppt,pptm,pptx,rtf,xls,xlsx"' >> self_config.py
     fi
 
+
+    value=`cat /root/.aria2/aria2.conf | grep "rpc-secret=" | sed -e 's/\(.*\)=\(.*\)/\2/g'`
+    if [[ $value == "" ]]; then
+        secret=`cat self_config.py | grep "ARIA2_SECRET=" | sed -e 's/\(.*\)=\"\(.*\)\"/\2/g'`
+        sed -i "s/rpc-secret=/rpc-secret=${secret}/g" /root/.aria2/aria2.conf
+    fi
+
 }
 
 
@@ -244,6 +251,7 @@ echo "2019.05.31更新版本：新增功能：1）下载链接验证开关；优
 echo "2019.06.13更新版本：新增功能：文件展示设置"
 echo "2019.06.14更新版本：稍微完善一下日志记录；分享页面取消token验证；修复开启下载验证之后，后台文件打开失败的bug；新增内嵌窗口"
 echo "2019.07.24更新版本：1. 优化安装脚本，适应Centos7、Debian9+、Ubuntu16+等系统；2、优化安装流程"
+echo "2019.07.26更新版本：修复若干bug"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"

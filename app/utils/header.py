@@ -99,7 +99,7 @@ def GetConfig(key):
 
 
 ############功能函数
-def set(key,value,user=GetConfig('default_pan')):
+def set_config(key,value,user=GetConfig('default_pan')):
     InfoLogger().print_r('set {}:{}'.format(key,value))
     config_path=os.path.join(config_dir,'self_config.py')
     if key in ['client_secret','client_id','share_path','other_name','od_type','app_url']:
