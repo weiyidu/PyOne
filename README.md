@@ -9,6 +9,8 @@ QQ交流群：[https://jq.qq.com/?_wv=1027&k=5ypfek0](https://jq.qq.com/?_wv=102
 
 TG交流群：[https://t.me/joinchat/JQOOug6MY11gy_MiXTmqIA](https://t.me/joinchat/JQOOug6MY11gy_MiXTmqIA)
 
+相关博客：
+[《PyOne一键安装脚本适应Centos7、Debian8+、Ubuntu16+》](https://www.abbeyok.com/archives/382)
 
 **有任何问题，先看wiki！wiki找不到解决办法的，再到论坛里提问！**
 
