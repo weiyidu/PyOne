@@ -9,7 +9,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 Red="\033[31m"
 Font="\033[0m"
 Blue="\033[36m"
-
+cur_path=`pwd`
 
 check_port() {
         netstat -tlpn | grep "\b$1\b"
@@ -235,7 +235,7 @@ Wants=network.target
 [Service]
 Type=simple
 PIDFile=/var/run/pyone.pid
-WorkingDirectory=/root/PyOne
+WorkingDirectory=${cur_path}
 ExecStart=gunicorn -keventlet -b 0.0.0.0:34567 run:app
 RestartPreventExitStatus=23
 Restart=always
