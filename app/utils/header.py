@@ -200,7 +200,7 @@ def ReFreshToken(refresh_token,user=GetConfig('default_pan')):
     if od_type=='cn':
         data+='&resource={}'.format(GetAppUrl(user))
     url=GetOAuthUrl(od_type)
-    r=browser.post(url,data=data,headers=headers)
+    r=browser.post(url,data=data,headers=headers,verify=False)
     return json.loads(r.text)
 
 
@@ -486,7 +486,7 @@ class GetItemThread(Thread):
         token=GetToken(user=self.user)
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
-        r=browser.get(url,headers=headers,timeout=10)
+        r=browser.get(url,headers=headers,timeout=10,verify=False)
         data=json.loads(r.content)
         if data.get('folder'):
             if data['name']!='root':
@@ -504,7 +504,7 @@ class GetItemThread(Thread):
         headers.update(default_headers)
         try:
             self.CheckPathSize(url.replace('children?expand=thumbnails',''))
-            r=browser.get(url,headers=headers,timeout=10)
+            r=browser.get(url,headers=headers,timeout=10,verify=False)
             data=json.loads(r.content)
             if data.get('error'):
                 InfoLogger().print_r('error:{}! waiting 180s'.format(data.get('error').get('message')))
@@ -658,7 +658,7 @@ class GetItemThread(Thread):
                 url=app_url+u'_api/v2.0/me/drive/root:{}:/'.format(path)
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
-        r=browser.get(url,headers=headers)
+        r=browser.get(url,headers=headers,verify=False)
         data=json.loads(r.content)
         return data
 
@@ -667,7 +667,7 @@ class GetItemThread(Thread):
         token=GetToken(user=self.user)
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
-        r=browser.get(url,headers=headers)
+        r=browser.get(url,headers=headers,verify=False)
         data=json.loads(r.content)
         return data
 

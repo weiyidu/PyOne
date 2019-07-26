@@ -154,8 +154,7 @@ def _thunbnail(id,user):
         url=app_url+'v1.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
     else:
         url=app_url+'_api/v2.0/me/drive/items/{}/thumbnails/0?select=large'.format(id)
-    r=browser.get(url,headers=headers)
-    print r.content
+    r=browser.get(url,headers=headers,verify=False)
     data=json.loads(r.content)
     if data.get('large').get('url'):
         # return data.get('large').get('url').replace('thumbnail','videotranscode').replace('&width=800&height=800','')+'&format=dash&track=audio&transcodeAhead=0&part=initsegment&quality=audhigh'
@@ -177,7 +176,7 @@ def _getdownloadurl(id,user):
         url=app_url+'v1.0/me/drive/items/'+id
     else:
         url=app_url+'_api/v2.0/me/drive/items/'+id
-    r=browser.get(url,headers=headers)
+    r=browser.get(url,headers=headers,verify=False)
     data=json.loads(r.content)
     if data.get('@microsoft.graph.downloadUrl'):
         downloadUrl=data.get('@microsoft.graph.downloadUrl')
@@ -307,7 +306,7 @@ def _remote_content(fileid,user):
     else:
         downloadUrl,play_url=GetDownloadUrl(fileid,user)
         if downloadUrl:
-            r=browser.get(downloadUrl)
+            r=browser.get(downloadUrl,verify=False)
             # r.encoding='utf-8'
             if r.encoding=='ISO-8859-1':
                 content=r.content

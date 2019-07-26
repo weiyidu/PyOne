@@ -15,7 +15,7 @@ def DeleteRemoteFile(fileid,user=GetConfig('default_pan')):
         url=app_url+'v1.0/me/drive/items/'+fileid
     else:
         url=app_url+'_api/v2.0/me/drive/items/'+fileid
-    r=browser.delete(url,headers=headers)
+    r=browser.delete(url,headers=headers,verify=False)
     if r.status_code==204:
         DeleteLocalFile(fileid)
         return True
@@ -51,7 +51,7 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
       "folder": {},
       "@microsoft.graph.conflictBehavior": "rename"
     }
-    r=browser.post(url,headers=headers,data=json.dumps(payload))
+    r=browser.post(url,headers=headers,data=json.dumps(payload),verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         #插入数据
@@ -102,7 +102,7 @@ def CreateFile(filename,path,content,user=GetConfig('default_pan')):
         url=app_url+'v1.0/me/drive/items/root:{}:/content'.format(remote_file)
     else:
         url=app_url+'_api/v2.0/me/drive/items/root:{}:/content'.format(remote_file)
-    r=browser.put(url,headers=headers,data=content,timeout=10)
+    r=browser.put(url,headers=headers,data=content,timeout=10,verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         AddResource(data,user)
@@ -129,7 +129,7 @@ def EditFile(fileid,content,user=GetConfig('default_pan')):
     else:
         url=app_url+'_api/v2.0/me/drive/items/{}/content'.format(fileid)
     try:
-        r=browser.put(url,headers=headers,data=content,timeout=10)
+        r=browser.put(url,headers=headers,data=content,timeout=10,verify=False)
         data=json.loads(r.content)
         if data.get('id'):
             info['status']=0
@@ -185,7 +185,7 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
       },
       "name": GetName(fileid)
     }
-    r=browser.patch(url,headers=headers,data=json.dumps(payload))
+    r=browser.patch(url,headers=headers,data=json.dumps(payload),verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         new_value={'parent':parent,'grandid':grandid,'path':path}
@@ -217,7 +217,7 @@ def ReName(fileid,new_name,user=GetConfig('default_pan')):
     payload={
       "name": new_name
     }
-    r=browser.patch(url,headers=headers,data=json.dumps(payload))
+    r=browser.patch(url,headers=headers,data=json.dumps(payload),verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         it=mon_db.items.find_one({'id':fileid})

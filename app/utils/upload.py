@@ -15,7 +15,7 @@ def _upload(filepath,remote_path,user=GetConfig('default_pan')): #remote_path li
     else:
         url=app_url+'_api/v2.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
     timeCalc=TimeCalculator()
-    r=browser.put(url,headers=headers,data=open(filepath,'rb'))
+    r=browser.put(url,headers=headers,data=open(filepath,'rb'),verify=False)
     # r=CurlUpload(url,headers,open(filepath,'rb'))
     try:
         data=json.loads(r.content)
@@ -68,7 +68,7 @@ def _upload_part(uploadUrl, filepath,filesize, offset, length,trytime=1,request_
     headers.update(default_headers)
     try:
         timeCalc=TimeCalculator()
-        r=browser.put(uploadUrl,headers=headers,data=filebin)
+        r=browser.put(uploadUrl,headers=headers,data=filebin,verify=False)
         # r=CurlUpload(uploadUrl,headers,filebin)
         data=json.loads(r.content)
         speed=CalcSpeed(length,timeCalc.PassNow())['kb']
@@ -117,7 +117,7 @@ def CreateUploadSession(path,user=GetConfig('default_pan')):
         }
     InfoLogger().print_r('create upload session for :{}'.format(path))
     try:
-        r=browser.post(url,headers=headers,data=json.dumps(data))
+        r=browser.post(url,headers=headers,data=json.dumps(data),verify=False)
         retdata=json.loads(r.content)
         if r.status_code==409:
             InfoLogger().print_r('file exists')
@@ -230,7 +230,7 @@ def Upload(filepath,remote_path=None,user=GetConfig('default_pan')):
 def ContinueUpload(filepath,uploadUrl,user):
     headers={'Content-Type':'application/json'}
     headers.update(default_headers)
-    r=browser.get(uploadUrl,headers=headers)
+    r=browser.get(uploadUrl,headers=headers,verify=False)
     data=json.loads(r.text)
     offset=data.get('nextExpectedRanges')[0].split('-')[0]
     expires_on=time.mktime(parse(data.get('expirationDateTime')).timetuple())
