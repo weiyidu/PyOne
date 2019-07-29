@@ -16,3 +16,5 @@ Flask-And-Redis
 flask_script
 pycrypto
 requests[security]
+urllib3
+pyopenssl

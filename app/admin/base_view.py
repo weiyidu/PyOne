@@ -18,6 +18,9 @@ import urllib
 import signal
 import time
 from shelljob import proc
+import urllib3
+
+urllib3.disable_warnings()
 
 
 ##全局_pid
