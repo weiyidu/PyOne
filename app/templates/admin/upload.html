@@ -6,11 +6,11 @@
         <h1> 上传管理 <small>文件上传添加和管理</small></h1>
     </div>
     <div class="mdui-toolbar mdui-color-theme">
-        <button class="mdui-btn mdui-btn-icon" onclick="Restart()" mdui-tooltip="{{'{'}}content: '重启任务（因重启网站之后上传中断）'{{'}'}}"><i class="mdui-icon material-icons">&#xe863;</i></button>
-        <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
-        <label class="mdui-switch" id="delete_mode_parent">
-            上传完成删除本地文件
-            <input type="checkbox" id="delete_mode" {%if GetConfig("delete_after_upload")=="True"%}checked{%endif%}/>
+        <button class="mdui-btn mdui-btn-icon" onclick="Restart()" mdui-tooltip="{content: '重启任务（因重启网站之后上传中断）'}"><i class="mdui-icon material-icons">&#xe863;</i></button>
+        <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{content: '清空任务'}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
+        <label class="mdui-switch" id="delete_mode_parent" mdui-tooltip="{content: '文件上传完成之后是否保留本地文件'}">
+            保留本地文件
+            <input type="checkbox" id="delete_mode" {%if GetConfig("delete_after_upload")=="False"%}checked{%endif%}/>
             <i class="mdui-switch-icon"></i>
         </label>
     </div>
@@ -78,7 +78,7 @@ $('#delete_mode').change(function(){
         $.ajax({
             type: "POST",
             url: "{{url_for('admin.UploadRPCserver')}}",
-            data:{action:'delete_mode',isdelete:'True'},
+            data:{action:'delete_mode',isdelete:'False'},
             dataType: "json",
             success: function(data) {
                 ShowNotice(data.msg);
@@ -92,7 +92,7 @@ $('#delete_mode').change(function(){
         $.ajax({
             type: "POST",
             url: "{{url_for('admin.UploadRPCserver')}}",
-            data:{action:'delete_mode',isdelete:'False'},
+            data:{action:'delete_mode',isdelete:'True'},
             dataType: "json",
             success: function(data) {
                 ShowNotice(data.msg);
