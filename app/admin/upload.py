@@ -13,19 +13,19 @@ def upload():
             return redirect(url_for('admin.upload'))
         if os.path.isfile(local):
             filelists=[local]
+            local='/'.join(local.split('/')[:-1])
         else:
             filelists=list_all_files(local)
         if local.endswith('/'):
             local=local[:-1]
         for file in filelists:
-            print(file)
             info={}
             dir_,fname=os.path.dirname(file),os.path.basename(file)
             remote_path=remote+'/'+dir_.replace(local,'')+'/'+fname
             remote_path=remote_path.replace('//','/')
             info['user']=user
             info['localpath']=file
-            info['remote']=remote_path
+            info['remote']=remote_path.replace('//','/')
             info['status']=''
             info['speed']=''
             info['id']=base64.b64encode(str(int(round(time.time())))+file)
@@ -64,6 +64,12 @@ def UploadRPCserver():
         cmd='python {}/function.py StartUploadQueue'.format(config_dir)
         subprocess.Popen(cmd,shell=True)
         ret={'msg':'重启成功！'}
+        return jsonify(ret)
+    elif action=='delete_mode':
+        isdelete=request.form.get('isdelete','True')
+        set_config('delete_after_upload',isdelete)
+        redis_client.set('delete_after_upload',isdelete)
+        ret={'msg':'已设置！'}
         return jsonify(ret)
     ret=get_upload_tasks(page)
     data={'code':1,'result':ret}

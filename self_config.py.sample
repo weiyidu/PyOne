@@ -117,5 +117,5 @@ show_audio="ogg,mp3,wav,aac,flac,m4a"
 show_code="html,htm,php,py,css,go,java,js,json,txt,sh,md"
 show_redirect="exe"
 
-
-
+#上传服务器文件完成之后是否删除文件
+delete_after_upload="True"
