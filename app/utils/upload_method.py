@@ -34,7 +34,7 @@ def get_upload_tasks_no():
 
 def StartUploadQueue():
     waiting_tasks=mon_db.upload_queue.find({
-            '$or':[
+            '$and':[
             {'status':{'$ne':'file exists!'}},
             {'status':{'$ne':'上传成功！'}}
             ]
