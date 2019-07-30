@@ -69,7 +69,7 @@ def install():
             if od_type=='cn':
                 data+='&resource=00000003-0000-0ff1-ce00-000000000000'
             url=GetOAuthUrl(od_type)
-            r=requests.post(url,data=data,headers=headers,vefiry=False)
+            r=requests.post(url,data=data,headers=headers,verify=False)
             Atoken=json.loads(r.text)
             if Atoken.get('access_token'):
                 with open(os.path.join(config_dir,'data/{}_Atoken.json'.format(user)),'w') as f:

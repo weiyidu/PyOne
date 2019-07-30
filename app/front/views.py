@@ -1,9 +1,11 @@
 #-*- coding=utf-8 -*-
-from flask import render_template,redirect,abort,make_response,jsonify,request,url_for,Response,send_from_directory
+from flask import render_template,redirect,abort,make_response,jsonify,request,url_for,Response,send_from_directory,stream_with_context,send_file
 from flask_sqlalchemy import Pagination
 from ..utils import *
 from ..extend import *
 from . import front
+from fpdf import FPDF
+
 
 ################################################################################
 ###################################前台函数#####################################
@@ -156,6 +158,11 @@ def show(fileid,user,action='download',token=None):
         if ext in GetConfig('show_redirect').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             resp=MakeResponse(redirect(downloadUrl))
+        elif ext=='pdf':
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/pdf.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/pdf.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
         elif ext in GetConfig('show_doc').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             url = 'https://view.officeapps.live.com/op/view.aspx?src='+urllib.quote(downloadUrl)
@@ -200,10 +207,34 @@ def show(fileid,user,action='download',token=None):
         if not downloadUrl.startswith('http'):
             return MakeResponse(downloadUrl)
         else:
-            resp=MakeResponse(redirect(play_url))
+            if GetConfig('redirect_file')=='True' or ext=='pdf':
+                resp=redirect_file(user,fileid)
+            else:
+                resp=MakeResponse(redirect(play_url))
     else:
         resp=MakeResponse(abort(404))
     return resp
+
+# @front.route('/py_redirect/<user>/<fileid>')
+def redirect_file(user,fileid):
+    filename=GetName(fileid)
+    ext=filename.split('.')[-1].lower()
+    _headers={}
+    _headers['User-Agent']=request.headers['User-Agent']
+    _range=request.headers.get('Range')
+    if _range is not None:
+        _headers['Range']=_range
+    downloadUrl,play_url=GetDownloadUrl(fileid,user)
+    req = browser.get(play_url, stream = True ,headers=_headers)
+    headers = dict([(name, value) for (name, value) in req.raw.headers.items()])
+    if ext=='pdf':
+        def generate():
+            for chunk in req.iter_content(1024*5):
+                if chunk:
+                    yield chunk
+        return Response(generate(),mimetype='application/pdf')
+    else:
+        return Response(stream_with_context(req.iter_content()),headers=headers)
 
 
 

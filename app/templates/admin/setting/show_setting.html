@@ -9,8 +9,14 @@
         <p>1. 可用于某些后缀的文件用那种窗口展示，<font color="red">没设置的后缀直接下载</font>；</p>
         <p>2. <font color="red">下方设置的顺序决定了文件展示的优先级</font>，比如mp4格式在“直接下载”和“视频”两类都出现了，但是“直接下载”优先级更高，因此mp4文件将直接下载</p>
         <p>3. 后缀通过英文逗号(,)分隔，无需加点(.)</p>
+        <p>*<font color='blue'>4. 开启“转发流量”之后，所有文件预览/下载将走服务器流量，对服务器要求较高，慎重开启！</font></p>
       </small>
     </div>
+    <label class="mdui-switch" mdui-tooltip="{content: '文件上传完成之后是否保留本地文件'}">
+        <B>转发流量</B>
+        <input type="checkbox" id="redirect_file_button" {%if GetConfig("redirect_file")=="True"%}checked{%endif%}/>
+        <i class="mdui-switch-icon"></i>
+    </label>
     <form action="{{url_for('admin.show_setting')}}" method="POST">
 
         <div class="mdui-textfield">
@@ -54,5 +60,45 @@
        </button>
     </form>
 </div>
+<script type="text/javascript">
+  function ShowNotice(msg){
+      mdui.snackbar({
+            message: msg,
+            position: 'top'
+          });
+  }
+
+  $('#redirect_file_button').change(function(){
+     if($("#redirect_file_button").prop('checked')){
+          var index2 = layer.load(2, {
+                  shade: [0.1, '#fff'] //0.1透明度的白色背景
+              });
+          $.ajax({
+              type: "POST",
+              url: "{{url_for('admin.show_setting')}}",
+              data:{action:'redirect_file',redirect:'True'},
+              dataType: "json",
+              success: function(data) {
+                  ShowNotice(data.msg);
+                  layer.close(index2);
+              }
+          });
+     }else{
+          var index2 = layer.load(2, {
+                  shade: [0.1, '#fff'] //0.1透明度的白色背景
+              });
+          $.ajax({
+              type: "POST",
+              url: "{{url_for('admin.show_setting')}}",
+              data:{action:'redirect_file',redirect:'False'},
+              dataType: "json",
+              success: function(data) {
+                  ShowNotice(data.msg);
+                  layer.close(index2);
+              }
+          });
+     }
+  });
+</script>
 
 {%endblock content%}

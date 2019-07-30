@@ -133,9 +133,11 @@
                 success : function(response) {
                     if (response.ifExist) {
                         //分块存在，跳过
+                        console.log('分块存在');
                         deferred.reject();
                     } else {
                         //分块不存在或不完整，重新发送该分块内容
+                        console.log('分块不存在');
                         deferred.resolve();
                     }
                 }

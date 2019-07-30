@@ -68,9 +68,13 @@ def upload_local():
 def checkChunk():
     fileName=request.form.get('name').encode('utf-8')
     chunk=request.form.get('chunk',0,type=int)
+    chunkSize=request.form.get('chunkSize',type=int)
     filename = u'./upload/{}-{}'.format(fileName, chunk)
     if os.path.exists(filename):
-        exists=True
+        if os.path.getsize(filename)==chunkSize:
+            exists=True
+        else:
+            exists=False
     else:
         exists=False
     return jsonify({'ifExist':exists})
