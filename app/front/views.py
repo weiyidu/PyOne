@@ -4,8 +4,6 @@ from flask_sqlalchemy import Pagination
 from ..utils import *
 from ..extend import *
 from . import front
-from fpdf import FPDF
-
 
 ################################################################################
 ###################################前台函数#####################################
