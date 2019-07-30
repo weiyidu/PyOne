@@ -4,13 +4,18 @@ import header
 
 
 def _upload(filepath,remote_path,user=GetConfig('default_pan')): #remote_path like 'share/share.mp4'
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token)}
     headers['Content-Type']='application/octet-stream'
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+'v1.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
+    else:
+        url=app_url+'_api/v2.0/me/drive/root:{}:/content'.format(urllib.quote(convert2unicode(remote_path)))
     timeCalc=TimeCalculator()
-    r=browser.put(url,headers=headers,data=open(filepath,'rb'))
+    r=browser.put(url,headers=headers,data=open(filepath,'rb'),verify=False)
     # r=CurlUpload(url,headers,open(filepath,'rb'))
     try:
         data=json.loads(r.content)
@@ -63,7 +68,7 @@ def _upload_part(uploadUrl, filepath,filesize, offset, length,trytime=1,request_
     headers.update(default_headers)
     try:
         timeCalc=TimeCalculator()
-        r=browser.put(uploadUrl,headers=headers,data=filebin)
+        r=browser.put(uploadUrl,headers=headers,data=filebin,verify=False)
         # r=CurlUpload(uploadUrl,headers,filebin)
         data=json.loads(r.content)
         speed=CalcSpeed(length,timeCalc.PassNow())['kb']
@@ -96,10 +101,15 @@ def _upload_part(uploadUrl, filepath,filesize, offset, length,trytime=1,request_
             return {'status':'fail','msg':'retry times limit','code':3,'sys_msg':''}
 
 def CreateUploadSession(path,user=GetConfig('default_pan')):
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
-    url=app_url+u'v1.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+u'v1.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
+    else:
+        url=app_url+u'_api/v2.0/me/drive/root:{}:/createUploadSession'.format(urllib.quote(convert2unicode(path)))
     data={
           "item": {
             "@microsoft.graph.conflictBehavior": "fail",
@@ -107,7 +117,7 @@ def CreateUploadSession(path,user=GetConfig('default_pan')):
         }
     InfoLogger().print_r('create upload session for :{}'.format(path))
     try:
-        r=browser.post(url,headers=headers,data=json.dumps(data))
+        r=browser.post(url,headers=headers,data=json.dumps(data),verify=False)
         retdata=json.loads(r.content)
         if r.status_code==409:
             InfoLogger().print_r('file exists')
@@ -145,12 +155,13 @@ def UploadSession(uploadUrl,filesize, filepath,user):
                 InfoLogger().print_r(result['sys_msg']+' ; wait for 1800s')
                 yield {'status':'The request has been throttled! wait for 1800s','uploadUrl':uploadUrl}
                 time.sleep(1800)
-            offset=offset
-            trytime=result['trytime']
-            yield {'status':'partition upload fail! retry!','uploadUrl':uploadUrl}
+            else:
+                offset=offset
+                trytime=result['trytime']
+                yield {'status':'partition upload fail! retry!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
         #重试超过3次，放弃
         elif code==3:
-            yield {'status':'partition upload fail! touch max retry times!','uploadUrl':uploadUrl}
+            yield {'status':'partition upload fail! touch max retry times!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
             break
 
 def Upload_for_server(filepath,remote_path=None,user=GetConfig('default_pan')):
@@ -219,7 +230,7 @@ def Upload(filepath,remote_path=None,user=GetConfig('default_pan')):
 def ContinueUpload(filepath,uploadUrl,user):
     headers={'Content-Type':'application/json'}
     headers.update(default_headers)
-    r=browser.get(uploadUrl,headers=headers)
+    r=browser.get(uploadUrl,headers=headers,verify=False)
     data=json.loads(r.text)
     offset=data.get('nextExpectedRanges')[0].split('-')[0]
     expires_on=time.mktime(parse(data.get('expirationDateTime')).timetuple())
@@ -250,12 +261,13 @@ def ContinueUpload(filepath,uploadUrl,user):
                     InfoLogger().print_r(result['sys_msg']+' ; wait for 1800s')
                     yield {'status':'The request has been throttled! wait for 1800s','uploadUrl':uploadUrl}
                     time.sleep(1800)
-                offset=offset
-                trytime=result['trytime']
-                yield {'status':'partition upload fail! retry!','uploadUrl':uploadUrl}
+                else:
+                    offset=offset
+                    trytime=result['trytime']
+                    yield {'status':'partition upload fail! retry!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
             #重试超过3次，放弃
             elif code==3:
-                yield {'status':'partition upload fail! touch max retry times!','uploadUrl':uploadUrl}
+                yield {'status':'partition upload fail! touch max retry times!{}'.format(result['sys_msg']),'uploadUrl':uploadUrl}
                 break
 
 
@@ -275,7 +287,7 @@ class MultiUpload(Thread):
                 Upload(localpath,remote_dir,self.user)
 
 
-def UploadDir(local_dir,remote_dir,user,threads=5):
+def UploadDir(local_dir,remote_dir,user,threads=int(GetConfig('thread_num'))):
     InfoLogger().print_r(u'geting file from dir {}'.format(local_dir))
     localfiles=list_all_files(local_dir)
     InfoLogger().print_r(u'get {} files from dir {}'.format(len(localfiles),local_dir))

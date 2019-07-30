@@ -25,11 +25,11 @@ function SelectGid(){
 }
 
 
-function DoAction(action,gid){
+function DoAction(admin_prefix,action,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:action,gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -40,11 +40,11 @@ function DoAction(action,gid){
         }
     });
 }
-function pause(gid){
+function pause(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'pause',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -55,11 +55,11 @@ function pause(gid){
         }
     });
 }
-function unpause(gid){
+function unpause(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'unpause',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -70,11 +70,11 @@ function unpause(gid){
         }
     });
 }
-function remove(gid){
+function remove(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'remove',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -85,11 +85,11 @@ function remove(gid){
         }
     });
 }
-function removeAll(gid){
+function removeAll(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'removeAll',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -100,11 +100,11 @@ function removeAll(gid){
         }
     });
 }
-function restart(gid){
+function restart(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'restart',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -115,11 +115,11 @@ function restart(gid){
         }
     });
 }
-function selected(gid){
+function selected(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'selected',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -130,11 +130,11 @@ function selected(gid){
         }
     });
 }
-function unselected(gid){
+function unselected(admin_prefix,gid){
     var defer = $.Deferred();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc",
+        url: "/"+admin_prefix+"/jsonrpc",
         data: { action:'unselected',gid:gid },
         cache: false, //使用同步的方式,true为异步方式
         dataType: "json",
@@ -147,7 +147,7 @@ function unselected(gid){
 }
 
 
-function ClearHist(){
+function ClearHist(admin_prefix){
     layer.confirm('确定清除任务？', {
         btn: ['确定','取消'] //按钮
     },
@@ -155,7 +155,7 @@ function ClearHist(){
         layer.close(index);
         $.ajax({
             type: "POST",
-            url: "/admin/clearHist",
+            url: "/"+admin_prefix+"/clearHist",
             dataType: "json",
             beforeSend: function(xhr) {
                 var index2 = layer.load(2, {
@@ -174,12 +174,12 @@ function ClearHist(){
     );
 }
 
-function tellActive() {
+function tellActive(admin_prefix) {
     var defer = $.Deferred();
     var getTimestamp=new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc?t="+getTimestamp,
+        url: "/"+admin_prefix+"/jsonrpc?t="+getTimestamp,
         data: { action:'tellActive' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式
@@ -201,17 +201,17 @@ function tellActive() {
                          //active -- >pause/unpause/remove
                         td='       <div class="mdui-col-xs-2">&nbsp;&nbsp;&nbsp;';
                         if(t['down_status']=='暂停下载'){
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
                         }
                         else{
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
                         }
                         // if(t['selectable']=='true'){
                         //     td+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe5c9;</i></button>';
                         // }
                         // td+='<button class="mdui-btn mdui-btn-icon" onclick="remove(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'删除任务\'}"><i class="mdui-icon material-icons">&#xe872;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
                         td+='      </div>';
                         html+=td;
                         //active end
@@ -239,10 +239,10 @@ function tellActive() {
                                 //sub操作
                                 inner_html+='<div class="mdui-col-xs-1 ">';
                                 if(file['selected']=='true'){
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
                                 }
                                 else{
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
                                 }
                                 inner_html+='</div>';
                                 //sub操作 end
@@ -261,17 +261,17 @@ function tellActive() {
         },
         complete:function(){
             defer.promise();
-            tellFail();
+            tellFail(admin_prefix);
         }
     });
 }
 
-function tellFail() {
+function tellFail(admin_prefix) {
     var defer = $.Deferred();
     var getTimestamp=new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc?t="+getTimestamp,
+        url: "/"+admin_prefix+"/jsonrpc?t="+getTimestamp,
         data: { action:'tellFail' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式
@@ -293,17 +293,17 @@ function tellFail() {
                          //active -- >pause/unpause/remove
                         td='       <div class="mdui-col-xs-2">&nbsp;&nbsp;&nbsp;';
                         if(t['down_status']=='暂停下载'){
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="unpause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'开始任务\'}"><i class="mdui-icon material-icons">&#xe037;</i></button> ';
                         }
                         else{
-                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
+                            td+='<button class="mdui-btn mdui-btn-icon" onclick="pause(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'暂停任务\'}"><i class="mdui-icon material-icons">&#xe047;</i></button> ';
                         }
                         // if(t['selectable']=='true'){
                         //     td+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe5c9;</i></button>';
                         // }
                         // td+='<button class="mdui-btn mdui-btn-icon" onclick="remove(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'删除任务\'}"><i class="mdui-icon material-icons">&#xe872;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
                         td+='      </div>';
                         //active end
                     html+=td;
@@ -331,10 +331,10 @@ function tellFail() {
                                 //sub操作
                                 inner_html+='<div class="mdui-col-xs-1 ">';
                                 if(file['selected']=='true'){
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe834;</i></button>';
                                 }
                                 else{
-                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
+                                    inner_html+='<button class="mdui-btn mdui-btn-icon" onclick="selected(\''+admin_prefix+'\',\''+t['gid']+'#'+file['idx']+'\')" mdui-tooltip="{content: \'选择下载文件\'}"><i class="mdui-icon material-icons">&#xe835;</i></button>';
                                 }
                                 inner_html+='</div>';
                                 //sub操作 end
@@ -353,17 +353,17 @@ function tellFail() {
         },
         complete:function(){
             defer.promise();
-            tellSuccess();
+            tellSuccess(admin_prefix);
         }
     });
 }
 
-function tellSuccess() {
+function tellSuccess(admin_prefix) {
     var defer = $.Deferred();
     var getTimestamp=new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/jsonrpc?t="+getTimestamp,
+        url: "/"+admin_prefix+"/jsonrpc?t="+getTimestamp,
         data: { action:'tellSuccess' },
         cache: false,
         // async: false,
@@ -388,8 +388,8 @@ function tellSuccess() {
                         //     td+='<button class="mdui-btn mdui-btn-icon" onclick="unselected(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'选择不下载文件\'}"><i class="mdui-icon material-icons">&#xe5c9;</i></button>';
                         // }
                         // td+='<button class="mdui-btn mdui-btn-icon" onclick="remove(\''+t['gid']+'#'+t['idx']+'\')" mdui-tooltip="{content: \'删除任务\'}"><i class="mdui-icon material-icons">&#xe872;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
-                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="removeAll(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'删除同磁力下所有任务\'}"><i class="mdui-icon material-icons">&#xe92b;</i></button>';
+                        td+='<button class="mdui-btn mdui-btn-icon" onclick="restart(\''+admin_prefix+'\',\''+t['gid']+'\')" mdui-tooltip="{content: \'重新开始\'}"><i class="mdui-icon material-icons">&#xe863;</i></button> ';
                         td+='      </div>';
                         html+=td;
                         //active end
@@ -437,18 +437,4 @@ function tellSuccess() {
         }
     });
 }
-function Refresh(){
-    tellActive();
-}
-var interval_id=null;
-function AutoRefresh(){
-    if (interval_id){
-        window.clearInterval(interval_id);
-    }
-    interval_id = window.setInterval(function(){
-        if(need_refresh){
-            Refresh();
-        }
-    },2000);
-}
-AutoRefresh();
+

@@ -18,6 +18,9 @@ def login():
             resp=MakeResponse(render_template('admin/login.html'))
         return resp
     if session.get('login'):
+        referer=request.referrer
+        if referer is not None:
+            return redirect(referer)
         return redirect(url_for('admin.setting'))
     resp=MakeResponse(render_template('admin/login.html'))
     return resp

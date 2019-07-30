@@ -49,6 +49,9 @@ def panmove():
 
 @admin.route('/panmove/create',methods=['POST'])
 def panmove_create():
+    p,status=get_aria2()
+    if not status:
+        return jsonify({'status':False,'msg':p})
     pan_from=request.form.get('pan_from')
     pan_to=request.form.get('pan_to')
     user_to=request.form.get('user_to')

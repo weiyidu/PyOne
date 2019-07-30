@@ -230,10 +230,12 @@ def upload_status(gid,idx,remote_dir,user,outerid=None):
                 new_value['up_status']='api受限！智能等待30分钟'
                 new_value['status']=0
             elif 'partition upload fail! retry' in msg:
-                new_value['up_status']='上传失败，等待重试'
+                reason=msg.split('!')[-1]
+                new_value['up_status']='上传失败，等待重试！返回原因：{}'.format(reason)
                 new_value['status']=1
             elif 'partition upload fail' in msg:
-                new_value['up_status']='上传失败，已经超过重试次数'
+                reason=msg.split('!')[-1]
+                new_value['up_status']='上传失败，已经超过重试次数！返回原因：{}'.format(reason)
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
                 if outerid is not None:
@@ -249,7 +251,8 @@ def upload_status(gid,idx,remote_dir,user,outerid=None):
                     mon_db.tasks_detail.find_one_and_update({'id':outerid},{'$set':outer_info})
                 return
             elif 'create upload session fail' in msg:
-                new_value['up_status']='创建实例失败！'
+                reason=msg.split('!')[-1]
+                new_value['up_status']='创建实例失败！返回原因：{}'.format(reason)
                 new_value['status']=-1
                 mon_db.down_db.find_one_and_update({'_id':item['_id']},{'$set':new_value})
                 if outerid is not None:
@@ -477,12 +480,13 @@ def DBMethod(action,**kwargs):
         result=[]
         for gid in kwargs['gids']:
             info={'gid':gid}
+            dinfo={'gid':gid}
             tasks=mon_db.down_db.find(info)
             for task in tasks:
                 parent=task['name'].split('/')[0]
                 parent_filepath=os.path.join(config_dir,'upload/{}'.format(parent))
                 aria2_file=os.path.join(config_dir,'upload/{}.aria2'.format(parent))
-                InfoLogger().print_r('删除任务：{}; 文件夹：{}；文件名：{}；aria2文件：{}'.format(task['name'],parent_filepath,task['localpath'],aria2_file))
+                # InfoLogger().print_r('删除任务：{}; 文件夹：{}；文件名：{}；aria2文件：{}'.format(task['name'],parent_filepath,task['localpath'],aria2_file))
                 if task['down_status']=='100.0%' and 'partition upload success' in task['up_status']:
                     info['msg']='正在上传的任务，无法更改状态'
                 else:
@@ -500,7 +504,7 @@ def DBMethod(action,**kwargs):
                 os.remove(aria2_file)
             except Exception as e:
                 ErrorLogger().print_r('未能成功删除本地文件.{}'.format(e))
-            mon_db.down_db.delete_many(info)
+            mon_db.down_db.delete_many(dinfo)
             result.append(info)
     elif action=='restart':
         result=[]

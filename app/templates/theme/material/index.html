@@ -51,10 +51,14 @@
                     </li>
                     {%else%}
                         <li class="mdui-list-item file mdui-ripple">
-                            <a href="{{url_for('front.index',path=data['path'])|safe}}" target="_blank">
+                            {%if GetConfig("verify_url")=="True"%}
+                            <a href="{{url_for('front.index',path=data['path'],token=GenerateToken(data['path']))}}" target="_blank">
+                            {%else%}
+                            <a href="{{url_for('front.index',path=data['path'])}}" target="_blank">
+                            {%endif%}
                                 {%if image_mode==1%}
                                     {%if file_ico(data)=='image'%}
-                                        <img class="mdui-img-fluid" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download')}}"/>
+                                        <img class="mdui-img-fluid" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download',token=GenerateToken(data['path']))}}"/>
                                     {%else%}
                                         <div class="mdui-col-xs-8 mdui-col-sm-5 mdui-text-truncate">
                                             <i class="mdui-icon material-icons">{{file_ico(data)}}</i> {{data['name']}}
@@ -112,7 +116,11 @@ $$(function() {
               shadeClose: true,
               shade: 0.8,
               area: ['100%', '100%'],
+              {%if GetConfig("verify_url")=="True"%}
+              content: $$(this).attr('href')+"&action=share" //iframe的url
+              {%else%}
               content: $$(this).attr('href')+"?action=share" //iframe的url
+              {%endif%}
             });
             return false;
         });

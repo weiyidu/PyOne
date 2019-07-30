@@ -6,12 +6,16 @@ def DeleteLocalFile(fileid):
     mon_db.items.remove({'id':fileid})
 
 def DeleteRemoteFile(fileid,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/'+fileid
-    r=browser.delete(url,headers=headers)
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+'v1.0/me/drive/items/'+fileid
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/'+fileid
+    r=browser.delete(url,headers=headers,verify=False)
     if r.status_code==204:
         DeleteLocalFile(fileid)
         return True
@@ -21,10 +25,14 @@ def DeleteRemoteFile(fileid,user=GetConfig('default_pan')):
 
 ########################
 def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     if grand_path=='' or grand_path is None or grand_path=='/':
-        url=app_url+'v1.0/me/drive/root/children'
+        if od_type=='nocn' or od_type is None or od_type==False:
+            url=app_url+'v1.0/me/drive/root/children'
+        else:
+            url=app_url+'_api/v2.0/me/drive/root/children'
         parent_id=''
         grandid=0
     else:
@@ -32,7 +40,10 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
         parent=mon_db.items.find_one({'path':path})
         parent_id=parent['id']
         grandid=parent['grandid']+1
-        url=app_url+'v1.0/me/drive/items/{}/children'.format(parent['id'])
+        if od_type=='nocn' or od_type is None or od_type==False:
+            url=app_url+'v1.0/me/drive/items/{}/children'.format(parent['id'])
+        else:
+            url=app_url+'_api/v2.0/me/drive/items/{}/children'.format(parent['id'])
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
     payload={
@@ -40,7 +51,7 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
       "folder": {},
       "@microsoft.graph.conflictBehavior": "rename"
     }
-    r=browser.post(url,headers=headers,data=json.dumps(payload))
+    r=browser.post(url,headers=headers,data=json.dumps(payload),verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         #插入数据
@@ -69,13 +80,13 @@ def CreateFolder(folder_name,grand_path,user=GetConfig('default_pan')):
         mon_db.items.insert_one(item)
         return True
     else:
-        ErrorLogger().print_r(data.get('error').get('msg'))
-        InfoLogger().print_r(data.get('error').get('msg'))
+        InfoLogger().print_r('创建文件夹失败：{}'.format(data.get('error').get('message')))
         return False
 
 def CreateFile(filename,path,content,user=GetConfig('default_pan')):
     token=GetToken(user=user)
-    app_url=GetAppUrl()
+    od_type=get_value('od_type',user)
+    app_url=GetAppUrl(user)
     if not path.startswith('/'):
         path='/'+path
     share_path=od_users.get(user).get('share_path')
@@ -87,8 +98,11 @@ def CreateFile(filename,path,content,user=GetConfig('default_pan')):
     info={}
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/root:{}:/content'.format(remote_file)
-    r=browser.put(url,headers=headers,data=content,timeout=10)
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+'v1.0/me/drive/items/root:{}:/content'.format(remote_file)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/root:{}:/content'.format(remote_file)
+    r=browser.put(url,headers=headers,data=content,timeout=10,verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         AddResource(data,user)
@@ -100,17 +114,22 @@ def CreateFile(filename,path,content,user=GetConfig('default_pan')):
     else:
         info['status']=0
         info['msg']=data.get('error').get('message')
+        InfoLogger().print_r('创建文件失败：{}'.format(data.get('error').get('message')))
     return info
 
 def EditFile(fileid,content,user=GetConfig('default_pan')):
     token=GetToken(user=user)
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     info={}
     headers={'Authorization':'bearer {}'.format(token)}
     headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/items/{}/content'.format(fileid)
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}/content'.format(fileid)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}/content'.format(fileid)
     try:
-        r=browser.put(url,headers=headers,data=content,timeout=10)
+        r=browser.put(url,headers=headers,data=content,timeout=10,verify=False)
         data=json.loads(r.content)
         if data.get('id'):
             info['status']=0
@@ -127,6 +146,7 @@ def EditFile(fileid,content,user=GetConfig('default_pan')):
         else:
             info['status']=0
             info['msg']=data.get('error').get('message')
+            InfoLogger().print_r('编辑文件失败：{}'.format(data.get('error').get('message')))
     except Exception as e:
         exstr = traceback.format_exc()
         ErrorLogger().print_r(exstr)
@@ -136,7 +156,8 @@ def EditFile(fileid,content,user=GetConfig('default_pan')):
 
 
 def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
     #GetRootid
     if new_folder_path=='' or new_folder_path is None or new_folder_path=='/':
@@ -152,7 +173,10 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
         parent=parent_item['id']
         grandid=parent_item['grandid']+1
         path=parent_item['path']+'/'+GetName(fileid)
-    url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}'.format(fileid)
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
     payload={
@@ -161,7 +185,7 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
       },
       "name": GetName(fileid)
     }
-    r=browser.patch(url,headers=headers,data=json.dumps(payload))
+    r=browser.patch(url,headers=headers,data=json.dumps(payload),verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         new_value={'parent':parent,'grandid':grandid,'path':path}
@@ -176,19 +200,24 @@ def MoveFile(fileid,new_folder_path,user=GetConfig('default_pan')):
         redis_client.delete(key)
         return True
     else:
-        InfoLogger().print_r(data.get('error').get('msg'))
+        InfoLogger().print_r('移动文件失败：{}'.format(data.get('error').get('message')))
         return False
 
 def ReName(fileid,new_name,user=GetConfig('default_pan')):
-    app_url=GetAppUrl()
+    app_url=GetAppUrl(user)
+    od_type=get_value('od_type',user)
     token=GetToken(user=user)
-    url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    if od_type=='nocn' or od_type is None or od_type==False:
+        url=app_url+'v1.0/me/drive/items/{}'.format(fileid)
+    else:
+        url=app_url+'_api/v2.0/me/drive/items/{}'.format(fileid)
+
     headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
     headers.update(default_headers)
     payload={
       "name": new_name
     }
-    r=browser.patch(url,headers=headers,data=json.dumps(payload))
+    r=browser.patch(url,headers=headers,data=json.dumps(payload),verify=False)
     data=json.loads(r.content)
     if data.get('id'):
         it=mon_db.items.find_one({'id':fileid})
@@ -208,5 +237,5 @@ def ReName(fileid,new_name,user=GetConfig('default_pan')):
                 mon_db.items.find_one_and_update({'id':file['id']},{'$set':new_value})
         return True
     else:
-        InfoLogger().print_r(data.get('error').get('msg'))
+        InfoLogger().print_r('重命名失败：{}'.format(data.get('error').get('message')))
         return False

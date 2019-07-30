@@ -48,16 +48,23 @@ def favicon():
 @front.route('/',methods=['POST','GET'])
 @limiter.limit("200/minute;50/second")
 def index(path=None):
+    balance=eval(GetConfig('balance'))
     if path is None:
         path='{}:/'.format(GetConfig('default_pan'))
-    path=urllib.unquote(path).replace('&action=play','')
+    path=urllib.unquote(path).split('?')[0]
     if not os.path.exists(os.path.join(config_dir,'.install')):
-        resp=MakeResponse(redirect(url_for('admin.install',step=0,user=GetConfig('default_pan'))))
+        resp=redirect(url_for('admin.install',step=0,user=GetConfig('default_pan')))
         return resp
     try:
         user,n_path=path.split(':')
     except:
-        return MakeResponse(abort(404))
+        if path==GetConfig('admin_prefix'):
+            return redirect(url_for('admin.setting'))
+        else:
+            return MakeResponse(abort(404))
+    if balance:
+        if user!=GetConfig('default_pan'):
+            return MakeResponse(abort(404))
     if n_path=='':
         path=':'.join([user,'/'])
     page=request.args.get('page',1,type=int)
@@ -65,7 +72,8 @@ def index(path=None):
     sortby=GetCookie(key='sortby',default=GetConfig('default_sort'))
     order=GetCookie(key='order',default=GetConfig('order_m'))
     action=request.args.get('action','download')
-    data,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,dismiss=True)
+    token=request.args.get('token')
+    data,total = FetchData(path=path,page=page,per_page=50,sortby=sortby,order=order,action=action,dismiss=True)
     #是否有密码
     password,_,cur=has_item(path,'.password')
     md5_p=md5(path)
@@ -80,11 +88,27 @@ def index(path=None):
     if password!=False:
         if (not request.cookies.get(md5_p) or request.cookies.get(md5_p)!=password) and has_verify_==False:
             if total=='files' and GetConfig('encrypt_file')=="no":
-                return show(data['id'],user,action)
+                if GetConfig("verify_url")=="True" and action not in ['share','iframe']:
+                    if token is None:
+                        return abort(403)
+                    elif VerifyToken(token,path):
+                        return show(data['id'],data['user'],action,token=token)
+                    else:
+                        return abort(403)
+                else:
+                    return show(data['id'],data['user'],action,token=token)
             resp=MakeResponse(render_template('theme/{}/password.html'.format(GetConfig('theme')),path=path,cur_user=user))
             return resp
     if total=='files':
-        return show(data['id'],user,action)
+        if GetConfig("verify_url")=="True" and action not in ['share','iframe']:
+            if token is None:
+                return abort(403)
+            elif VerifyToken(token,path):
+                return show(data['id'],data['user'],action,token=token)
+            else:
+                return abort(403)
+        else:
+            return show(data['id'],data['user'],action,token=token)
     readme,ext_r=GetReadMe(path)
     head,ext_d=GetHead(path)
     #参数
@@ -111,48 +135,70 @@ def index(path=None):
     resp.set_cookie('order',str(order))
     return resp
 
-@front.route('/file/<user>/<fileid>/<action>')
-def show(fileid,user,action='download'):
+@front.route('/file/<user>/<fileid>/<action>/<token>')
+def show(fileid,user,action='download',token=None):
+    if token is None:
+        token=request.args.get('token')
+    path=GetPath(fileid)
     name=GetName(fileid)
     ext=name.split('.')[-1].lower()
-    path=GetPath(fileid)
     url=request.url.replace(':80','').replace(':443','').encode('utf-8').split('?')[0]
-    inner_url='/'+urllib.quote('/'.join(url.split('/')[3:]))
-    if request.method=='POST' or action=='share':
+    url='/'.join(url.split('/')[:3])+'/'+urllib.quote('/'.join(url.split('/')[3:]))
+    if GetConfig("verify_url")=="True":
+        url=url+'?token='+GenerateToken(path)
+        if action not in ['share','iframe']:
+            if token is None:
+                return abort(403)
+            elif VerifyToken(token,path)==False:
+                return abort(403)
+    if request.method=='POST' or action in ['share','iframe']:
         InfoLogger().print_r(u'share page:{}'.format(path))
-        if ext in ['csv','doc','docx','odp','ods','odt','pot','potm','potx','pps','ppsx','ppsxm','ppt','pptm','pptx','rtf','xls','xlsx']:
+        if ext in GetConfig('show_redirect').split(','):
+            downloadUrl,play_url=GetDownloadUrl(fileid,user)
+            resp=MakeResponse(redirect(downloadUrl))
+        elif ext in GetConfig('show_doc').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             url = 'https://view.officeapps.live.com/op/view.aspx?src='+urllib.quote(downloadUrl)
             resp=MakeResponse(redirect(url))
-        elif ext in ['bmp','jpg','jpeg','png','gif']:
-            resp=MakeResponse(render_template('theme/{}/show/image.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user))
-        elif ext in ['mp4','webm']:
-            resp=MakeResponse(render_template('theme/{}/show/video.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user))
-        elif ext in ['avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-            resp=MakeResponse(render_template('theme/{}/show/video2.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user))
-        elif ext in ['ogg','mp3','wav']:
-            resp=MakeResponse(render_template('theme/{}/show/audio.html'.format(GetConfig('theme')),url=url,inner_url=inner_url,path=path,cur_user=user))
-        elif CodeType(ext) is not None:
+        elif ext in GetConfig('show_image').split(','):
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/image.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/image.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+
+        elif ext in GetConfig('show_video').split(','):
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/video.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/video.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+        elif ext in GetConfig('show_dash').split(','):
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/video2.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/video2.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+        elif ext in GetConfig('show_audio').split(','):
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/audio.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/audio.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+        elif ext in GetConfig('show_code').split(','):
             content=common._remote_content(fileid,user)
-            resp=MakeResponse(render_template('theme/{}/show/code.html'.format(GetConfig('theme')),content=content,url=url,inner_url=inner_url,language=CodeType(ext),path=path,cur_user=user))
+            if action=="share":
+                resp=MakeResponse(render_template('theme/{}/show/code.html'.format(GetConfig('theme')),content=content,url=url,language=CodeType(ext),path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/code.html'.format(GetConfig('theme')),content=content,url=url,language=CodeType(ext),path=path,cur_user=user,name=name))
         elif name=='.password':
             resp=MakeResponse(abort(404))
         else:
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             resp=MakeResponse(redirect(downloadUrl))
         return resp
-    InfoLogger().print_r('action:{}'.format(action))
     if name=='.password':
         resp=MakeResponse(abort(404))
     if 'no-referrer' in GetConfig('allow_site').split(',') or sum([i in referrer for i in GetConfig('allow_site').split(',')])>0:
         downloadUrl,play_url=GetDownloadUrl(fileid,user)
         if not downloadUrl.startswith('http'):
             return MakeResponse(downloadUrl)
-        if ext in ['webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf']:
-            if action=='play':
-                resp=MakeResponse(redirect(play_url))
-            else:
-                resp=MakeResponse(redirect(downloadUrl))
         else:
             resp=MakeResponse(redirect(play_url))
     else:

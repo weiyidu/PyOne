@@ -43,10 +43,14 @@
                     </div>
                 {%else%}
                     <div class="row file mt-15">
-                        <a href="{{url_for('front.index',path=data['path'])}}" target="_blank">
+                       {%if GetConfig("verify_url")=="True"%}
+                       <a href="{{url_for('front.index',path=data['path'],token=GenerateToken(data['path']))}}" target="_blank">
+                       {%else%}
+                       <a href="{{url_for('front.index',path=data['path'])}}" target="_blank">
+                       {%endif%}
                             {%if image_mode==1%}
                                 {%if file_ico(data)=='image'%}
-                                    <img class="img-responsive" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download')}}"/>
+                                    <img class="img-responsive" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download',token=GenerateToken(data['path']))}}"/>
                                 {%else%}
                                     <div class="col-xs-8 col-md-6 text-left cut">{{ macros.get_ico(file_ico(data)) }}{{data['name']}}</div>
                                     <div class="col-xs-4 col-md-2">{{data['lastModtime']}}</div>
@@ -103,7 +107,11 @@ $(function() {
                 shadeClose: true,
                 shade: 0.8,
                 area: ['100%', '100%'],
+                {%if GetConfig("verify_url")=="True"%}
+                content: $(this).attr('href') + "&action=share" //iframe的url
+                {%else%}
                 content: $(this).attr('href') + "?action=share" //iframe的url
+                {%endif%}
             });
             return false;
         });

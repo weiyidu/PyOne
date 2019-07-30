@@ -3,14 +3,18 @@
 {%block content%}
 <div class="layui-container">
     <br>
-    <img class="img-responsive" src="{{inner_url}}"/>
+    <img class="img-responsive" src="{{url}}"/>
     <br>
     <!-- 固定标签 -->
     <div class="layui-form layui-form-pane">
       <div class="layui-form-item" pane>
         <label class="layui-form-label"><a onclick="copyUrl('share')"><i class="fa fa-share-alt" aria-hidden="true"></i>分享地址(点击复制)</a></label>
         <div class="layui-input-block">
+          {%if GetConfig("verify_url")=="True"%}
+          <input type="text" id="share" class="layui-input" value="{{url}}&action=share" >
+          {%else%}
           <input type="text" id="share" class="layui-input" value="{{url}}?action=share" >
+          {%endif%}
         </div>
       </div>
     </div>
@@ -23,7 +27,7 @@
       </div>
     </div>
         <br>
- <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+ <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 </div>
 
 

@@ -12,7 +12,15 @@
       <div class="layui-form-item" pane>
         <label class="layui-form-label"><a onclick="copyUrl('share')"><i class="fa fa-share-alt" aria-hidden="true"></i>分享地址(点击复制)</a></label>
         <div class="layui-input-block">
-          <input type="text" id="share" class="layui-input" value="{{url}}?action=share" >
+            <input type="text" id="share" class="layui-input" value="{{url.split('?')[0]}}?action=share" >
+        </div>
+      </div>
+    </div>
+    <div class="layui-form layui-form-pane">
+      <div class="layui-form-item" pane>
+        <label class="layui-form-label"><a onclick="copyUrl('share')"><i class="fa fa-share-alt" aria-hidden="true"></i>内嵌窗口(点击复制)</a></label>
+        <div class="layui-input-block">
+            <input type="text" id="share" class="layui-input" value="{{url.split('?')[0]}}?action=share" >
         </div>
       </div>
     </div>
@@ -25,15 +33,43 @@
       </div>
     </div>
     <script>
-    const dp = new DPlayer({
-        container: document.getElementById('dplayer'),
-        lang: 'zh-cn',
-        video: {
-            url: '{{inner_url}}?action=play',
-            type: 'dash'
-        }
+    $(function () {
+        const dp = new DPlayer({
+            container: document.getElementById('dplayer'),
+            lang: 'zh-cn',
+            video: {
+                url: "{{url}}",
+                type: 'auto'
+            },
+            autoplay: true
+        });
+        // 防止出现401 token过期
+        var cnt=1;
+        dp.on('error', function () {
+            if(cnt<=3){
+                console.log('获取资源错误，开始重新加载！');
+                let last = dp.video.currentTime;
+                dp.video.src = "{{url}}";
+                dp.video.load();
+                dp.video.currentTime = last;
+                dp.play();
+                cnt=cnt+1;
+            }
+
+        });
+        // 如果是播放状态 & 没有播放完 每25分钟重载视频防止卡死
+        setInterval(function () {
+            if (!dp.video.paused && !dp.video.ended) {
+                console.log('开始重新加载！');
+                let last = dp.video.currentTime;
+                dp.video.src = "{{url}}";
+                dp.video.load();
+                dp.video.currentTime = last;
+                dp.play();
+            }
+        }, 1000 * 60 * 25)
     });
     </script>
-    <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+    <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 </div>
 {%endblock content%}

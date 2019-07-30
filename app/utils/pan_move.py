@@ -59,7 +59,7 @@ class MoveCls(Thread):
                 break
 
 
-def StartMove(taskid,thread_num=5):
+def StartMove(taskid,thread_num=int(GetConfig('thread_num'))):
     tasks=[]
     queue=Tasks_queue(taskid)
     for i in range(thread_num):
@@ -71,7 +71,7 @@ def StartMove(taskid,thread_num=5):
     RemoveRepeatFile()
 
 
-def ReStartMove(taskid,thread_num=5):
+def ReStartMove(taskid,thread_num=int(GetConfig('thread_num'))):
     task=mon_db.tasks.find_one({'taskid':taskid})
     pan_to=task['pan_to']
     files=scan_file(task['pan_from'])

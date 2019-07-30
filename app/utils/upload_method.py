@@ -34,14 +34,13 @@ def get_upload_tasks_no():
 
 def StartUploadQueue():
     waiting_tasks=mon_db.upload_queue.find({
-            '$or':[
+            '$and':[
             {'status':{'$ne':'file exists!'}},
             {'status':{'$ne':'上传成功！'}}
             ]
         })
     queue=Queue()
     for t in waiting_tasks:
-        print(t['localpath'])
         queue.put((t['localpath'],t['remote'],t['user'],t['id']))
     tasks=[]
     for i in range(min(5,queue.qsize())):
@@ -112,7 +111,8 @@ class MultiUploadQueue(Thread):
                         new_value['speed']=data.get('speed')
                         mon_db.upload_queue.find_one_and_update({'id':id},{'$set':new_value})
                         time.sleep(2)
-                        os.remove(localpath)
+                        if GetConfig('delete_after_upload')=='True':
+                            os.remove(localpath)
                         break
                     mon_db.upload_queue.find_one_and_update({'id':id},{'$set':new_value})
                 except Exception as e:

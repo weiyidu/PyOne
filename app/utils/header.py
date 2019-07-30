@@ -64,19 +64,71 @@ browser=requests.Session()
 
 #获取参数
 def GetConfig(key):
-    if key=='allow_site':
-        value=redis_client.get('allow_site') if redis_client.exists('allow_site') else ','.join(allow_site)
-    else:
-        value=redis_client.get(key) if redis_client.exists(key) else eval(key)
-    #这里是为了储存
-    if key=='od_users' and isinstance(value,dict):
-        value=json.dumps(value)
-    if not redis_client.exists(key):
-        redis_client.set(key,value)
+    try:
+        if key=='allow_site':
+            value=redis_client.get('allow_site') if redis_client.exists('allow_site') else ','.join(allow_site)
+        else:
+            value=redis_client.get(key) if redis_client.exists(key) else eval(key)
+        #这里是为了储存
+        if key=='od_users'and isinstance(value,dict):
+            config_path=os.path.join(config_dir,'self_config.py')
+            with open(config_path,'r') as f:
+                text=f.read()
+            value=re.findall('od_users=([\w\W]*})',text)[0]
+            # value=json.dumps(value)
+        if not redis_client.exists(key):
+            redis_client.set(key,value)
+    except:
+        if key=='allow_site':
+            value=','.join(allow_site)
+        else:
+            value=eval(key)
+        if key=='od_users'and isinstance(value,dict):
+            config_path=os.path.join(config_dir,'self_config.py')
+            with open(config_path,'r') as f:
+                text=f.read()
+            value=re.findall('od_users=([\w\W]*})',text)[0]
     #这里是为了转为字典
     if key=='od_users':
+        config_path=os.path.join(config_dir,'self_config.py')
+        with open(config_path,'r') as f:
+            text=f.read()
+        value=re.findall('od_users=([\w\W]*})',text)[0]
         value=json.loads(value)
     return value
+
+
+############功能函数
+def set_config(key,value,user=GetConfig('default_pan')):
+    InfoLogger().print_r('set {}:{}'.format(key,value))
+    config_path=os.path.join(config_dir,'self_config.py')
+    if key in ['client_secret','client_id','share_path','other_name','od_type','app_url']:
+        # old_kv=re.findall('"{}":.*{{[\w\W]*}}'.format(user),old_text)[0]
+        # new_kv=re.sub('"{}":.*.*?,'.format(key),'"{}":"{}",'.format(key,value),old_kv,1)
+        # new_text=old_text.replace(old_kv,new_kv,1)
+        od_users[user][key]=value
+        config_path=os.path.join(config_dir,'self_config.py')
+        with open(config_path,'r') as f:
+            old_text=f.read()
+        with open(config_path,'w') as f:
+            old_od=re.findall('od_users={[\w\W]*}',old_text)[0]
+            new_od='od_users='+json.dumps(od_users,indent=4,ensure_ascii=False)
+            new_text=old_text.replace(old_od,new_od,1)
+            f.write(new_text)
+        return
+    with open(config_path,'r') as f:
+        old_text=f.read()
+    with open(config_path,'w') as f:
+        if key=='allow_site':
+            value=value.split(',')
+            new_text=re.sub('{}=.*'.format(key),'{}={}'.format(key,value),old_text)
+        elif key in ['tj_code','cssCode','headCode','footCode','robots']:
+            new_text=re.sub('{}="""[\w\W]*?"""'.format(key),'{}="""{}"""'.format(key,value),old_text)
+        else:
+            new_text=re.sub('{}=.*'.format(key),'{}="{}"'.format(key,value),old_text)
+        f.write(new_text)
+
+
 
 #转字符串
 def convert2unicode(string):
@@ -84,16 +136,15 @@ def convert2unicode(string):
 
 #获取
 def get_value(key,user=GetConfig('default_pan')):
-    allow_key=['client_secret','client_id']
-    #InfoLogger().print_r('get user {}\'s {}'.format(user,key))
-    if key not in allow_key:
-        return u'禁止获取'
     config_path=os.path.join(config_dir,'self_config.py')
     with open(config_path,'r') as f:
         text=f.read()
-    kv=re.findall('"{}":.*{{[\w\W]*}}'.format(user),text)[0]
-    value=re.findall('"{}":.*"(.*?)"'.format(key),kv)[0]
-    return value
+    kv=re.findall('"{}":.*{{[\w\W]*?}}'.format(user),text)[0]
+    try:
+        value=re.findall('"{}":.*"(.*?)"'.format(key),kv)[0]
+        return value
+    except:
+        return 'nocn'
 
 def GetName(id):
     key='name:{}'.format(id)
@@ -142,11 +193,14 @@ def open_json(filepath):
 def ReFreshToken(refresh_token,user=GetConfig('default_pan')):
     client_id=get_value('client_id',user)
     client_secret=get_value('client_secret',user)
+    od_type=get_value('od_type',user)
     headers={'Content-Type':'application/x-www-form-urlencoded'}
     headers.update(default_headers)
-    data=ReFreshData.format(client_id=client_id,redirect_uri=urllib.quote(redirect_uri),client_secret=client_secret,refresh_token=refresh_token)
-    url=OAuthUrl
-    r=browser.post(url,data=data,headers=headers)
+    data=ReFreshData.format(client_id=client_id,redirect_uri=urllib.quote(redirect_uri),client_secret=urllib.quote(client_secret),refresh_token=refresh_token)
+    if od_type=='cn':
+        data+='&resource={}'.format(GetAppUrl(user))
+    url=GetOAuthUrl(od_type)
+    r=browser.post(url,data=data,headers=headers,verify=False)
     return json.loads(r.text)
 
 
@@ -165,7 +219,7 @@ def GetToken(Token_file='token.json',user=GetConfig('default_pan')):
                         json.dump(token,f,ensure_ascii=False)
                 else:
                     InfoLogger().print_r(token)
-        except:
+        except Exception as e:
             with open(os.path.join(data_dir,'{}_Atoken.json'.format(user)),'r') as f:
                 Atoken=json.load(f)
             refresh_token=Atoken.get('refresh_token')
@@ -174,13 +228,35 @@ def GetToken(Token_file='token.json',user=GetConfig('default_pan')):
             if token.get('access_token'):
                 with open(token_path,'w') as f:
                     json.dump(token,f,ensure_ascii=False)
+            else:
+                return False
         return token.get('access_token')
     else:
         return False
 
-def GetAppUrl():
-    return 'https://graph.microsoft.com/'
+def GetAppUrl(user):
+    od_type=get_value('od_type',user)
+    if od_type=='nocn' or od_type is None or od_type==False:
+        return 'https://graph.microsoft.com/'
+    else:
+        # return 'https://microsoftgraph.chinacloudapi.cn/'
+        return get_value('app_url',user)
 
+
+def GetLoginUrl(client_id,redirect_uri,od_type='nocn'):
+    if od_type=='nocn' or od_type is None or od_type==False:
+        return 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code\
+&client_id={client_id}&redirect_uri={redirect_uri}&scope=offline_access%20Files.ReadWrite.All%20Files.ReadWrite'.format(client_id=client_id,redirect_uri=redirect_uri)
+    else:
+        return 'https://login.partner.microsoftonline.cn/common/oauth2/authorize?response_type=code\
+&client_id={client_id}&redirect_uri={redirect_uri}&scope=offline_access%20Files.ReadWrite.All%20Files.ReadWrite'.format(client_id=client_id,redirect_uri=redirect_uri)
+
+
+def GetOAuthUrl(od_type):
+    if od_type=='nocn' or od_type is None or od_type==False:
+        return 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+    else:
+        return 'https://login.partner.microsoftonline.cn/common/oauth2/token'
 
 def GetExt(name):
     try:
@@ -191,22 +267,6 @@ def GetExt(name):
 def date_to_char(date):
     return date.strftime('%Y/%m/%d')
 
-def CheckTimeOut(fileid):
-    app_url=GetAppUrl()
-    token=GetToken()
-    headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
-    headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/mon_db.items/'+fileid
-    r=browser.get(url,headers=headers)
-    data=json.loads(r.content)
-    if data.get('@microsoft.graph.downloadUrl'):
-        downloadUrl=data.get('@microsoft.graph.downloadUrl')
-        start_time=time.time()
-        for i in range(10000):
-            r=browser.head(downloadUrl)
-            InfoLogger().print_r('{}\'s gone, status:{}'.format(time.time()-start_time,r.status_code))
-            if r.status_code==404:
-                break
 
 def RemoveRepeatFile():
     """
@@ -382,30 +442,14 @@ def AddResource(data,user=GetConfig('default_pan')):
         item['order']=2
     mon_db.items.insert_one(item)
 
-def CheckTimeOut(fileid):
-    app_url=GetAppUrl()
-    token=GetToken()
-    headers={'Authorization':'bearer {}'.format(token),'Content-Type':'application/json'}
-    headers.update(default_headers)
-    url=app_url+'v1.0/me/drive/mon_db.items/'+fileid
-    r=browser.get(url,headers=headers)
-    data=json.loads(r.content)
-    if data.get('@microsoft.graph.downloadUrl'):
-        downloadUrl=data.get('@microsoft.graph.downloadUrl')
-        start_time=time.time()
-        for i in range(10000):
-            r=browser.head(downloadUrl)
-            InfoLogger().print_r('{}\'s gone, status:{}'.format(time.time()-start_time,r.status_code))
-            if r.status_code==404:
-                break
-
 
 class GetItemThread(Thread):
     def __init__(self,queue,user):
         super(GetItemThread,self).__init__()
+        self.insert_items=[]
         self.queue=queue
         self.user=user
-        share_path=od_users.get(user).get('share_path')
+        share_path=GetConfig('od_users').get(user).get('share_path')
         if share_path=='/':
             self.share_path=share_path
         else:
@@ -415,6 +459,15 @@ class GetItemThread(Thread):
             if sp.endswith('/') and sp!='/':
                 sp=sp[:-1]
             self.share_path=sp
+
+    def __del__(self):
+        mon_db.items.insert_many(self.insert_items)
+
+    def insert_new(self,item):
+        self.insert_items.append(item)
+        if len(self.insert_items)>=20:
+            mon_db.items.insert_many(self.insert_items)
+            self.insert_items=[]
 
     def run(self):
         while not self.queue.empty():
@@ -429,11 +482,11 @@ class GetItemThread(Thread):
                 break
 
     def CheckPathSize(self,url):
-        app_url=GetAppUrl()
+        app_url=GetAppUrl(self.user)
         token=GetToken(user=self.user)
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
-        r=browser.get(url,headers=headers,timeout=10)
+        r=browser.get(url,headers=headers,timeout=10,verify=False)
         data=json.loads(r.content)
         if data.get('folder'):
             if data['name']!='root':
@@ -443,14 +496,15 @@ class GetItemThread(Thread):
                     return
 
     def GetItem(self,url,grandid=0,parent='',trytime=1):
-        app_url=GetAppUrl()
+        app_url=GetAppUrl(self.user)
+        od_type=get_value('od_type',self.user)
         token=GetToken(user=self.user)
         InfoLogger().print_r(u'[start] getting files from url {}'.format(url))
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
         try:
             self.CheckPathSize(url.replace('children?expand=thumbnails',''))
-            r=browser.get(url,headers=headers,timeout=10)
+            r=browser.get(url,headers=headers,timeout=10,verify=False)
             data=json.loads(r.content)
             if data.get('error'):
                 InfoLogger().print_r('error:{}! waiting 180s'.format(data.get('error').get('message')))
@@ -489,6 +543,7 @@ class GetItemThread(Thread):
                                     path=convert2unicode(value['name'])
                                 path=urllib.unquote('{}:/{}'.format(self.user,path))
                                 item['path']=path
+                                # self.insert_new(item)
                                 subfodler=mon_db.items.insert_one(item)
                                 if value.get('folder').get('childCount')==0:
                                     continue
@@ -496,7 +551,10 @@ class GetItemThread(Thread):
                                     parent_path=value.get('parentReference').get('path').replace('/drive/root:','')
                                     path=convert2unicode(parent_path+'/'+value['name'])
                                     # path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
-                                    url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
+                                    if od_type=='nocn' or od_type is None or od_type==False:
+                                        url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
+                                    else:
+                                        url=app_url+'_api/v2.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
                                     self.queue.put(dict(url=url,grandid=grandid+1,parent=item['id'],trytime=1))
                         else:
                             mon_db.items.delete_one({'id':value['id']})
@@ -521,6 +579,7 @@ class GetItemThread(Thread):
                                 path=convert2unicode(value['name'])
                             path=urllib.unquote('{}:/{}'.format(self.user,path))
                             item['path']=path
+                            # self.insert_new(item)
                             subfodler=mon_db.items.insert_one(item)
                             if value.get('folder').get('childCount')==0:
                                 continue
@@ -528,7 +587,10 @@ class GetItemThread(Thread):
                                 parent_path=value.get('parentReference').get('path').replace('/drive/root:','')
                                 path=convert2unicode(parent_path+'/'+value['name'])
                                 # path=urllib.quote(convert2unicode(parent_path+'/'+value['name']))
-                                url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
+                                if od_type=='nocn' or od_type is None or od_type==False:
+                                    url=app_url+'v1.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
+                                else:
+                                    url=app_url+'_api/v2.0/me/drive/root:{}:/children?expand=thumbnails'.format(path)
                                 self.queue.put(dict(url=url,grandid=grandid+1,parent=item['id'],trytime=1))
                     else:
                         if mon_db.items.find_one({'id':value['id']}) is not None: #文件存在
@@ -564,7 +626,8 @@ class GetItemThread(Thread):
                                 item['order']=1
                             else:
                                 item['order']=2
-                            mon_db.items.insert_one(item)
+                            # mon_db.items.insert_one(item)
+                            self.insert_new(item)
             else:
                 InfoLogger().print_r('{}\'s size is zero'.format(url))
             if data.get('@odata.nextLink'):
@@ -579,25 +642,32 @@ class GetItemThread(Thread):
 
 
     def GetItemByPath(self,path):
-        app_url=GetAppUrl()
+        app_url=GetAppUrl(self.user)
         token=GetToken(user=self.user)
         path=convert2unicode(path)
+        od_type=get_value('od_type',self.user)
         if path=='' or path=='/':
-            url=app_url+u'v1.0/me/drive/root/'
+            if od_type=='nocn' or od_type is None or od_type==False:
+                url=app_url+u'v1.0/me/drive/root/'
+            else:
+                url=app_url+u'_api/v2.0/me/drive/root/'
         else:
-            url=app_url+u'v1.0/me/drive/root:{}:/'.format(path)
+            if od_type=='nocn' or od_type is None or od_type==False:
+                url=app_url+u'v1.0/me/drive/root:{}:/'.format(path)
+            else:
+                url=app_url+u'_api/v2.0/me/drive/root:{}:/'.format(path)
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
-        r=browser.get(url,headers=headers)
+        r=browser.get(url,headers=headers,verify=False)
         data=json.loads(r.content)
         return data
 
     def GetItemByUrl(self,url):
-        app_url=GetAppUrl()
+        app_url=GetAppUrl(self.user)
         token=GetToken(user=self.user)
         headers={'Authorization': 'Bearer {}'.format(token)}
         headers.update(default_headers)
-        r=browser.get(url,headers=headers)
+        r=browser.get(url,headers=headers,verify=False)
         data=json.loads(r.content)
         return data
 
@@ -610,7 +680,7 @@ def clearRedis(user=None):
         try:
             redis_client.delete(*redis_client.keys(k))
         except:
-            ErrorLogger().print_r('empty keys {}'.format(k))
+            'NoKey'
 
 def CheckServer():
     mongo_cmd='lsof -i:27017 | grep LISTEN'

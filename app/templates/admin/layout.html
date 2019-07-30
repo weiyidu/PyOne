@@ -133,12 +133,21 @@
 
         </div>
     </header>
+    {%if session.get('login')%}
     <div class="mdui-drawer" id="main-drawer">
         <div class="mdui-list">
             <br><br>
             <a href="{{url_for('admin.setting')}}" class="mdui-list-item">
               <i class="mdui-list-item-icon mdui-icon material-icons">&#xe8b8;</i>
-              <div class="mdui-list-item-content">基本设置</div>
+              <div class="mdui-list-item-content">网站设置</div>
+            </a>
+            <a href="{{url_for('admin.sys_setting')}}" class="mdui-list-item">
+              <i class="mdui-list-item-icon mdui-icon material-icons">&#xe62a;</i>
+              <div class="mdui-list-item-content">系统设置</div>
+            </a>
+            <a href="{{url_for('admin.show_setting')}}" class="mdui-list-item">
+              <i class="mdui-list-item-icon mdui-icon material-icons">&#xe30a;</i>
+              <div class="mdui-list-item-content">文件展示</div>
             </a>
             <a href="{{url_for('admin.setCode')}}" class="mdui-list-item">
               <i class="mdui-list-item-icon mdui-icon material-icons">&#xe8b8;</i>
@@ -164,13 +173,13 @@
               <i class="mdui-list-item-icon mdui-icon material-icons">&#xe2be;</i>
               <div class="mdui-list-item-content">网盘管理</div>
             </a>
-            <a href="{{url_for('admin.manage')}}" class="mdui-list-item">
-              <i class="mdui-list-item-icon mdui-icon material-icons">&#xe2bf;</i>
-              <div class="mdui-list-item-content">文件管理</div>
-            </a>
             <a href="{{url_for('admin.off_download')}}" class="mdui-list-item">
               <i class="mdui-list-item-icon mdui-icon material-icons">&#xe2c0;</i>
               <div class="mdui-list-item-content">离线下载</div>
+            </a>
+            <a href="{{url_for('admin.manage')}}" class="mdui-list-item">
+              <i class="mdui-list-item-icon mdui-icon material-icons">&#xe2bf;</i>
+              <div class="mdui-list-item-content">文件管理</div>
             </a>
             <a href="https://wiki.pyone.me/" class="mdui-list-item" target="_blank">
               <i class="mdui-list-item-icon mdui-icon material-icons">&#xe887;</i>
@@ -178,6 +187,7 @@
             </a>
         </div>
     </div>
+    {%endif%}
 
     <div class="mdui-container">
         <div class="mdui-typo">

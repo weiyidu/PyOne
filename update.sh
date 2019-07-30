@@ -1,5 +1,61 @@
 #!/etc/bash
 
+
+#check system
+check_system(){
+        if [[ -f /etc/redhat-release ]]; then
+        release="centos"
+    elif cat /etc/issue | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    elif cat /proc/version | grep -Eqi "debian"; then
+        release="debian"
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
+        release="ubuntu"
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+        release="centos"
+    fi
+}
+
+#check version
+check_version(){
+    if [[ -s /etc/redhat-release ]]; then
+     version=`cat /etc/redhat-release|sed -r 's/.* ([0-9]+)\..*/\1/'`
+    else
+     version=`grep -oE  "[0-9.]+" /etc/issue | cut -d . -f 1`
+    fi
+    bit=`uname -m`
+    if [[ ${bit} = "x86_64" ]]; then
+        bit="64"
+    else
+        bit="32"
+    fi
+    if [[ "${release}" = "centos" && ${version} -ge 7 ]];then
+        echo -e "${Blue}当前系统为CentOS ${version}${Font} "
+    elif [[ "${release}" = "debian" && ${version} -ge 8 ]];then
+        echo -e "${Blue}当前系统为Debian ${version}${Font} "
+    elif [[ "${release}" = "ubuntu" && ${version} -ge 16 ]];then
+        echo -e "${Blue}当前系统为Ubuntu ${version}${Font} "
+    else
+        echo -e "${Red}脚本不支持当前系统，安装中断!${Font} "
+        exit 1
+    fi
+    for EXE in grep cut xargs systemctl ip awk
+    do
+        if ! type -p ${EXE}; then
+            echo -e "${Red}系统精简厉害，脚本自动退出${Font}"
+            exit 1
+        fi
+    done
+}
+
+check_system
+check_version
+
+
 #11.20
 del_rubbish(){
     python -c "from function import *;mon_db.down_db.delete_many({});"
@@ -15,71 +71,11 @@ update_sp(){
 
 #2019.01.18
 update_config(){
-    num=`cat self_config.py | grep "MONGO_HOST" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_HOST="localhost"' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_PORT" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_PORT="27017"' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_USER" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_USER=""' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_PASSWORD" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_PASSWORD=""' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "MONGO_DB" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'MONGO_DB="three"' >> self_config.py
-    fi
-    num=`cat self_config.py | grep "REDIS_HOST" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_HOST="localhost"' >> self_config.py
-    fi
 
-    num=`cat self_config.py | grep "REDIS_PORT" | wc -l`
+    num=`cat self_config.py | grep "balance" | wc -l`
     if [ $num == 0 ]; then
         echo '' >> self_config.py
-        echo 'REDIS_PORT="6379"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "REDIS_PASSWORD" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_PASSWORD=""' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "REDIS_DB" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'REDIS_DB="0"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "default_sort" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'default_sort="lastModtime"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "order_m" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'order_m="desc"' >> self_config.py
-    fi
-
-    num=`cat self_config.py | grep "default_pan" | wc -l`
-    if [ $num == 0 ]; then
-        echo '' >> self_config.py
-        echo 'default_pan="A"' >> self_config.py
+        echo 'balance="False"' >> self_config.py
     fi
 
     num=`cat self_config.py | grep "robots" | wc -l`
@@ -91,8 +87,83 @@ Disallow:  /
 """' >> self_config.py
     fi
 
-}
 
+    num=`cat self_config.py | grep "admin_prefix" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'admin_prefix="admin"' >> self_config.py
+    fi
+
+
+    num=`cat self_config.py | grep "thread_num" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'thread_num="5"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "verify_url" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'verify_url="False"' >> self_config.py
+    fi
+
+
+    num=`cat self_config.py | grep "show_redirect" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_redirect="exe"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_image" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_image="bmp,jpg,jpeg,png,gif"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_video" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_video="mp4,webm"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_dash" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_dash="avi,mpg,mpeg,rm,rmvb,mov,wmv,mkv,asf"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_audio" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_audio="ogg,mp3,wav,aac,flac,m4a"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_code" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_code="html,htm,php,py,css,go,java,js,json,txt,sh,md"' >> self_config.py
+    fi
+
+    num=`cat self_config.py | grep "show_doc" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'show_doc="csv,doc,docx,odp,ods,odt,pot,potm,potx,pps,ppsx,ppsxm,ppt,pptm,pptx,rtf,xls,xlsx"' >> self_config.py
+    fi
+
+    value=`cat /root/.aria2/aria2.conf | grep "rpc-secret=" | sed -e 's/\(.*\)=\(.*\)/\2/g'`
+    if [[ $value == "" ]]; then
+        secret=`cat self_config.py | grep "ARIA2_SECRET=" | sed -e 's/\(.*\)=\"\(.*\)\"/\2/g'`
+        sed -i "s/rpc-secret=/rpc-secret=${secret}/g" /root/.aria2/aria2.conf
+    fi
+
+    num=`cat self_config.py | grep "delete_after_upload" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'delete_after_upload="False"' >> self_config.py
+    fi
+
+
+}
 
 
 #2019.02.15
@@ -110,25 +181,33 @@ upgrade(){
         touch .install
     fi
     update_config
-    pip install -r requirements.txt
-    which lsof > /dev/null 2>&1
-    if [ $? == 0 ]; then
-        echo "lsof exist"
+    if [[ "${release}" = "centos" ]]; then
+        yum install gcc libffi-devel python-devel openssl-devel lsof -y
     else
-        echo "lsof dose not exist"
-        yum install lsof
+        apt update -y
+        apt install -y make git cron build-essential python-dev lsof unzip python-setuptools python-wheel libffi-devel libssl-dev
     fi
+    pip install -r requirements.txt -U
+}
+
+change_redirect(){
+    sed -i 's/auth.pyone.me/pyoneauth.github.io/' self_config.py
 }
 
 
 restart(){
-    supervisorctl -c supervisord.conf restart pyone
+    num=`ls /etc/systemd/system | grep pyone.service | wc -l`
+    if [ $num == 0 ]; then
+        supervisorctl -c supervisord.conf restart pyone
+    else
+        systemctl restart pyone
+    fi
 }
 
 #执行
 upgrade_to4
 upgrade
-del_rubbish
+change_redirect
 
 echo "2018.11.20更新版本，修复了磁力链接下载的bug&上传、展示有特殊字符的文件出问题的bug。"
 echo "2018.11.21更新版本，优化磁力下载功能-可选下载文件。"
@@ -167,6 +246,19 @@ echo "2019.05.07更新版本：1、修复若干bug，并带来若干bug；2、�
 echo "2019.05.09更新版本：1、修复【网盘搬家】部分bug；2、修复【更新列表】增量更新不起效的bug；3、【更新列表】可选网盘更新啦！"
 echo "2019.05.10更新版本：1、新增robots.txt自定义；2、离线下载功能独立出来"
 echo "2019.05.11更新版本：1、修复离线下载bug；2、优化离线下载界面体验"
+echo "2019.05.21更新版本：修复若干bug"
+echo "2019.05.22更新版本：支持自定义后台路径（更安全）"
+echo "2019.05.23更新版本：新增负载均衡功能！"
+echo "2019.05.24更新版本：支持世纪互联版本onedrive"
+echo "2019.05.25更新版本：参考olaindex，视频和音频出错自动加载&每25分钟重新加载一次"
+echo "2019.05.28更新版本：修复开启负债均衡之后，文件名有特殊符号播放不了的bug"
+echo "2019.05.29更新版本：支持自定义线程数"
+echo "2019.05.31更新版本：新增功能：1）下载链接验证开关；优化：1）aria2信息不对时，无法添加任务"
+echo "2019.06.13更新版本：新增功能：文件展示设置"
+echo "2019.06.14更新版本：稍微完善一下日志记录；分享页面取消token验证；修复开启下载验证之后，后台文件打开失败的bug；新增内嵌窗口"
+echo "2019.07.24更新版本：1. 优化安装脚本，适应Centos7、Debian9+、Ubuntu16+等系统；2、优化安装流程"
+echo "2019.07.26更新版本：修复若干bug"
+echo "2019.07.29更新版本：1. 修复上传文件bug；2. 添加自定义选项"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"

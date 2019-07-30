@@ -6,15 +6,20 @@
         <h1> 上传管理 <small>文件上传添加和管理</small></h1>
     </div>
     <div class="mdui-toolbar mdui-color-theme">
-        <button class="mdui-btn mdui-btn-icon" onclick="Restart()" mdui-tooltip="{{'{'}}content: '重启任务（因重启网站之后上传中断）'{{'}'}}"><i class="mdui-icon material-icons">&#xe863;</i></button>
-        <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
+        <button class="mdui-btn mdui-btn-icon" onclick="Restart()" mdui-tooltip="{content: '重启任务（因重启网站之后上传中断）'}"><i class="mdui-icon material-icons">&#xe863;</i></button>
+        <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{content: '清空任务'}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
+        <label class="mdui-switch" id="delete_mode_parent" mdui-tooltip="{content: '文件上传完成之后是否保留本地文件'}">
+            保留本地文件
+            <input type="checkbox" id="delete_mode" {%if GetConfig("delete_after_upload")=="False"%}checked{%endif%}/>
+            <i class="mdui-switch-icon"></i>
+        </label>
     </div>
     <div class="mdui-row">
         <form action="" method="post">
             <div class="mdui-col-xs-3">
                 <label class="mdui-textfield-label">选择网盘</label>
                 <select class="mdui-select" name="user" mdui-select>
-                    {%for user in get_od_user()%}
+                    {%for user in get_od_user(True)%}
                     {%if user[1]!='添加网盘'%}
                     <option value="{{user[0]}}">{{user[1]}}</option>
                     {%endif%}
@@ -56,34 +61,65 @@
     </div>
 </div>
 <script>
+
+
 function ShowNotice(msg){
     mdui.snackbar({
           message: msg,
           position: 'top'
         });
 }
+
+$('#delete_mode').change(function(){
+   if($("#delete_mode").prop('checked')){
+        var index2 = layer.load(2, {
+                shade: [0.1, '#fff'] //0.1透明度的白色背景
+            });
+        $.ajax({
+            type: "POST",
+            url: "{{url_for('admin.UploadRPCserver')}}",
+            data:{action:'delete_mode',isdelete:'False'},
+            dataType: "json",
+            success: function(data) {
+                ShowNotice(data.msg);
+                layer.close(index2);
+            }
+        });
+   }else{
+        var index2 = layer.load(2, {
+                shade: [0.1, '#fff'] //0.1透明度的白色背景
+            });
+        $.ajax({
+            type: "POST",
+            url: "{{url_for('admin.UploadRPCserver')}}",
+            data:{action:'delete_mode',isdelete:'True'},
+            dataType: "json",
+            success: function(data) {
+                ShowNotice(data.msg);
+                layer.close(index2);
+            }
+        });
+   }
+});
+
+
 function ClearHist(){
     layer.confirm('确定清除任务？', {
         btn: ['确定','取消'] //按钮
     },
     function(index){
         layer.close(index);
+        var index2 = layer.load(2, {
+                shade: [0.1, '#fff'] //0.1透明度的白色背景
+            });
         $.ajax({
             type: "POST",
-            url: "/admin/upload/jsonrpc",
+            url: "{{url_for('admin.UploadRPCserver')}}",
             data:{action:'ClearHist'},
             dataType: "json",
-            beforeSend: function(xhr) {
-                var index2 = layer.load(2, {
-                    shade: [0.1, '#fff'] //0.1透明度的白色背景
-                });
-            },
             success: function(data) {
                 ShowNotice(data.msg);
-            },
-            complete: function(xhr) {
-                $('#layui-layer-shade1').remove();
-                setTimeout("window.location.reload();",2000);
+                layer.close(index2);
             }
         });
         }
@@ -96,22 +132,17 @@ function Restart(){
     },
     function(index){
         layer.close(index);
+        var index2 = layer.load(2, {
+                shade: [0.1, '#fff'] //0.1透明度的白色背景
+            });
         $.ajax({
             type: "POST",
-            url: "/admin/upload/jsonrpc",
+            url: "{{url_for('admin.UploadRPCserver')}}",
             data:{action:'Restart'},
             dataType: "json",
-            beforeSend: function(xhr) {
-                var index2 = layer.load(2, {
-                    shade: [0.1, '#fff'] //0.1透明度的白色背景
-                });
-            },
             success: function(data) {
                 ShowNotice(data.msg);
-            },
-            complete: function(xhr) {
-                $('#layui-layer-shade1').remove();
-                setTimeout("window.location.reload();",2000);
+                layer.close(index2);
             }
         });
         }
@@ -123,7 +154,7 @@ function GetPagination() {
     var getTimestamp = new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/upload/jsonrpc?t=" + getTimestamp,
+        url: "{{url_for('admin.UploadRPCserver')}}?t=" + getTimestamp,
         data: { page: '{{page}}', action: 'pagination' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式
@@ -171,7 +202,7 @@ function GetTasks() {
     var getTimestamp = new Date().getTime();
     $.ajax({
         type: "POST",
-        url: "/admin/upload/jsonrpc?t=" + getTimestamp,
+        url: "{{url_for('admin.UploadRPCserver')}}?t=" + getTimestamp,
         data: { page: '{{page}}' },
         cache: false, //使用同步的方式,true为异步方式
         // async: false, //使用同步的方式,true为异步方式

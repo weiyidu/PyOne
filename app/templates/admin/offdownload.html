@@ -7,13 +7,13 @@
     <div class="mdui-toolbar mdui-color-theme">
       <button class="mdui-btn mdui-btn-icon" onclick="AddLink()" mdui-tooltip="{{'{'}}content: '添加任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe250;</i></button>
       <button class="mdui-btn mdui-btn-icon" onclick="window.open('http://www.torrent.org.cn/');" mdui-tooltip="{{'{'}}content: '种子转磁力'{{'}'}}"><i class="mdui-icon material-icons">&#xe428;</i></button>
-      <button class="mdui-btn mdui-btn-icon" onclick="ClearHist()" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
+      <button class="mdui-btn mdui-btn-icon" onclick="ClearHist('{{GetConfig("admin_prefix")}}')" mdui-tooltip="{{'{'}}content: '清空任务'{{'}'}}"><i class="mdui-icon material-icons">&#xe0b8;</i></button>
     </div>
     <div class="mdui-row">
         <div class="mdui-col-xs-3">
             <label class="mdui-textfield-label">先选择网盘</label>
             <select class="mdui-select" id="user" mdui-select onchange="UserChange()">
-                {%for user in get_od_user()%}
+                {%for user in get_od_user(True)%}
                 {%if user[1]!='添加网盘'%}
                 <!-- <option value="{{user[0]}}">{{user[1]}}</option> -->
                 <option value="{{user[0]}}" id="user_{{user[0]}}">{{user[1]}}</option>
@@ -55,7 +55,7 @@
     </div>
 
 </div>
-<script type="text/javascript" src="/static/js/offdownload.js?t=201902264"></script>
+<script type="text/javascript" src="/static/js/offdownload.js?t=20190525v2"></script>
 <script>
 {%if msg!=None%}
 ShowNotice("{{msg}}");
@@ -63,7 +63,7 @@ ShowNotice("{{msg}}");
 function GetTreelist(user){
     $.ajax({
         type: "GET",
-        url: "/admin/treelists/"+user,
+        url: "/{{GetConfig('admin_prefix')}}/treelists/"+user,
         async: false, //使用同步的方式,true为异步方式
         dataType: "json",
         success: function(data) {
@@ -104,17 +104,15 @@ function AddLink() {
     function(value, index, elem) {
         layer.close(index);
         var defer = $.Deferred();
+        var index2 = layer.load(2, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
         $.ajax({
             type: "POST",
-            url: "/admin/off_download",
+            url: "/{{GetConfig('admin_prefix')}}/off_download",
             data: { grand_path: $("#path").val(), urls: value, user: $("#user").val() },
             // async: false, //使用同步的方式,true为异步方式
             dataType: "json",
-            beforeSend: function(xhr) {
-                var index2 = layer.load(2, {
-                    shade: [0.1, '#fff'] //0.1透明度的白色背景
-                });
-            },
             success: function(data) {
                 defer.resolve(data);
                 if (data.status) {
@@ -122,24 +120,12 @@ function AddLink() {
                 } else {
                     ShowNotice(data.msg);
                 }
-            },
-            complete: function(xhr) {
-                defer.promise();
-                $('#layui-layer-shade1').remove();
-                setTimeout("window.location.reload();",2000);
+                layer.close(index2);
             }
         });
     });
 }
-function unescapeHtml(safe) {
-    return safe
-         .replace(/&amp;/g, "&")
-         .replace(/&lt;/g, "<")
-         .replace(/&gt;/g, ">")
-         .replace(/&quot;/g, "\"")
-         .replace(/%20;/g, " ")
-         .replace(/&#039;/g, "'");
- }
+
 $( document ).ready(function() {
     var path = $(location).attr('hash').replace('#', '');
     if (path){
@@ -158,5 +144,22 @@ $( document ).ready(function() {
         GetTreelist("{{cur_user}}");
     }
 });
+
+function Refresh(){
+    tellActive("{{GetConfig('admin_prefix')}}");
+}
+var interval_id=null;
+function AutoRefresh(){
+    if (interval_id){
+        window.clearInterval(interval_id);
+    }
+    interval_id = window.setInterval(function(){
+        if(need_refresh){
+            Refresh();
+        }
+    },2000);
+}
+AutoRefresh();
+
 </script>
 {%endblock content%}

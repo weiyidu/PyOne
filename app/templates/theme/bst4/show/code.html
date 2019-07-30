@@ -15,8 +15,15 @@
             <span class="input-group-addon" id="basic-addon1">
                     <i class="fa fa-share-alt" aria-hidden="true"></i>分享地址
                 </span>
-            <input id="share" class="form-control" type="text" value="{{url}}?action=share" />
+            <input id="share" class="form-control" type="text" value="{{url.split('?')[0]}}?action=share" />
             <a class="input-group-addon" onclick="copyUrl('share')">点击复制</a>
+        </div>
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">
+                    <i class="fa fa-share-alt" aria-hidden="true"></i>内嵌窗口
+                </span>
+            <input id="iframe" class="form-control" type="text" value="{{url.split('?')[0]}}?action=iframe" />
+            <a class="input-group-addon" onclick="copyUrl('iframe')">点击复制</a>
         </div>
         <div class="input-group">
             <span class="input-group-addon" id="basic-addon1">
@@ -26,7 +33,7 @@
             <a class="input-group-addon" onclick="copyUrl('use_outer')">点击复制</a>
         </div>
     </div>
-    <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+    <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 </div>
 <script src="https://cdn.staticfile.org/ace/1.4.2/ace.js"></script>
 <script src="https://cdn.staticfile.org/ace/1.4.2/ext-language_tools.js"></script>

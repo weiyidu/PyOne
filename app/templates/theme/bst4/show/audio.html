@@ -1,13 +1,13 @@
 {%extends 'theme/'+GetConfig('theme')+'/layout.html'%}
 
 {%block content%}
-<script src="https://cdn.staticfile.org/audiojs/1.0.1/audio.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.css">
+<script src="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
 
 <div class="container">
   <br>
   <center>
-  <audio src="{{inner_url}}" autoplay style="width: 100%;" preload="auto">
-  </audio>
+  <div style="width: 100%;" id="audio-player"></div>
   </center>
   <br>
     <!-- 固定标签 -->
@@ -16,8 +16,15 @@
             <span class="input-group-addon" id="basic-addon1">
                     <i class="fa fa-share-alt" aria-hidden="true"></i>分享地址
                 </span>
-            <input id="share" class="form-control" type="text" value="{{url}}?action=share" />
+            <input id="share" class="form-control" type="text" value="{{url.split('?')[0]}}?action=share" />
             <a class="input-group-addon" onclick="copyUrl('share')">点击复制</a>
+        </div>
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">
+                    <i class="fa fa-share-alt" aria-hidden="true"></i>内嵌窗口
+                </span>
+            <input id="iframe" class="form-control" type="text" value="{{url.split('?')[0]}}?action=iframe" />
+            <a class="input-group-addon" onclick="copyUrl('iframe')">点击复制</a>
         </div>
         <div class="input-group">
             <span class="input-group-addon" id="basic-addon1">
@@ -29,9 +36,42 @@
     </div>
 </div>
 <script>
-  audiojs.events.ready(function() {
-    var as = audiojs.createAll();
-  });
+      //参考了olaindex
+      $(function () {
+          var cnt=1;
+          const ap = new APlayer({
+              container: document.getElementById('audio-player'),
+              audio: [{
+                  name: '{{ name }}',
+                  url: "{{url}}",
+                  cover: 'cover.jpg'
+              }]
+          });
+          // 防止出现401 token过期
+
+              ap.on('error', function () {
+                  if(cnt<=3){
+                      console.log('播放出错，尝试第'+cnt+'次')
+                      let last = ap.audio.currentTime;
+                      ap.audio.src = "{{url}}";
+                      ap.audio.load();
+                      ap.audio.currentTime = last;
+                      ap.play();
+                      cnt=cnt+1;
+                      }
+              });
+
+          // 如果是播放状态 & 没有播放完 每25分钟重载视频防止卡死
+          setInterval(function () {
+              if (!ap.audio.paused && !ap.audio.ended) {
+                  let last = ap.audio.currentTime;
+                  ap.audio.src = "{{url}}";
+                  ap.audio.load();
+                  ap.audio.currentTime = last;
+                  ap.play();
+              }
+          }, 1000 * 60 * 25)
+      });
 </script>
-    <a href="{{inner_url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
+    <a href="{{url}}" class="fab-fixed"><i class="fa fa-download fa-3x" aria-hidden="true"></i></a>
 {%endblock content%}

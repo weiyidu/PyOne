@@ -18,31 +18,14 @@ import urllib
 import signal
 import time
 from shelljob import proc
+import urllib3
+
+urllib3.disable_warnings()
 
 
 ##全局_pid
 global _pid
 _pid=None
-############功能函数
-def set(key,value,user=GetConfig('default_pan')):
-    InfoLogger().print_r('set {}:{}'.format(key,value))
-    config_path=os.path.join(config_dir,'self_config.py')
-    with open(config_path,'r') as f:
-        old_text=f.read()
-    with open(config_path,'w') as f:
-        if key in ['client_secret','client_id','share_path','other_name']:
-            old_kv=re.findall('"{}":.*{{[\w\W]*}}'.format(user),old_text)[0]
-            new_kv=re.sub('"{}":.*.*?,'.format(key),'"{}":"{}",'.format(key,value),old_kv,1)
-            new_text=old_text.replace(old_kv,new_kv,1)
-        elif key=='allow_site':
-            value=value.split(',')
-            new_text=re.sub('{}=.*'.format(key),'{}={}'.format(key,value),old_text)
-        elif key in ['tj_code','cssCode','headCode','footCode','robots']:
-            new_text=re.sub('{}="""[\w\W]*?"""'.format(key),'{}="""{}"""'.format(key,value),old_text)
-        else:
-            new_text=re.sub('{}=.*'.format(key),'{}="{}"'.format(key,value),old_text)
-        f.write(new_text)
-
 
 ############视图函数
 @admin.before_request
@@ -83,7 +66,7 @@ def web_console():
 @admin.route('/stream',methods=["POST","GET"])
 def stream():
     cmd_dict={
-        'upgrade':"cd {} && git pull origin master && sh update.sh".format(config_dir),
+        'upgrade':"cd {} && git pull origin master && bash update.sh".format(config_dir),
         'running_log':'tail -30f {}/logs/PyOne.{}.log'.format(config_dir,'running'),
         'error_log':'tail -30f {}/logs/PyOne.{}.log'.format(config_dir,'error')
     }
