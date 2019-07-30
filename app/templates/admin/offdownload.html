@@ -104,17 +104,15 @@ function AddLink() {
     function(value, index, elem) {
         layer.close(index);
         var defer = $.Deferred();
+        var index2 = layer.load(2, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
         $.ajax({
             type: "POST",
             url: "/{{GetConfig('admin_prefix')}}/off_download",
             data: { grand_path: $("#path").val(), urls: value, user: $("#user").val() },
             // async: false, //使用同步的方式,true为异步方式
             dataType: "json",
-            beforeSend: function(xhr) {
-                var index2 = layer.load(2, {
-                    shade: [0.1, '#fff'] //0.1透明度的白色背景
-                });
-            },
             success: function(data) {
                 defer.resolve(data);
                 if (data.status) {
@@ -122,11 +120,7 @@ function AddLink() {
                 } else {
                     ShowNotice(data.msg);
                 }
-            },
-            complete: function(xhr) {
-                defer.promise();
-                $('#layui-layer-shade1').remove();
-                setTimeout("window.location.reload();",2000);
+                layer.close(index2);
             }
         });
     });

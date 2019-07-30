@@ -62,9 +62,9 @@
                                     <tr>
                                         <td>
                                             {%if GetConfig("verify_url")=="True"%}
-                                            <a href="{{url_for('front.index',path=data['path'],action='share',token=GenerateToken(data['path']))}}" target="_blank">
+                                            <a href="{{url_for('front.index',path=data['path'],action='iframe',token=GenerateToken(data['path']))}}" target="_blank">
                                             {%else%}
-                                            <a href="{{url_for('front.index',path=data['path'],action='share')}}" target="_blank">
+                                            <a href="{{url_for('front.index',path=data['path'],action='iframe')}}" target="_blank">
                                             {%endif%}
                                                 {{ macros.get_ico(file_ico(data)) }} {{CutText(data['name'])}}
                                             </a>
@@ -78,9 +78,9 @@
                                 <tr>
                                     <td>
                                         {%if GetConfig("verify_url")=="True"%}
-                                        <a href="{{url_for('front.index',path=data['path'],action='share',token=GenerateToken(data['path']))}}" target="_blank">
+                                        <a href="{{url_for('front.index',path=data['path'],action='iframe',token=GenerateToken(data['path']))}}" target="_blank">
                                         {%else%}
-                                        <a href="{{url_for('front.index',path=data['path'],action='share')}}" target="_blank">
+                                        <a href="{{url_for('front.index',path=data['path'],action='iframe')}}" target="_blank">
                                         {%endif%}
                                             {{ macros.get_ico(file_ico(data)) }} {{CutText(data['name'])}}
                                         </a>
@@ -103,9 +103,9 @@
         {%for data in items%}
             {%if file_ico(data)=='image'%}
                 {%if GetConfig("verify_url")=="True"%}
-                <a href="{{url_for('front.index',path=data['path'],action='share',token=GenerateToken(data['path']))}}" target="_blank">
+                <a href="{{url_for('front.index',path=data['path'],action='iframe',token=GenerateToken(data['path']))}}" target="_blank">
                 {%else%}
-                <a href="{{url_for('front.index',path=data['path'],action='share')}}" target="_blank">
+                <a href="{{url_for('front.index',path=data['path'],action='iframe')}}" target="_blank">
                 {%endif%}
                     <img class="img-responsive" src="{{url_for('front.show',fileid=data['id'],user=cur_user,action='download',token=GenerateToken(data['path']))}}"/>
                 </a>

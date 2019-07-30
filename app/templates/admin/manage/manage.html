@@ -46,15 +46,15 @@ a:hover {
                 </a>
          </div>
          <div class="mdui-toolbar mdui-color-theme">
-           <button class="mdui-btn mdui-btn-icon" onclick="delAllProduct()" mdui-tooltip="{{'{'}}content: '删除'{{'}'}}"><i class="mdui-icon material-icons">&#xe872;</i></button>
-           <button class="mdui-btn mdui-btn-icon" onclick="setPasswd('{{path}}')" mdui-tooltip="{{'{'}}content: '设置密码'{{'}'}}"><i class="mdui-icon material-icons">&#xe32a;</i> </button>
-           <button class="mdui-btn mdui-btn-icon" onclick="setReadMe('{{path}}')" mdui-tooltip="{{'{'}}content: '设置README'{{'}'}}"><i class="mdui-icon material-icons">&#xe0d8;</i> </button>
-           <button class="mdui-btn mdui-btn-icon" onclick="setHead('{{path}}')" mdui-tooltip="{{'{'}}content: '设置HEAD'{{'}'}}"><i class="mdui-icon material-icons">&#xe89c;</i> </button>
+           <button class="mdui-btn mdui-btn-icon" onclick="delAllProduct()" mdui-tooltip="{content: '删除'}"><i class="mdui-icon material-icons">&#xe872;</i></button>
+           <button class="mdui-btn mdui-btn-icon" onclick="setPasswd('{{path}}')" mdui-tooltip="{content: '设置密码'}"><i class="mdui-icon material-icons">&#xe32a;</i> </button>
+           <button class="mdui-btn mdui-btn-icon" onclick="setReadMe('{{path}}')" mdui-tooltip="{content: '设置README'}"><i class="mdui-icon material-icons">&#xe0d8;</i> </button>
+           <button class="mdui-btn mdui-btn-icon" onclick="setHead('{{path}}')" mdui-tooltip="{content: '设置HEAD'}"><i class="mdui-icon material-icons">&#xe89c;</i> </button>
          </div>
          <div class="mdui-toolbar mdui-color-theme">
-           <button class="mdui-btn mdui-btn-icon" onclick="uploadLocalFile('{{path}}')" mdui-tooltip="{{'{'}}content: '本地上传文件至onedrive'{{'}'}}"><i class="mdui-icon material-icons">&#xe2c3;</i> </button>
-           <button class="mdui-btn mdui-btn-icon" onclick="AddFolder('{{path}}')" mdui-tooltip="{{'{'}}content: '创建文件夹'{{'}'}}"><i class="mdui-icon material-icons">&#xe2cc;</i> </button>
-           <button class="mdui-btn mdui-btn-icon" onclick="OffDownload('{{path}}')" mdui-tooltip="{{'{'}}content: '离线下载'{{'}'}}"><i class="mdui-icon material-icons">&#xe2c4;</i> </button>
+           <button class="mdui-btn mdui-btn-icon" onclick="uploadLocalFile('{{path}}')" mdui-tooltip="{content: '本地上传文件至onedrive'}"><i class="mdui-icon material-icons">&#xe2c3;</i> </button>
+           <button class="mdui-btn mdui-btn-icon" onclick="AddFolder('{{path}}')" mdui-tooltip="{content: '创建文件夹'}"><i class="mdui-icon material-icons">&#xe2cc;</i> </button>
+           <button class="mdui-btn mdui-btn-icon" onclick="OffDownload('{{path}}')" mdui-tooltip="{content: '离线下载'}"><i class="mdui-icon material-icons">&#xe2c4;</i> </button>
          </div>
     </div>
 
@@ -116,7 +116,7 @@ a:hover {
                     <button class="mdui-btn mdui-btn-icon" onclick="delProduct('{{data['id']}}')">
                         <i class="mdui-icon material-icons">&#xe872;</i>
                     </button>
-                    <button class="mdui-btn mdui-btn-icon" onclick="Rename('{{data['id']}}')" mdui-tooltip="{{'{'}}content: '重命名'{{'}'}}">
+                    <button class="mdui-btn mdui-btn-icon" onclick="Rename('{{data['id']}}','{{data['name']}}')" mdui-tooltip="{content: '重命名'}">
                         <i class="mdui-icon material-icons">&#xe8e1;</i>
                     </button>
                 </td>
@@ -139,17 +139,17 @@ a:hover {
                 </td>
                 <td>{{data['lastModtime']}}</td>
                 <td>
-                    <button class="mdui-btn mdui-btn-icon" onclick="delProduct('{{data['id']}}')" mdui-tooltip="{{'{'}}content: '删除文件'{{'}'}}">
+                    <button class="mdui-btn mdui-btn-icon" onclick="delProduct('{{data['id']}}')" mdui-tooltip="{content: '删除文件'}">
                         <i class="mdui-icon material-icons">&#xe872;</i>
                     </button>
-                    <button class="mdui-btn mdui-btn-icon" onclick="moveProduct('{{data['id']}}')" mdui-tooltip="{{'{'}}content: '移动文件'{{'}'}}">
+                    <button class="mdui-btn mdui-btn-icon" onclick="moveProduct('{{data['id']}}')" mdui-tooltip="{content: '移动文件'}">
                         <i class="mdui-icon material-icons">&#xe14e;</i>
                     </button>
-                    <button class="mdui-btn mdui-btn-icon" onclick="Rename('{{data['id']}}')" mdui-tooltip="{{'{'}}content: '重命名'{{'}'}}">
+                    <button class="mdui-btn mdui-btn-icon" onclick="Rename('{{data['id']}}','{{data['name']}}')" mdui-tooltip="{content: '重命名'}">
                         <i class="mdui-icon material-icons">&#xe8e1;</i>
                     </button>
                     {%if CanEdit(data['name'])%}
-                    <button class="mdui-btn mdui-btn-icon" onclick="editFile('{{data['id']}}')" mdui-tooltip="{{'{'}}content: '编辑文件'{{'}'}}">
+                    <button class="mdui-btn mdui-btn-icon" onclick="editFile('{{data['id']}}')" mdui-tooltip="{content: '编辑文件'}">
                         <i class="mdui-icon material-icons">&#xe3c9;</i>
                     </button>
                     {%endif%}
@@ -209,16 +209,14 @@ function delAllProduct() {
 
     //去掉字符串末尾的‘&’
     str = str.substring(0, str.length - 2);
+    var index2 = layer.load(2, {
+        shade: [0.1, '#fff'] //0.1透明度的白色背景
+    });
     $.ajax({
         type: "POST",
         url: "{{url_for('admin.delete')}}",
         dataType: 'json',
         data: { id: str,user:"{{cur_user}}" },
-        beforeSend: function(xhr) {
-            var index = layer.load(2, {
-                shade: [0.1, '#fff'] //0.1透明度的白色背景
-            });
-        },
         success: function(result) {
             if (result.status == 0) {
                 alert(result.msg);
@@ -227,9 +225,7 @@ function delAllProduct() {
                 alert('删除成功' + result.delete + '个,失败' + result.fail + '个');
                 window.location.reload();
             }
-        },
-        complete: function(xhr) {
-            $('#layui-layer-shade1').remove();
+            layer.close(index2);
         }
     });
 
@@ -239,16 +235,14 @@ function delProduct(id) {
     if (!confirm("将直接从onedrive删除文件！！！确定删除？")) {
         return;
     }
+    var index2 = layer.load(2, {
+        shade: [0.1, '#fff'] //0.1透明度的白色背景
+    });
     $.ajax({
         type: "POST",
         url: "{{url_for('admin.delete')}}",
         dataType: 'json',
         data: { id: id ,user:"{{cur_user}}"},
-        beforeSend: function(xhr) {
-            var index = layer.load(2, {
-                shade: [0.1, '#fff'] //0.1透明度的白色背景
-            });
-        },
         success: function(result) {
             if (result.status == 0) {
                 alert(result.msg);
@@ -257,11 +251,8 @@ function delProduct(id) {
                 alert('删除成功');
                 window.location.reload();
             }
-        },
-        complete: function(xhr) {
-            $('#layui-layer-shade1').remove();
+            layer.close(index2);
         }
-
     });
 }
 
@@ -296,17 +287,15 @@ function moveProduct(fileid){
     },
     function(value, index, elem) {
         layer.close(index);
+        var index2 = layer.load(2, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
         $.ajax({
                 type: "POST",
                 url: "{{url_for('admin.MoveFileToNewFolder')}}",
                 data: { fileid: fileid,new_folder_path:value,user:"{{cur_user}}" },
                 async: false,//使用同步的方式,true为异步方式
                 dataType: "json",
-                beforeSend: function(xhr) {
-                    var index2 = layer.load(2, {
-                        shade: [0.1, '#fff'] //0.1透明度的白色背景
-                    });
-                },
                 success: function(data) {
                     if(data.result){
                         alert('移动成功');
@@ -314,33 +303,30 @@ function moveProduct(fileid){
                     else{
                         alert('移动失败');
                     }
+                    layer.close(index2);
                     window.location.reload();
-                },
-                complete: function(xhr) {
-                    $('#layui-layer-shade1').remove();
                 }
             });
     });
 }
 
-function Rename(fileid){
+function Rename(fileid,cur_name){
     layer.prompt({
-        formType: 0,
+        formType: 2,
+        value: cur_name,
         title: '请输入新文件名（记得带后缀）',
     },
     function(value, index, elem) {
         layer.close(index);
+        var index2 = layer.load(2, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
         $.ajax({
                 type: "POST",
                 url: "{{url_for('admin.Rename')}}",
                 data: { fileid: fileid,new_name:value,user:"{{cur_user}}" },
                 async: false,//使用同步的方式,true为异步方式
                 dataType: "json",
-                beforeSend: function(xhr) {
-                    var index2 = layer.load(2, {
-                        shade: [0.1, '#fff'] //0.1透明度的白色背景
-                    });
-                },
                 success: function(data) {
                     if(data.result){
                         alert('重命名成功');
@@ -348,10 +334,8 @@ function Rename(fileid){
                     else{
                         alert('重命名失败');
                     }
+                    layer.close(index2);
                     window.location.reload();
-                },
-                complete: function(xhr) {
-                    $('#layui-layer-shade1').remove();
                 }
             });
     });
@@ -364,17 +348,15 @@ function AddFolder() {
     },
     function(value, index, elem) {
         layer.close(index);
+        var index2 = layer.load(2, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
         $.ajax({
                 type: "POST",
                 url: "{{url_for('admin.AddFolder',path=path)}}",
                 data: { folder_name: value },
                 async: false,//使用同步的方式,true为异步方式
                 dataType: "json",
-                beforeSend: function(xhr) {
-                    var index2 = layer.load(2, {
-                        shade: [0.1, '#fff'] //0.1透明度的白色背景
-                    });
-                },
                 success: function(data) {
                     if(data.result){
                         alert('创建成功');
@@ -382,10 +364,8 @@ function AddFolder() {
                     else{
                         alert('创建失败');
                     }
+                    layer.close(index2);
                     window.location.reload();
-                },
-                complete: function(xhr) {
-                    $('#layui-layer-shade1').remove();
                 }
             });
     });
