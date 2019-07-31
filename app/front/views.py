@@ -216,15 +216,8 @@ def show(fileid,user,action='download',token=None):
 # @front.route('/py_redirect/<user>/<fileid>')
 def redirect_file(user,fileid):
     filename=GetName(fileid)
-    ext=filename.split('.')[-1].lower()
-    _headers={}
-    _headers['User-Agent']=request.headers['User-Agent']
-    _range=request.headers.get('Range')
-    if _range is not None:
-        _headers['Range']=_range
-        min_,max_=_range.split('=')[-1].split('-')
     downloadUrl,play_url=GetDownloadUrl(fileid,user)
-    req = browser.get(play_url, stream = True ,headers=_headers)
+    req = browser.get(play_url, stream = True)
     headers = dict([(name, value) for (name, value) in req.raw.headers.items()])
     cache_root=os.path.join(GetConfig('config_dir'),'cache')
     if not os.path.exists(cache_root):
