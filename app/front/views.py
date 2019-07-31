@@ -236,7 +236,8 @@ def redirect_file(user,fileid):
                 if chunk:
                     f.write(chunk)
                     f.flush()
-    return send_file(filepath,conditional=True)
+    resp=send_file(filepath,conditional=True)
+    return resp
 
 
 @front.route('/py_find/<key_word>')
