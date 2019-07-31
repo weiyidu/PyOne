@@ -222,18 +222,21 @@ def redirect_file(user,fileid):
     _range=request.headers.get('Range')
     if _range is not None:
         _headers['Range']=_range
+        min_,max_=_range.split('=')[-1].split('-')
     downloadUrl,play_url=GetDownloadUrl(fileid,user)
     req = browser.get(play_url, stream = True ,headers=_headers)
     headers = dict([(name, value) for (name, value) in req.raw.headers.items()])
-    if ext=='pdf':
-        def generate():
-            for chunk in req.iter_content(1024*5):
+    cache_root=os.path.join(GetConfig('config_dir'),'cache')
+    if not os.path.exists(cache_root):
+        os.mkdir(cache_root)
+    filepath=os.path.join(cache_root,filename)
+    if not os.path.exists(filepath):
+        with open(filepath,'wb') as f:
+            for chunk in req.iter_content(1024):
                 if chunk:
-                    yield chunk
-        return Response(generate(),mimetype='application/pdf')
-    else:
-        return Response(stream_with_context(req.iter_content()),headers=headers)
-
+                    f.write(chunk)
+                    f.flush()
+    return send_file(filepath,conditional=True)
 
 
 @front.route('/py_find/<key_word>')

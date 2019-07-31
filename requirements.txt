@@ -2,10 +2,9 @@ flask
 flask_sqlalchemy
 redis
 pymongo
-gunicorn
+gunicorn==19.3.0
 humanize
 python_dateutil
-supervisor
 requests
 markdown
 shelljob
