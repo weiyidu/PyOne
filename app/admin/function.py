@@ -42,7 +42,7 @@ def setPass():
     new_password=request.form.get('new_password')
     old_password=request.form.get('old_password')
     if old_password==GetConfig('password'):
-        set('password',new_password)
+        set_config('password',new_password)
         redis_client.set('password',new_password)
         data={'msg':'修改成功！'}
     else:
