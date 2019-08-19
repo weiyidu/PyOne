@@ -113,29 +113,28 @@ def test_config():
     resp={}
     if soft=='mongo':
         if check_mongo(host,port,user,password,db):
-            resp['msg']='MongoDB信息检查正确！'
-            resp['code']=1
             set_config('MONGO_HOST',host)
             set_config('MONGO_PORT',port)
             set_config('MONGO_USER',user)
             set_config('MONGO_PASSWORD',password)
             set_config('MONGO_DB',db)
-
+            resp['msg']='MongoDB信息检查正确！'
+            resp['code']=1
         else:
             resp['msg']='MongoDB信息错误！'
             resp['code']=0
     else:
         if check_redis(host,port,password,db):
-            resp['msg']='Redis信息检查正确！'
-            resp['code']=1
             set_config('REDIS_HOST',host)
             set_config('REDIS_PORT',port)
             set_config('REDIS_PASSWORD',password)
             set_config('REDIS_DB',db)
+            resp['msg']='Redis信息检查正确！'
+            resp['code']=1
         else:
             resp['msg']='Redis信息错误！'
             resp['code']=0
-    return resp
+    return jsonify(resp)
 
 ###########################################卸载
 @admin.route('/uninstall',methods=['POST'])
