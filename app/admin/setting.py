@@ -156,6 +156,13 @@ def setCode():
 @admin.route('/show_setting',methods=['GET','POST'])
 def show_setting():
     if request.method=='POST':
+        action=request.form.get('action')
+        redirect_file=request.form.get('redirect')
+        if action is not None:
+            set_config('redirect_file',redirect_file)
+            redis_client.set('redirect_file',redirect_file)
+            resp={'msg':'设置成功'}
+            return jsonify(resp)
         show_redirect=request.form.get('show_redirect')
         set_config('show_redirect',show_redirect)
         redis_client.set('show_redirect',show_redirect)
@@ -183,7 +190,6 @@ def show_setting():
         show_code=request.form.get('show_code')
         set_config('show_code',show_code)
         redis_client.set('show_code',show_code)
-
 
         flash('更新成功')
         resp=MakeResponse(redirect(url_for('admin.show_setting')))

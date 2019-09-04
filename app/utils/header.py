@@ -720,7 +720,7 @@ def CalcSpeed(length,timecost):
 
 def MakeResponse(content):
     resp=make_response(content)
-    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    resp.headers['Cache-Control'] = 'no-cache,max-age=0'
     resp.headers['Pragma'] = 'no-cache'
     resp.headers['Expires'] = '0'
     return resp

@@ -1,0 +1,24 @@
+{%extends 'theme/'+GetConfig('theme')+'/layout.html'%}
+
+{%block content%}
+
+<div class="mdui-container-fluid">
+  <br>
+  <iframe src="{{url.split('?')[0]}}?action=iframe" width="100%" height="800px"></iframe>
+  <br>
+  <!-- 固定标签 -->
+  <div class="mdui-textfield">
+    <label class="mdui-textfield-label">分享地址</label>
+    <input class="mdui-textfield-input" type="text" id="share" value="{{url.split('?')[0]}}?action=share" onclick="copyUrl('share')"/>
+  </div>
+  <div class="mdui-textfield">
+    <label class="mdui-textfield-label">内嵌窗口</label>
+    <input class="mdui-textfield-input" type="text" id="iframe" value="{{url.split('?')[0]}}?action=iframe" onclick="copyUrl('iframe')"/>
+  </div>
+  <div class="mdui-textfield">
+    <label class="mdui-textfield-label">调用地址</label>
+    <input class="mdui-textfield-input" type="text" id="out_use" value="{{url}}" onclick="copyUrl('out_use')"/>
+  </div>
+</div>
+<a href="{{url}}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
+{%endblock content%}

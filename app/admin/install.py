@@ -69,7 +69,7 @@ def install():
             if od_type=='cn':
                 data+='&resource=00000003-0000-0ff1-ce00-000000000000'
             url=GetOAuthUrl(od_type)
-            r=requests.post(url,data=data,headers=headers,vefiry=False)
+            r=requests.post(url,data=data,headers=headers,verify=False)
             Atoken=json.loads(r.text)
             if Atoken.get('access_token'):
                 with open(os.path.join(config_dir,'data/{}_Atoken.json'.format(user)),'w') as f:
@@ -113,29 +113,28 @@ def test_config():
     resp={}
     if soft=='mongo':
         if check_mongo(host,port,user,password,db):
-            resp['msg']='MongoDB信息检查正确！'
-            resp['code']=1
             set_config('MONGO_HOST',host)
             set_config('MONGO_PORT',port)
             set_config('MONGO_USER',user)
             set_config('MONGO_PASSWORD',password)
             set_config('MONGO_DB',db)
-
+            resp['msg']='MongoDB信息检查正确！'
+            resp['code']=1
         else:
             resp['msg']='MongoDB信息错误！'
             resp['code']=0
     else:
         if check_redis(host,port,password,db):
-            resp['msg']='Redis信息检查正确！'
-            resp['code']=1
             set_config('REDIS_HOST',host)
             set_config('REDIS_PORT',port)
             set_config('REDIS_PASSWORD',password)
             set_config('REDIS_DB',db)
+            resp['msg']='Redis信息检查正确！'
+            resp['code']=1
         else:
             resp['msg']='Redis信息错误！'
             resp['code']=0
-    return resp
+    return jsonify(resp)
 
 ###########################################卸载
 @admin.route('/uninstall',methods=['POST'])

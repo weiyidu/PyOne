@@ -80,7 +80,7 @@ check_service(){
         redis_port=6379
     fi
 
-    read -p "请输入redis端口号[27017]:" mongo_port
+    read -p "请输入MongoDB端口号[27017]:" mongo_port
 
     if [ -z "${mongo_port}" ];then
         mongo_port=27017

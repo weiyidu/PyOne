@@ -163,6 +163,13 @@ Disallow:  /
     fi
 
 
+    num=`cat self_config.py | grep "redirect_file" | wc -l`
+    if [ $num == 0 ]; then
+        echo '' >> self_config.py
+        echo 'redirect_file="False"' >> self_config.py
+    fi
+
+
 }
 
 
@@ -259,6 +266,8 @@ echo "2019.06.14更新版本：稍微完善一下日志记录；分享页面取�
 echo "2019.07.24更新版本：1. 优化安装脚本，适应Centos7、Debian9+、Ubuntu16+等系统；2、优化安装流程"
 echo "2019.07.26更新版本：修复若干bug"
 echo "2019.07.29更新版本：1. 修复上传文件bug；2. 添加自定义选项"
+echo "2019.07.30更新版本：1. 支持pdf预览;2. 支持流量转发"
+echo "2019.07.31更新版本：1. 优化流量转发； 2. PDF预览更换为pdf.js"
 echo "---------------------------------------------------------------"
 echo "更新完成！"
 echo "如果网站无法访问，请检查config.py!"

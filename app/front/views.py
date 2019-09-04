@@ -1,5 +1,5 @@
 #-*- coding=utf-8 -*-
-from flask import render_template,redirect,abort,make_response,jsonify,request,url_for,Response,send_from_directory
+from flask import render_template,redirect,abort,make_response,jsonify,request,url_for,Response,send_from_directory,stream_with_context,send_file
 from flask_sqlalchemy import Pagination
 from ..utils import *
 from ..extend import *
@@ -156,6 +156,11 @@ def show(fileid,user,action='download',token=None):
         if ext in GetConfig('show_redirect').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             resp=MakeResponse(redirect(downloadUrl))
+        elif ext=='pdf':
+            if action=='share':
+                resp=MakeResponse(render_template('theme/{}/show/pdf.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
+            else:
+                resp=MakeResponse(render_template('show/pdf.html'.format(GetConfig('theme')),url=url,path=path,cur_user=user,name=name))
         elif ext in GetConfig('show_doc').split(','):
             downloadUrl,play_url=GetDownloadUrl(fileid,user)
             url = 'https://view.officeapps.live.com/op/view.aspx?src='+urllib.quote(downloadUrl)
@@ -200,11 +205,32 @@ def show(fileid,user,action='download',token=None):
         if not downloadUrl.startswith('http'):
             return MakeResponse(downloadUrl)
         else:
-            resp=MakeResponse(redirect(play_url))
+            if GetConfig('redirect_file')=='True' or ext=='pdf':
+                resp=redirect_file(user,fileid)
+            else:
+                resp=MakeResponse(redirect(play_url))
     else:
         resp=MakeResponse(abort(404))
     return resp
 
+# @front.route('/py_redirect/<user>/<fileid>')
+def redirect_file(user,fileid):
+    filename=GetName(fileid)
+    downloadUrl,play_url=GetDownloadUrl(fileid,user)
+    req = browser.get(play_url, stream = True)
+    headers = dict([(name, value) for (name, value) in req.raw.headers.items()])
+    cache_root=os.path.join(GetConfig('config_dir'),'cache')
+    if not os.path.exists(cache_root):
+        os.mkdir(cache_root)
+    filepath=os.path.join(cache_root,filename)
+    if not os.path.exists(filepath):
+        with open(filepath,'wb') as f:
+            for chunk in req.iter_content(1024):
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
+    resp=send_file(filepath,conditional=True)
+    return resp
 
 
 @front.route('/py_find/<key_word>')
